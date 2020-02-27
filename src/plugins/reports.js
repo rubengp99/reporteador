@@ -22,7 +22,7 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                                 showAlways: false,
                                 show: true,
                                 formatter: function (val) {
-                                    if(formatter === 'default'){
+                                    if(formatter === null || formatter === 'default'){
                                         return (
                                             Math.round(
                                                 (val.globals.series[0] / val.globals.series[1] +
@@ -65,10 +65,10 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
 };
 
 
-exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'], yAxis = true) => {
+exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'], yAxis = true, mode = null) => {
     return {
         series: [{
-            name: 'Unidades vendidas',
+            name: (mode === null)?'Unidades vendidas':'Unidades restantes',
             data: data,
         }],
         chartOptions: {
@@ -88,7 +88,7 @@ exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab',
                     enabled: true,
                     foreColor: '#fff',
                     borderRadius: 2,
-                    padding: 2,
+                    padding: 4,
                     opacity: 0.9,
                     borderWidth: 2,
                     borderColor: '#fff',

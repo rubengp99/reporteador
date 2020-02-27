@@ -17,6 +17,7 @@
                 ></v-text-field>
               </v-card-title>
               <v-data-table
+                :loading="table.loading"
                 :headers="table.headers"
                 :items="table.products"
                 :search="table.search"
@@ -28,6 +29,7 @@
                 :sort-desc.sync="table.sortDesc"
                 :page.sync="table.page"
                 :items-per-page="table.itemsPerPage"
+                :server-items-length="table.totalConceptos"
                 hide-default-footer
                 class="elevation-1"
                 @page-count="table.pageCount = $event"
@@ -246,7 +248,6 @@
 import ApexCharts from "vue-apexcharts/src/ApexCharts.component";
 import moment from "moment";
 import concept from "../services/Conceptos";
-import movements from "../services/Movimiento_deposito";
 
 const reports = require("../plugins/reports");
 
@@ -258,6 +259,7 @@ export default {
   data() {
     return {
       table: {
+        loading: true,
         expanded: [],
         expand: false,
         search: "",
@@ -266,6 +268,8 @@ export default {
         page: 1,
         pageCount: 0,
         itemsPerPage: 8,
+        dataOffset: this.itemsPerPage,
+        totalConceptos: 0,
         headers: [
           {
             text: "Imagen",
@@ -326,91 +330,93 @@ export default {
   },
   methods: {
     configStockDays() {
-      this.table.products.forEach(product => {
-        var stock_aux = product.stock;
-        var stock_dates = [];
-        do {
-          stock_aux -= product.stock_daily_sells.reduce((a, b) => a + b) / 7;
-          if (stock_aux > 0) product.stock_end.push(Math.trunc(stock_aux));
-        } while (stock_aux > 0);
-
-        for (let i = 0; i < product.stock_end.length; i++) {
-          stock_dates.push(
-            moment()
-              .locale("EN")
-              .add(i, "days")
-              .format("MMM Do")
-          );
-        }
-        product.stock_days = reports.chart__area(
-          product.stock_end,
-          stock_dates,
-          false
+      this.table.products.forEach(async product => {
+      let existencias = await concept().get("/" + product.id + "/depositos");
+      existencias.data.data.filter(a => (product.stock += +a.existencia));
+      var stock_aux = product.stock;
+      var stock_dates = [];
+      do {
+        stock_aux -= Math.trunc(
+          product.stock_daily_sells.reduce((a, b) => a + b) / 7
         );
-        product.stock_lastDay = moment()
-          .locale("ES")
-          .add(stock_dates.length - 1, "days")
-          .format("LL");
-      });
-    },
-    configStock() {
-      //extraer
-      this.table.products.forEach(concept => {
-        console.log(concept)
-      });
-    },
-    getConcept() {
-      this.table.products = [];
-      concept()
-        .get()
-        .then(result => {
-          result.data.data.forEach(concept => {
-            this.table.products.push({
-              id: concept.id,
-              name: concept.nombre,
-              stock: 0,
-              sold: 0,
-              category: "Postres",
-              price: "30",
-              stock_daily_sells: [10, 15, 5, 12, 12, 13, 19],
-              stock_end: [],
-              stock_lastDay: "",
-              stock_rotation: reports.chart__donut([80, 159], "Rotación del", [
-                "Consumo",
-                "Existencias"
-              ]),
-              stock_demand: reports.chart__area([10, 15, 5, 12, 12, 13, 19]), //Demanda diaría en una semana [Lun, Mar, Mie, Jue, Vie, Sab, Dom]
-              stock_devolution: reports.chart__donut(
-                [30, 80],
-                "Devoluciones del",
-                ["Devoluciones", "Compras"],
-                ["#E91E63", "#3f72af"]
-              ),
-              stock_claims: reports.chart__donut(
-                [10, 80],
-                "Reclamos del",
-                ["Reclamos", "Compras"],
-                ["#FFC107", "#3f72af"]
-              ),
-              stock_days: null,
-              stock_costs: reports.chart__donut(
-                [50, 80],
-                "Beneficios del",
-                ["Precio", "Costo"],
-                null,
-                "benefits"
-              )
-            });
-          });
-          this.configStockDays();
-        });
+        if (stock_aux > 0) product.stock_end.push(stock_aux);
+      } while (stock_aux > 0);
 
-      //ENTIDAD VACIA
-      movements().get();
+      for (let i = 0; i < product.stock_end.length; i++) {
+        stock_dates.push(
+          moment()
+            .locale("EN")
+            .add(i, "days")
+            .format("MMM Do")
+        );
+      }
+      product.stock_days = reports.chart__area(
+        product.stock_end,
+        stock_dates,
+        false,
+        "stockdays"
+      );
+      product.stock_lastDay = moment()
+        .locale("ES")
+        .add(stock_dates.length - 1, "days")
+        .format("LL");
+      })
+    },
+    async getConcept(limit = "?offset=0&limit=" + this.table.itemsPerPage) {
+      this.table.products = [];
+      let apiConcepts = await concept().get(limit);
+      apiConcepts = apiConcepts.data.data;
+      apiConcepts.forEach(concept => {
+        this.table.products.push({
+          id: concept.id,
+          name: concept.nombre,
+          stock: 0,
+          sold: 40,
+          category: "Postres",
+          price: "30",
+          stock_daily_sells: [10, 15, 5, 12, 12, 13, 19],
+          stock_end: [],
+          stock_lastDay: "",
+          stock_rotation: reports.chart__donut([80, 159], "Rotación del", [
+            "Consumo",
+            "Existencias"
+          ]),
+          stock_demand: reports.chart__area([10, 15, 5, 12, 12, 13, 19]), //Demanda diaría en una semana [Lun, Mar, Mie, Jue, Vie, Sab, Dom]
+          stock_devolution: reports.chart__donut(
+            [30, 80],
+            "Devoluciones del",
+            ["Devoluciones", "Compras"],
+            ["#E91E63", "#3f72af"]
+          ),
+          stock_claims: reports.chart__donut(
+            [10, 80],
+            "Reclamos del",
+            ["Reclamos", "Compras"],
+            ["#FFC107", "#3f72af"]
+          ),
+          stock_days: null,
+          stock_costs: reports.chart__donut(
+            [50, 80],
+            "Beneficios del",
+            ["Precio", "Costo"],
+            null,
+            "benefits"
+          )
+        });
+      });
     }
   },
-  beforeMount() {
-    this.getConcept();
+  async beforeMount() {
+    await this.getConcept();
+    await this.configStockDays();
+    await concept()
+      .get()
+      .then(result => {
+        this.$data.table.totalConceptos = result.data.totalCount;
+        setTimeout(() => {
+          this.$data.table.loading = false;
+        }, 500);
+      });
   }
 };
 </script>

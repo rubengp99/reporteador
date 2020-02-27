@@ -6,7 +6,7 @@
       app
     >
       <v-list dense>
-        <router-link :to="item.text" v-for="item in items" :key="item.text">
+        <v-list-item :to="item.path" v-for="item in items" :key="item.text">
           <v-row
             v-if="item.heading"
             :key="item.heading"
@@ -70,7 +70,7 @@
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-        </router-link>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -121,11 +121,11 @@
       dialog: false,
       drawer: false,
       items: [
-        { icon: 'home', text: 'Inicio' },
-        { icon: 'show_chart', text: 'Rentabilidad' },
-        { icon: 'score', text: 'Inventario' },
-        { icon: 'multiline_chart', text: 'Ventas' },
-        { icon: 'mdi-help-circle', text: 'Ayuda' },
+        { icon: 'home', text: 'Inicio', path: '/Inicio' },
+        { icon: 'show_chart', text: 'Rentabilidad', path: '/Rentabilidad' },
+        { icon: 'score', text: 'Inventario', path: '/Inventario' },
+        { icon: 'multiline_chart', text: 'Ventas', path: '/Ventas' },
+        { icon: 'mdi-help-circle', text: 'Ayuda', path: '/Ayuda' },
       ],
     }),
   }
