@@ -334,7 +334,7 @@
 import ApexCharts from "vue-apexcharts/src/ApexCharts.component";
 import moment from "moment";
 import concept from "../services/Conceptos";
-import movements from "../services/Movimiento_deposito"
+import movements from "../services/Movimiento_deposito";
 const reports = require("../plugins/reports");
 
 export default {
@@ -429,60 +429,51 @@ export default {
           Math.abs(page - this.table.page_old) === 0
             ? 8
             : Math.abs(page - this.table.page_old) * 8;
-      const aux = await this.configStockDays(
-        await this.getConcept(
-          "?offset=" +
-            this.table.dataOffset +
-            "&limit=" +
-            this.table.itemsPerPage
-        )
+      this.table.products = [];
+      this.$forceUpdate();
+      await this.getConcept(
+        "?offset=" + this.table.dataOffset + "&limit=" + this.table.itemsPerPage
       );
-      this.$data.table.products = aux;
       this.table.page_old = page;
-      this.table.loading = false;
     },
-    configStockDays(products) {
-      products.forEach(async product => {
-        let existencias = await concept().get("/" + product.id + "/depositos");
-        existencias.data.data.filter(a => (product.stock += +a.existencia));
-        var stock_aux = product.stock;
-        var stock_dates = [];
-        do {
-          stock_aux -= Math.trunc(
-            product.stock_daily_sells.reduce((a, b) => a + b) / 7
-          );
-          if (stock_aux > 0) product.stock_end.push(stock_aux);
-        } while (stock_aux > 0);
-
-        for (let i = 0; i < product.stock_end.length; i++) {
-          stock_dates.push(
-            moment()
-              .locale("EN")
-              .add(i, "days")
-              .format("MMM Do")
-          );
-        }
-        product.stock_days = reports.chart__area(
-          product.stock_end,
-          stock_dates,
-          false,
-          "stockdays"
+    async configStockDays(product) {
+      let existencias = await concept().get("/" + product.id + "/depositos");
+      existencias.data.data.filter(a => (product.stock += +a.existencia));
+      var stock_aux = product.stock;
+      var stock_dates = [];
+      do {
+        stock_aux -= Math.trunc(
+          product.stock_daily_sells.reduce((a, b) => a + b) / 7
         );
-        product.stock_lastDay = moment()
-          .locale("ES")
-          .add(stock_dates.length - 1, "days")
-          .format("LL");
-      });
+        if (stock_aux > 0) product.stock_end.push(stock_aux);
+      } while (stock_aux > 0);
 
-      return products;
+      for (let i = 0; i < product.stock_end.length; i++) {
+        stock_dates.push(
+          moment()
+            .locale("EN")
+            .add(i, "days")
+            .format("MMM Do")
+        );
+      }
+      product.stock_days = reports.chart__area(
+        product.stock_end,
+        stock_dates,
+        false,
+        "stockdays"
+      );
+      product.stock_lastDay = moment()
+        .locale("ES")
+        .add(stock_dates.length - 1, "days")
+        .format("LL");
+
+      return product;
     },
     async getConcept(limit = "?offset=0&limit=" + this.table.itemsPerPage) {
       this.table.products = [];
-      let ApiResults = [];
       let apiConcepts = await concept().get(limit);
-      apiConcepts = apiConcepts.data.data;
-      apiConcepts.forEach(concept => {
-        ApiResults.push({
+      apiConcepts.data.data.forEach(async concept => {
+        this.table.products.push(await this.configStockDays({
           id: concept.id,
           name: concept.nombre,
           stock: 0,
@@ -517,21 +508,17 @@ export default {
             null,
             "benefits"
           )
-        });
+        }));
       });
-      return ApiResults;
+      setTimeout(()=>{
+        this.table.loading = false;
+      },600);
     }
   },
   async beforeMount() {
-    this.$data.table.products = await this.configStockDays(
-      await this.getConcept()
-    );
+    await this.getConcept()
     const totalConcepts = await concept().get();
     this.$data.table.totalConceptos = totalConcepts.data.totalCount;
-    setTimeout(() => {
-      this.$data.table.loading = false;
-    }, 500);
-
     console.log(movements().get());
   }
 };
