@@ -33,6 +33,7 @@
                 hide-default-footer
                 class="elevation-1"
                 @page-count="table.pageCount = $event"
+                @update:page="paginate"
               >
                 <template v-slot:item.price="{ item }">
                   {{ item.price }}
@@ -70,15 +71,31 @@
                           />
                           <v-divider></v-divider>
                           <p class="caption" style="padding-bottom:15px;">
-                            <span style="color:#0D47A1">{{ item.name }}</span> ha rotado un
-                            <span
-                              style="color:#0D47A1"
-                            >{{ (Math.round((item.stock_rotation.series[0]/item.stock_rotation.series[1] + Number.EPSILON) * 100)) + "% " + '('+item.stock_rotation.series[0]+' unidades)' }}</span>
+                            <span style="color:#0D47A1">{{ item.name }}</span>
+                            ha rotado un
+                            <span style="color:#0D47A1">
+                              {{
+                                Math.round(
+                                  (item.stock_rotation.series[0] /
+                                    item.stock_rotation.series[1] +
+                                    Number.EPSILON) *
+                                    100
+                                ) +
+                                  "% " +
+                                  "(" +
+                                  item.stock_rotation.series[0] +
+                                  " unidades)"
+                              }}
+                            </span>
                             de sus existencias en el almacén.
                           </p>
                         </div>
                       </v-col>
-                      <v-divider inset vertical class="absolute-center"></v-divider>
+                      <v-divider
+                        inset
+                        vertical
+                        class="absolute-center"
+                      ></v-divider>
                       <v-col cols="12" sm="6">
                         <v-row>
                           <v-col cols="12">
@@ -97,10 +114,20 @@
                           />
                           <v-divider></v-divider>
                           <p class="caption" style="padding-bottom:15px;">
-                            <span style="color:#0D47A1">{{ item.name }}</span> tiene una demanda promedio de
-                            <span
-                              style="color:#0D47A1"
-                            >{{ (Math.round((item.stock_demand.series[0].data.reduce( (a,b) => a+b) / 7 + Number.EPSILON) * 100 ) / 100)}}</span>
+                            <span style="color:#0D47A1">{{ item.name }}</span>
+                            tiene una demanda promedio de
+                            <span style="color:#0D47A1">
+                              {{
+                                Math.round(
+                                  (item.stock_demand.series[0].data.reduce(
+                                    (a, b) => a + b
+                                  ) /
+                                    7 +
+                                    Number.EPSILON) *
+                                    100
+                                ) / 100
+                              }}
+                            </span>
                             unidades diarias en el mercado.
                           </p>
                         </div>
@@ -127,18 +154,36 @@
                           />
                           <v-divider></v-divider>
                           <p class="caption" style="padding-bottom:15px;">
-                            <span style="color:#0D47A1">{{ item.name }}</span> ha recibido reclamos de un
-                            <span
-                              style="color:#0D47A1"
-                            >{{ (Math.round((item.stock_claims.series[0]/item.stock_claims.series[1] + Number.EPSILON) * 100)) + "% " + '('+item.stock_claims.series[0]+' unidades)' }}</span>
+                            <span style="color:#0D47A1">{{ item.name }}</span>
+                            ha recibido reclamos de un
+                            <span style="color:#0D47A1">
+                              {{
+                                Math.round(
+                                  (item.stock_claims.series[0] /
+                                    item.stock_claims.series[1] +
+                                    Number.EPSILON) *
+                                    100
+                                ) +
+                                  "% " +
+                                  "(" +
+                                  item.stock_claims.series[0] +
+                                  " unidades)"
+                              }}
+                            </span>
                             de sus
-                            <span
-                              style="color:#0D47A1"
-                            >{{ item.stock_devolution.series[1] }} unidades</span> vendidas.
+                            <span style="color:#0D47A1">
+                              {{ item.stock_devolution.series[1] }}
+                              unidades
+                            </span>
+                            vendidas.
                           </p>
                         </div>
                       </v-col>
-                      <v-divider inset vertical class="absolute-center"></v-divider>
+                      <v-divider
+                        inset
+                        vertical
+                        class="absolute-center"
+                      ></v-divider>
                       <v-col cols="12" sm="6">
                         <v-row>
                           <v-col cols="12">
@@ -157,14 +202,28 @@
                           />
                           <v-divider></v-divider>
                           <p class="caption" style="padding-bottom:15px;">
-                            <span style="color:#0D47A1">{{ item.name }}</span> ha devuelto un
-                            <span
-                              style="color:#0D47A1"
-                            >{{ (Math.round((item.stock_devolution.series[0]/item.stock_devolution.series[1] + Number.EPSILON) * 100)) + "% " + '('+item.stock_devolution.series[0]+' unidades)' }}</span>
+                            <span style="color:#0D47A1">{{ item.name }}</span>
+                            ha devuelto un
+                            <span style="color:#0D47A1">
+                              {{
+                                Math.round(
+                                  (item.stock_devolution.series[0] /
+                                    item.stock_devolution.series[1] +
+                                    Number.EPSILON) *
+                                    100
+                                ) +
+                                  "% " +
+                                  "(" +
+                                  item.stock_devolution.series[0] +
+                                  " unidades)"
+                              }}
+                            </span>
                             de las
-                            <span
-                              style="color:#0D47A1"
-                            >{{ item.stock_devolution.series[1] }} unidades</span> vendidas.
+                            <span style="color:#0D47A1">
+                              {{ item.stock_devolution.series[1] }}
+                              unidades
+                            </span>
+                            vendidas.
                           </p>
                         </div>
                       </v-col>
@@ -191,14 +250,25 @@
                           <v-divider></v-divider>
                           <p class="caption" style="padding-bottom:15px;">
                             Si la demanda de
-                            <span style="color:#0D47A1">{{ item.name }}</span> se mantiene en
-                            <span
-                              style="color:#0D47A1"
-                            >{{ (Math.trunc((item.stock_daily_sells.reduce( (a,b) => a+b) / 7 + Number.EPSILON) * 100 ) / 100)}}</span>
-                            unidades diarias, se estima que las existencias del producto se agotaran el día
-                            <span
-                              style="color:#0D47A1"
-                            >{{ item.stock_lastDay }}</span>.
+                            <span style="color:#0D47A1">{{ item.name }}</span>
+                            se mantiene en
+                            <span style="color:#0D47A1">
+                              {{
+                                Math.trunc(
+                                  (item.stock_daily_sells.reduce(
+                                    (a, b) => a + b
+                                  ) /
+                                    7 +
+                                    Number.EPSILON) *
+                                    100
+                                ) / 100
+                              }}
+                            </span>
+                            unidades diarias, se estima que las existencias del
+                            producto se agotaran el día
+                            <span style="color:#0D47A1">
+                              {{ item.stock_lastDay }} </span
+                            >.
                           </p>
                         </div>
                       </v-col>
@@ -220,11 +290,23 @@
                           />
                           <v-divider></v-divider>
                           <p class="caption" style="padding-bottom:15px;">
-                            <span style="color:#0D47A1">{{ item.name }}</span> proporciona un
-                            <span style="color:#0D47A1">margen de beneficios</span> del
-                            <span
-                              style="color:#0D47A1"
-                            >{{ (Math.round((((item.stock_costs.series[1] - item.stock_costs.series[0])/item.stock_costs.series[1]) + Number.EPSILON) * 100)) + "%" }}</span>
+                            <span style="color:#0D47A1">{{ item.name }}</span>
+                            proporciona un
+                            <span style="color:#0D47A1"
+                              >margen de beneficios</span
+                            >
+                            del
+                            <span style="color:#0D47A1">
+                              {{
+                                Math.round(
+                                  ((item.stock_costs.series[1] -
+                                    item.stock_costs.series[0]) /
+                                    item.stock_costs.series[1] +
+                                    Number.EPSILON) *
+                                    100
+                                ) + "%"
+                              }}
+                            </span>
                             .
                           </p>
                         </div>
@@ -234,7 +316,11 @@
                 </template>
               </v-data-table>
               <div class="text-center" style="padding: 10px 0;">
-                <v-pagination v-model="table.page" :length="table.pageCount" light></v-pagination>
+                <v-pagination
+                  v-model="table.page"
+                  :length="table.pageCount"
+                  light
+                ></v-pagination>
               </div>
             </v-card>
           </v-col>
@@ -248,7 +334,7 @@
 import ApexCharts from "vue-apexcharts/src/ApexCharts.component";
 import moment from "moment";
 import concept from "../services/Conceptos";
-
+import movements from "../services/Movimiento_deposito"
 const reports = require("../plugins/reports");
 
 export default {
@@ -266,9 +352,10 @@ export default {
         sortBy: ["name", "stock", "sold", "price"],
         sortDesc: true,
         page: 1,
+        page_old: 1,
         pageCount: 0,
         itemsPerPage: 8,
-        dataOffset: this.itemsPerPage,
+        dataOffset: 0,
         totalConceptos: 0,
         headers: [
           {
@@ -329,45 +416,73 @@ export default {
     };
   },
   methods: {
-    configStockDays() {
-      this.table.products.forEach(async product => {
-      let existencias = await concept().get("/" + product.id + "/depositos");
-      existencias.data.data.filter(a => (product.stock += +a.existencia));
-      var stock_aux = product.stock;
-      var stock_dates = [];
-      do {
-        stock_aux -= Math.trunc(
-          product.stock_daily_sells.reduce((a, b) => a + b) / 7
-        );
-        if (stock_aux > 0) product.stock_end.push(stock_aux);
-      } while (stock_aux > 0);
-
-      for (let i = 0; i < product.stock_end.length; i++) {
-        stock_dates.push(
-          moment()
-            .locale("EN")
-            .add(i, "days")
-            .format("MMM Do")
-        );
-      }
-      product.stock_days = reports.chart__area(
-        product.stock_end,
-        stock_dates,
-        false,
-        "stockdays"
+    async paginate(page) {
+      this.table.loading = true;
+      if (page === 1) this.table.dataOffset = 0;
+      else if (page > this.table.page_old)
+        this.table.dataOffset +=
+          Math.abs(page - this.table.page_old) === 0
+            ? 8
+            : Math.abs(page - this.table.page_old) * 8;
+      else if (page < this.table.page_old)
+        this.table.dataOffset -=
+          Math.abs(page - this.table.page_old) === 0
+            ? 8
+            : Math.abs(page - this.table.page_old) * 8;
+      const aux = await this.configStockDays(
+        await this.getConcept(
+          "?offset=" +
+            this.table.dataOffset +
+            "&limit=" +
+            this.table.itemsPerPage
+        )
       );
-      product.stock_lastDay = moment()
-        .locale("ES")
-        .add(stock_dates.length - 1, "days")
-        .format("LL");
-      })
+      this.$data.table.products = aux;
+      this.table.page_old = page;
+      this.table.loading = false;
+    },
+    configStockDays(products) {
+      products.forEach(async product => {
+        let existencias = await concept().get("/" + product.id + "/depositos");
+        existencias.data.data.filter(a => (product.stock += +a.existencia));
+        var stock_aux = product.stock;
+        var stock_dates = [];
+        do {
+          stock_aux -= Math.trunc(
+            product.stock_daily_sells.reduce((a, b) => a + b) / 7
+          );
+          if (stock_aux > 0) product.stock_end.push(stock_aux);
+        } while (stock_aux > 0);
+
+        for (let i = 0; i < product.stock_end.length; i++) {
+          stock_dates.push(
+            moment()
+              .locale("EN")
+              .add(i, "days")
+              .format("MMM Do")
+          );
+        }
+        product.stock_days = reports.chart__area(
+          product.stock_end,
+          stock_dates,
+          false,
+          "stockdays"
+        );
+        product.stock_lastDay = moment()
+          .locale("ES")
+          .add(stock_dates.length - 1, "days")
+          .format("LL");
+      });
+
+      return products;
     },
     async getConcept(limit = "?offset=0&limit=" + this.table.itemsPerPage) {
       this.table.products = [];
+      let ApiResults = [];
       let apiConcepts = await concept().get(limit);
       apiConcepts = apiConcepts.data.data;
       apiConcepts.forEach(concept => {
-        this.table.products.push({
+        ApiResults.push({
           id: concept.id,
           name: concept.nombre,
           stock: 0,
@@ -404,19 +519,20 @@ export default {
           )
         });
       });
+      return ApiResults;
     }
   },
   async beforeMount() {
-    await this.getConcept();
-    await this.configStockDays();
-    await concept()
-      .get()
-      .then(result => {
-        this.$data.table.totalConceptos = result.data.totalCount;
-        setTimeout(() => {
-          this.$data.table.loading = false;
-        }, 500);
-      });
+    this.$data.table.products = await this.configStockDays(
+      await this.getConcept()
+    );
+    const totalConcepts = await concept().get();
+    this.$data.table.totalConceptos = totalConcepts.data.totalCount;
+    setTimeout(() => {
+      this.$data.table.loading = false;
+    }, 500);
+
+    console.log(movements().get());
   }
 };
 </script>
