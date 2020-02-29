@@ -16,8 +16,15 @@
                   hide-details
                 ></v-text-field>
               </v-card-title>
+              <!--
+                Si se va a cargar en modo server side, por página
+                añadir las props >>>
+                :server-items-length="table.totalConceptos"
+                @update:page="paginate"
+                y descomentar el código comentado.
+              -->
               <v-data-table
-                :loading="table.loading"
+                :loading="table.loading && '#00E676'"
                 :headers="table.headers"
                 :items="table.products"
                 :search="table.search"
@@ -29,11 +36,9 @@
                 :sort-desc.sync="table.sortDesc"
                 :page.sync="table.page"
                 :items-per-page="table.itemsPerPage"
-                :server-items-length="table.totalConceptos"
                 hide-default-footer
                 class="elevation-1"
                 @page-count="table.pageCount = $event"
-                @update:page="paginate"
               >
                 <template v-slot:item.price="{ item }">
                   {{ item.price }}
@@ -272,45 +277,8 @@
                           </p>
                         </div>
                       </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-row>
-                          <v-col cols="12">
-                            <p class="title" style="line-height:normal;">
-                              Rentabilidad de
-                              <span style="color:#0D47A1">{{ item.name }}</span>
-                            </p>
-                          </v-col>
-                        </v-row>
-                        <div>
-                          <apexchart
-                            type="donut"
-                            height="298"
-                            :options="item.stock_costs.chartOptions"
-                            :series="item.stock_costs.series"
-                          />
-                          <v-divider></v-divider>
-                          <p class="caption" style="padding-bottom:15px;">
-                            <span style="color:#0D47A1">{{ item.name }}</span>
-                            proporciona un
-                            <span style="color:#0D47A1"
-                              >margen de beneficios</span
-                            >
-                            del
-                            <span style="color:#0D47A1">
-                              {{
-                                Math.round(
-                                  ((item.stock_costs.series[1] -
-                                    item.stock_costs.series[0]) /
-                                    item.stock_costs.series[1] +
-                                    Number.EPSILON) *
-                                    100
-                                ) + "%"
-                              }}
-                            </span>
-                            .
-                          </p>
-                        </div>
-                      </v-col>
+                      <chart type="Agotamiento" :item="item" :options="item.stock_days" ctype="donut" height="298"/>
+                      <chart type="Rentabilidad" :item="item" :options="item.stock_costs" ctype="donut" height="298"/>
                     </v-row>
                   </td>
                 </template>
@@ -331,16 +299,17 @@
 </template>
 
 <script>
-import ApexCharts from "vue-apexcharts/src/ApexCharts.component";
+import chart from "../components/Chart"
 import moment from "moment";
 import concept from "../services/Conceptos";
-import movements from "../services/Movimiento_deposito";
+import facturas from "../services/Factura";
+//import movements from "../services/Movimiento_deposito";
 const reports = require("../plugins/reports");
 
 export default {
   name: "Home",
   components: {
-    apexchart: ApexCharts
+    chart: chart,
   },
   data() {
     return {
@@ -352,11 +321,11 @@ export default {
         sortBy: ["name", "stock", "sold", "price"],
         sortDesc: true,
         page: 1,
-        page_old: 1,
+        //page_old: 1,
         pageCount: 0,
         itemsPerPage: 8,
-        dataOffset: 0,
-        totalConceptos: 0,
+        //dataOffset: 0,
+        //totalConceptos: 0,
         headers: [
           {
             text: "Imagen",
@@ -375,48 +344,13 @@ export default {
           { text: "Precio", value: "price" },
           { text: "Estadísticas", value: "data-table-expand" }
         ],
-        products: [
-          {
-            name: "Frozen Yogurt",
-            stock: 159,
-            sold: 80,
-            category: "Postres",
-            price: "30",
-            stock_daily_sells: [10, 15, 5, 12, 12, 13, 19],
-            stock_end: [],
-            stock_lastDay: "",
-            stock_rotation: reports.chart__donut([80, 159], "Rotación del", [
-              "Consumo",
-              "Existencias"
-            ]),
-            stock_demand: reports.chart__area([10, 15, 5, 12, 12, 13, 19]), //Demanda diaría en una semana [Lun, Mar, Mie, Jue, Vie, Sab, Dom]
-            stock_devolution: reports.chart__donut(
-              [30, 80],
-              "Devoluciones del",
-              ["Devoluciones", "Compras"],
-              ["#E91E63", "#3f72af"]
-            ),
-            stock_claims: reports.chart__donut(
-              [10, 80],
-              "Reclamos del",
-              ["Reclamos", "Compras"],
-              ["#FFC107", "#3f72af"]
-            ),
-            stock_days: null,
-            stock_costs: reports.chart__donut(
-              [50, 80],
-              "Beneficios del",
-              ["Precio", "Costo"],
-              null,
-              "benefits"
-            )
-          }
-        ]
+        products: [],
       }
     };
   },
   methods: {
-    async paginate(page) {
+    //en caso de carga por paginación, no tocar si no es necesario
+    /*async paginate(page) {
       this.table.loading = true;
       if (page === 1) this.table.dataOffset = 0;
       else if (page > this.table.page_old)
@@ -435,7 +369,7 @@ export default {
         "?offset=" + this.table.dataOffset + "&limit=" + this.table.itemsPerPage
       );
       this.table.page_old = page;
-    },
+    },*/
     async configStockDays(product) {
       let existencias = await concept().get("/" + product.id + "/depositos");
       existencias.data.data.filter(a => (product.stock += +a.existencia));
@@ -469,11 +403,12 @@ export default {
 
       return product;
     },
-    async getConcept(limit = "?offset=0&limit=" + this.table.itemsPerPage) {
+    async getConcept() {
       this.table.products = [];
-      let apiConcepts = await concept().get(limit);
+      let aux = [];
+      let apiConcepts = await concept().get();
       apiConcepts.data.data.forEach(async concept => {
-        this.table.products.push(await this.configStockDays({
+        aux.push(await this.configStockDays({
           id: concept.id,
           name: concept.nombre,
           stock: 0,
@@ -508,18 +443,19 @@ export default {
             null,
             "benefits"
           )
-        }));
+        }));        
       });
       setTimeout(()=>{
+        this.table.products = aux;
         this.table.loading = false;
       },600);
     }
   },
   async beforeMount() {
     await this.getConcept()
-    const totalConcepts = await concept().get();
-    this.$data.table.totalConceptos = totalConcepts.data.totalCount;
-    console.log(movements().get());
+    /*const totalConcepts = await concept().get();
+    this.$data.table.totalConceptos = totalConcepts.data.totalCount;*/
+    console.log(facturas().get()); //id 3 son devoluciones
   }
 };
 </script>
