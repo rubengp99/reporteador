@@ -33,7 +33,7 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                                     }else{
                                         return (
                                             Math.round(
-                                                ((val.globals.series[1] - val.globals.series[0]) / val.globals.series[1] +
+                                                ((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] +
                                                     Number.EPSILON) *
                                                 100
                                             ) + "%"
@@ -97,13 +97,15 @@ exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab',
             stroke: {
                 curve: 'straight'
             },
-            labels: labels,
+           // labels: labels,
             yaxis: {
                 opposite: false,
                 show: yAxis
             },
             xaxis: {
-                offsetX: (!yAxis) ? 15 : 0
+                type: 'category',
+                categories: labels,
+                offsetX: (!yAxis) ? 15 : 0,
             },
             legend: {
                 horizontalAlign: 'left'
