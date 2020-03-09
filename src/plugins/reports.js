@@ -24,19 +24,11 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                                 formatter: function (val) {
                                     if(formatter === null || formatter === 'default'){
                                         return (
-                                            Math.round(
-                                                (val.globals.series[0] / val.globals.series[1] +
-                                                    Number.EPSILON) *
-                                                100
-                                            ) + "%"
+                                            isNaN(Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100))?0+"%":Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)+'%'
                                         );
                                     }else{
                                         return (
-                                            Math.round(
-                                                ((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] +
-                                                    Number.EPSILON) *
-                                                100
-                                            ) + "%"
+                                            isNaN(Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 100))?0+"%":Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 100)+'%'
                                         );
                                     }
                                         
@@ -56,6 +48,13 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                 }
             },
             labels: labels,
+            dataLabels:{
+                enabled:true,
+                formatter: function (val, opts) {
+                    let concat = (formatter !== 'default')?'Bs':'';
+                    return opts.w.config.series[opts.seriesIndex] + concat
+                },
+            },
             legend: {
                 position: "bottom"
             },
