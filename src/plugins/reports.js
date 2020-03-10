@@ -105,9 +105,27 @@ exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab',
                 type: 'category',
                 categories: labels,
                 offsetX: (!yAxis) ? 15 : 0,
+                labels: {
+                    hideOverlappingLabels: true,
+                    //rotate: 0,
+                    //rotateAlways: true,
+                }
             },
             legend: {
                 horizontalAlign: 'left'
+            },
+            animations: {
+                enabled: false,
+                easing: 'easeinout',
+                speed: 800,
+                animateGradually: {
+                    enabled: true,
+                    delay: 150
+                },
+                dynamicAnimation: {
+                    enabled: true,
+                    speed: 350
+                }
             }
         },
     };

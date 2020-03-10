@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="charts">
-      <v-container class="grey lighten-5">
+      <v-container>
         <v-row data-app>
           <v-col cols="12">
             <v-card>
@@ -11,7 +11,7 @@
                 <v-spacer></v-spacer>
               </v-card-title>
               <v-row style="padding:0 20px;">
-                <v-col cols="12" sm="6">
+                <v-col cols="12" sm="5">
                   <v-text-field
                     v-model="search"
                     append-icon="search"
@@ -39,6 +39,11 @@
                     dense
                     :no-data-text="subNoData"
                   ></v-select>
+                </v-col>
+                <v-col cols="12" sm="1">
+                  <v-btn style="height:39px;" outlined dense color="error" @click="clear = !clear">
+                    <v-icon>mdi-autorenew</v-icon>
+                  </v-btn>
                 </v-col>
               </v-row>
               <!--
@@ -99,14 +104,14 @@
                       <div v-show="transitioned[getItemId(item)]">
                           <!-- container for content. replace with whatever you want -->
                           <div style="min-height: 50px; border-bottom:0px!important;">
-                           <v-row style="position:relative;">
+                           <v-row style="position:relative;margin:0;">
                               <chart type="Rotación" :item="item" :options="item.stock_rotation" ctype="donut" height="298" />
                               <v-divider inset vertical class="absolute-center"></v-divider>
                               <chart type="Demanda" :item="item" :options="item.stock_demand" ctype="area" height="252"/>
                             </v-row>
                             <!--linea de gráficos para DIAS DE INVENTARIO-->
                             <v-divider inset></v-divider>
-                            <v-row style="position:relative;">
+                            <v-row style="position:relative;margin:0;">
                               <chart type="Reclamos" :item="item" :options="item.stock_claims" ctype="donut" height="298" />
                               <v-divider
                                 inset
@@ -116,8 +121,13 @@
                               <chart type="Devoluciones" :item="item" :options="item.stock_devolution" ctype="donut" height="298" />
                             </v-row>
                             <v-divider inset></v-divider>
-                            <v-row style="position:relative;">
+                            <v-row style="position:relative;margin:0;">
                               <chart type="Agotamiento" :item="item" :options="item.stock_days" ctype="area" height="251"/>
+                              <v-divider
+                                inset
+                                vertical
+                                class="absolute-center"
+                              ></v-divider>
                               <chart type="Rentabilidad" :item="item" :options="item.stock_costs" ctype="donut" height="298"/>
                             </v-row>
                           </div>
@@ -141,6 +151,7 @@
                 <v-pagination
                   v-model="table.page"
                   :length="table.pageCount"
+                  :totalItems="table.totalConceptos"
                   light
                 ></v-pagination>
               </div>
@@ -160,6 +171,8 @@ import invoices from "../services/Factura";
 import groups from "../services/Grupos"
 import accounting from 'accounting';
 import _ from 'lodash';
+import { mapState, mapGetters } from 'vuex'
+
 //import movements from "../services/Movimiento_deposito";
 const reports = require("../plugins/reports");
 
@@ -183,6 +196,8 @@ export default {
       closeTimeouts: {},
       singleExpand: false,
       subNoData: 'Seleccione un «Grupo» primero.',
+      filteredConcepts: [],
+      clear: false,
       table: {
         loading: true,
         expanded: [],
@@ -200,14 +215,19 @@ export default {
           { text: "Código", align: "center", value: "codigo", sortable: false, },
           { text: "Producto", align: "center", value: "name", sortable: false, },
           { text: "Grupo", align: "center", value: "category.name", sortable: false, },
+          { text: "Sub-Grupo", align: "center", value: "subCategory.name", sortable: false, },
           { text: "En Inventario", align: "center", value: "stock", sortable: false, },
-          { text: "Vendidos", align: "center", value: "sold", sortable: false, },
+          //{ text: "Vendidos", align: "center", value: "sold", sortable: false, },
           { text: "Precio", align: "center", value: "sale", sortable: false, },
           { text: "Estadísticas", align: "center", value: "data-table-expand", sortable: false, }
         ],
         products: [],
       }
     };
+  },
+  computed: {
+    ...mapState(['loading']),
+    ...mapGetters(['getStatebyIndex'])
   },
   methods: {
     //este bloque de codigo es un copy-paste para animacion al expandir un row en datatable
@@ -255,10 +275,12 @@ export default {
       else if (page < this.table.page_old)
         this.table.dataOffset -= Math.abs(page - this.table.page_old) === 0 ? 8 : Math.abs(page - this.table.page_old) * 8;
       this.table.products = [];
-      console.log((this.search !== ""));
-      console.log(this.search);
-      await this.getConcept((this.search !== ""), this.search);
       this.table.page_old = page;
+      if (this.grupo === "" && this.subgrupo === ""){
+         await this.getConcept((this.search !== ""), this.search, this.$data.apiConcepts.data.data.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage));
+      }else{
+        await this.getConcept((this.search !== ""), this.search, this.$data.filteredConcepts);
+      }
     },
   
     /* ----------------------------
@@ -271,7 +293,7 @@ export default {
    //PARA PRUEBAS USAR moment('07/30/2019')
     async configMovements(product){
       let fechas = [];
-      for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do YYYY').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do YYYY').slice(1));
+      for (let i = 0; i < 7; i++) fechas.push(moment('07/30/2019').locale('es').subtract(i,'days').format('MMM Do YYYY').charAt(0).toUpperCase() + moment('07/30/2019').locale('es').subtract(i,'days').format('MMM Do YYYY').slice(1));
       fechas.reverse();
       let sales = [0,0,0,0,0,0,0];
       this.apiInvoices.data.data.forEach(invoice =>{
@@ -279,23 +301,24 @@ export default {
         //como la factura se devuelve completa, entonces se suman todas las existencias vendidas a devoluciones.
         if (invoice.tipos_facturas_id === 3) product.returned += (typeof invoice.detalles.find(detail => detail.conceptos_id === product.id) === 'object')?+Math.trunc(invoice.detalles.find(detail => detail.conceptos_id === product.id).cantidad):0;
         product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#E91E63", "#3f72af"]);
-          if (typeof fechas.find(date => date === moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').slice(1)) !== 'undefined'){
-            switch (moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').slice(1)){
-              case fechas[0]: sales[0]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
-              case fechas[1]: sales[1]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
-              case fechas[2]: sales[2]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
-              case fechas[3]: sales[3]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
-              case fechas[4]: sales[4]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
-              case fechas[5]: sales[5]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
-              case fechas[6]: sales[6]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
-            }
+        if (typeof fechas.find(date => date === moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').slice(1)) !== 'undefined'){
+          switch (moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').slice(1)){
+            case fechas[0]: sales[0]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
+            case fechas[1]: sales[1]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
+            case fechas[2]: sales[2]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
+            case fechas[3]: sales[3]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
+            case fechas[4]: sales[4]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
+            case fechas[5]: sales[5]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
+            case fechas[6]: sales[6]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id).cantidad);break;
           }
-        });
-        product.stock_daily_sells = sales;
-        fechas = [];
-        for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do').slice(1));
-        fechas.reverse();
-        product.stock_demand = reports.chart__area(product.stock_daily_sells,fechas);
+        }
+      });
+      //for (let invoice of this.apiInvoices.data.data){}
+      product.stock_daily_sells = sales;
+      fechas = [];
+      for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do').slice(1));
+      fechas.reverse();
+      product.stock_demand = reports.chart__area(product.stock_daily_sells,fechas);
 
       return product;
     },
@@ -319,7 +342,7 @@ export default {
           }while (stock_aux > 0)  
         for (let i = 0; i < product.stock_end.length; i++) {
           stock_dates.push(
-            moment().locale("EN").add(i, "days").format("MMM Do")
+            moment().locale("es").add(i, "days").format("MMM Do").charAt(0).toUpperCase() + moment().locale("es").add(i, "days").format("MMM Do").slice(1)
           );
         }
         product.stock_lastDay = moment().locale("ES").add(stock_dates.length - 1, "days").format("LL");
@@ -330,14 +353,11 @@ export default {
         }
         product.stock_lastDay = '';
       }
-
-      
-      product.stock_days = reports.chart__area(product.stock_end, stock_dates, false,  "stockdays" );
-
+      let stockEndAux = product.stock_end.length > 1000 ? product.stock_end.slice(product.stock_end.length/50,product.stock_end.length-1) : product.stock_end;
+      let StockDatesAux = stock_dates.length > 1000 ? stock_dates.slice(product.stock_end.length/50,product.stock_end.length-1) : stock_dates;
+      product.stock_days = reports.chart__area(stockEndAux, StockDatesAux, false,  "stockdays" );
       product.stock_costs = reports.chart__donut([Math.trunc(+product.sale), Math.trunc(+product.cost)], "Beneficios del", ["Precio", "Costo"], null, "benefits");
-
       product.stock_rotation = reports.chart__donut([product.sold, product.stock], "Rotación del", ["Consumo", "Existencias"]);
-
       //esto da formato de BSF + Precio (formato español -> 1.000,00)
       product.sale = accounting.formatMoney(+product.sale, { symbol   : "Bs", thousand : ".", decimal  : ",", });
       
@@ -346,13 +366,18 @@ export default {
     /*
       consultas de api anteriores: @param limit="?offset=" + this.table.dataOffset + "&limit=" + this.table.itemsPerPage
     */
-    getConcept: _.debounce(async function(search = false, input = "") {
+    getConcept: _.debounce(async function(search = false, input = "", pConcept = null) {
       let aux = [];
-      let apiConcepts = null;
-      if (!search || input === "") apiConcepts = this.$data.apiConcepts.data.data.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
-      else if (search && input !== "") apiConcepts = this.$data.apiConcepts.data.data.filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
-      this.table.totalConceptos = this.$data.apiConcepts.data.data.filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).length;
-      apiConcepts.forEach(async concept => {
+      let apiConcepts = (pConcept.length > 8) ? 
+        pConcept.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage) : pConcept;
+      if (search && input !== ""){
+        apiConcepts = ((this.grupo !== "") ? apiConcepts : this.$data.apiConcepts.data.data)
+          .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
+        this.table.totalConceptos = ((this.grupo !== "") ? apiConcepts : this.$data.apiConcepts.data.data)
+          .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).length;
+      } 
+      this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
+      for(let concept of apiConcepts){
         aux.push(await this.configStockDays(await this.configMovements({
           icon: {
             img: '/images/box.svg',
@@ -371,8 +396,10 @@ export default {
             name: this.apiGroups.data.data.find(group => group.id === concept.grupos_id).nombre
           },
           subCategory: {
-            //id: this.apiSubGroups.data.data.find(group => group.id === concept.grupos_id).id,
-            //name: this.apiSubGroups.data.data.find(group => group.id === concept.grupos_id).nombre
+            id: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id) !== 'undefined')?
+                  this.apiSubGroups.filter(s => s.id === concept.subgrupos_id)[0].id:0,
+            name: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id) !== 'undefined')?
+                  this.apiSubGroups.filter(s => s.id === concept.subgrupos_id)[0].nombre:'-------'
           },
           price$: concept.precio_dolar,
           stock_daily_sells: [],
@@ -390,11 +417,10 @@ export default {
           stock_days: null,
           stock_costs: null,
         })));
-      });
-      setTimeout(() =>{
-        this.table.products = aux;
-        this.table.loading = false;
-      },400);
+      }
+      //apiConcepts.forEach(async concept =>{});
+      this.table.products = aux;
+      this.table.loading = false;
     },333), 
   },
   watch: {
@@ -402,7 +428,7 @@ export default {
       this.table.page = 1;
       this.table.page_old = 1;
       this.table.dataOffset = 0;
-      this.getConcept(true,input);
+      this.getConcept(true,input, this.$data.apiConcepts.data.data);
     },
     singleExpand (v) {
       if (!v) return
@@ -412,16 +438,41 @@ export default {
       })
     },
     grupo: function() {
-      let aux = this.apiSubGroups.filter(e => e.every(s => s.grupos_id === this.grupo.id))[0];
+      this.table.page = 1;
+      if (this.grupo === "") return;
+      this.table.loading = true;
+      this.subgrupos = [];
+      let aux = this.apiSubGroups.filter(e => e.grupos_id === this.grupo.id);
       if (typeof aux !== 'undefined') aux.forEach(asp => this.subgrupos.push({text: asp.nombre, value: {id: asp.id, name: asp.nombre} }));
       else this.subNoData = (this.grupo.hasSub)?'Seleccione un «Grupo» primero.':'El grupo «'+this.grupo.name+'» no contiene Sub-Grupos.'
+      this.filteredConcepts = this.$data.apiConcepts.data.data.filter(c => c.grupos_id === this.grupo.id);
+      this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
+      this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
+      this.getConcept(false,"",this.filteredConcepts,true);
+    },
+    subgrupo: function() {
+      this.table.page = 1;
+      if (this.subgrupo === "") return;
+      this.table.loading = true;
+      this.filteredConcepts = this.$data.apiConcepts.data.data.filter(c => c.subgrupos_id === this.subgrupo.id);
+      this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
+      this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
+      this.getConcept(false,"",this.filteredConcepts,true);
+    },
+    clear: function(){
+      this.table.loading = true;
+      this.search = "";
+      this.grupo = "";
+      this.subgrupo = "";
+      this.table.page = 1;
+      this.getConcept(false,"",this.apiConcepts.data.data);
     }
   },
   async beforeMount() {
     this.$data.apiConcepts = await concept().get();
     this.$data.apiInvoices =  await invoices().get();
     this.$data.apiGroups = await groups().get();
-    this.$data.apiGroups.data.data.forEach(async group => {
+    for (let group of this.$data.apiGroups.data.data){
       let hasSubGroups = true;
       let promise = null;
       try {
@@ -429,12 +480,13 @@ export default {
       } catch (error) {
         null;
       }
-      if (typeof promise.data !== 'string') this.$data.apiSubGroups.push(promise.data.data);
+      if (typeof promise.data !== 'string') promise.data.data.forEach(p => this.$data.apiSubGroups.push(p));
       else hasSubGroups = false;
       this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
-    })
+    }
+
     this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
-    await this.getConcept();
+    await this.getConcept(false,"",this.$data.apiConcepts.data.data);    
   }
 };
 </script>

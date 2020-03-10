@@ -18,7 +18,7 @@
           <!--Rentabilidad-->
           <span v-if="type === 'Rentabilidad'">Rentabilidad de </span>
 
-          <span style="color:#0D47A1">{{ item.name }}</span>
+          <span style="color:#0D47A1"><br>{{ item.name }}</span>
           
 
           <!--Días de Inventario-->
@@ -128,7 +128,7 @@
 
         <!--Días de inventario-->
         <span v-if="type === 'Agotamiento'">
-          <span v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 > 0">se mantiene en</span>
+          <span v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 > 0"> se mantiene en</span>
           <span style="color:#0D47A1" v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 > 0">
             {{
               Math.trunc(
