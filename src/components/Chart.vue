@@ -41,10 +41,10 @@
         <span style="color:#0D47A1" v-if="!(type === 'Agotamiento' && Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 === 0)">{{ item.name }}</span>
 
         <!--Rotacion de stock-->
-        <span v-if="type === 'Rotación'"> ha rotado un </span>
+        <span v-if="type === 'Rotación' && options.series[1] > 0"> ha rotado un </span>
 
         <!--Reclamos-->
-        <span v-if="type === 'Reclamos'"> ha recibido reclamos de un </span>
+        <span v-if="type === 'Reclamos' && options.series[1] > 0"> ha recibido reclamos de un </span>
 
         <!--Devoluciones-->
         <span v-if="type === 'Devoluciones' && options.series[1] > 0"> ha devuelto un </span>
@@ -71,17 +71,6 @@
 
 
         <!-- Si el grafico es una dona -->
-        <span
-          style="color:#0D47A1"
-          v-if="ctype === 'donut' && type !== 'Rentabilidad' && options.series[1] > 0"
-        >
-          {{
-            Math.round(
-              (options.series[0] / options.series[1] + Number.EPSILON) * 100
-            ) + "% "
-          }}
-        </span>
-
         <!--Rentabilidad-->
         <span v-if="ctype === 'donut' && type === 'Rentabilidad'">
           proporciona un
@@ -89,18 +78,25 @@
           del
           <span style="color:#0D47A1">
             {{
-              Math.round(
-                ((item.stock_costs.series[0] - item.stock_costs.series[1]) /
-                  item.stock_costs.series[0] +
-                  Number.EPSILON) *
-                  100
-              ) + "%."
+              isNaN(Math.round(((item.stock_costs.series[0] - item.stock_costs.series[1]) / item.stock_costs.series[0] + Number.EPSILON) * 100  ))  ? 0 + "%."
+              : Math.round( ((item.stock_costs.series[0] - item.stock_costs.series[1]) / item.stock_costs.series[0] + Number.EPSILON) * 100 ) + "%."
             }}
           </span>
         </span>
+        <span
+          style="color:#0D47A1"
+          v-else-if="ctype === 'donut' && type !== 'Rotación' && type !== 'Rentabilidad' && type !== 'Devoluciones' && type !== 'Reclamos' ||  options.series[1] > 0"
+        >
+          {{
+            isNaN(Math.round((options.series[0] / options.series[1] + Number.EPSILON) * 100 )) || !isFinite(Math.round((options.series[0] / options.series[1] + Number.EPSILON) * 100 )) ? 0 +'% '
+            : Math.round((options.series[0] / options.series[1] + Number.EPSILON) * 100 ) + "% "
+          }}
+        </span>
+
+        
 
         <!--Rotacion de stock-->
-        <span v-if="type === 'Rotación'">
+        <span v-if="type === 'Rotación' && options.series[1] > 0">
           <span style="color:#0D47A1">{{ "(" + options.series[0] + " unidades)" }}</span> de sus existencias en el
           almacén.
         </span>
@@ -117,13 +113,16 @@
         </span>
         -->
 
-        <!--Devoluciones-->
+        <!--Devoluciones, reclamos y rotacion en 0-->
         <span  v-if="(type === 'Devoluciones'  && options.series[1] > 0) || (type === 'Reclamos'  && options.series[1] > 0)">
           <span style="color:#0D47A1">{{ "(" + options.series[0] + " unidades)" }}</span> de sus
           <span style="color:#0D47A1">{{ options.series[1] }}</span> unidades vendidas.
         </span>
         <span  v-else-if="(type === 'Devoluciones'  && options.series[1] === 0) || (type === 'Reclamos'  && options.series[1] === 0)">
           <span> no ha vendido unidades, por lo tanto no existen {{type.toLowerCase()}}.</span>
+        </span>
+        <span  v-else-if="(type === 'Rotación'  && options.series[1] === 0)">
+          <span> no cuenta con existencias, por lo tanto no existe {{type.toLowerCase()}}.</span>
         </span>
 
         <!--Días de inventario-->
@@ -165,6 +164,7 @@ export default {
     options: Object,
     ctype: String,
     height: String
-  }
+  },
+  beforeMount(){}
 };
 </script>
