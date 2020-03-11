@@ -43,7 +43,7 @@
                   ></v-select>
                 </v-col>
                 <v-col cols="12" sm="1">
-                  <v-btn class="xsMarginFix" style="height:39px;" outlined dense color="error" @click="clear = !clear">
+                  <v-btn style="height:39px;" outlined dense color="error" @click="clear = !clear">
                     <p class="d-flex d-sm-none" style="margin:0">Limpiar Filtros </p>
                     <v-icon>mdi-autorenew</v-icon>
                   </v-btn>
@@ -58,7 +58,7 @@
               -->
               <v-data-table
                 ref="Inventario"
-                :loading="table.loading && '#00E676'"
+                :loading="table.loading && '#01579B'"
                 :headers="table.headers"
                 :items="table.products"
                 :search="table.search"
@@ -77,17 +77,28 @@
                 @update:page="paginate"
                 @page-count="table.pageCount = $event"
               >
+                <template slot="loading">
+                  <p class="headline" style="margin-top:20px;color:#0d0d0d!important;z-index:1;position:relative;">Buscando conceptos...</p>
+                  <v-spacer></v-spacer>
+                  <!-- 
+                    MONEDA CORRIENDO: https://i.pinimg.com/originals/90/04/b2/9004b278c6a1d58c9fdf4a1b05222127.gif
+                    ALCANCIA CORRIENDO: https://i.pinimg.com/originals/d6/f4/c7/d6f4c75045b250de9761f4f68810424d.gif
+                    LAPTOP: https://i.pinimg.com/originals/44/f0/02/44f002166db0c224c90703f18a659dae.gif
+                  -->
+                  <img :src="require('@/assets/loading.gif')" alt="" class="loadState">
+                  <v-spacer></v-spacer>
+                </template>
                 <template slot="no-data">
                   <p class="headline" style="margin-top:20px;color:#0d0d0d!important;">No se encontraron conceptos.</p>
                   <v-spacer></v-spacer>
-                  <img src="/images/noresults.svg" alt="" height="300px" style="margin:20px 0;">
+                  <img :src="require('@/assets/noresults.svg')" alt="" width="400px" style="margin:20px 0;">
                   <v-spacer></v-spacer>
                 </template>
                 <template v-slot:item.image="{ item }">
                   <div class="p-2">
                     <v-btn icon height="70px" width="65px" hoverable @focus="open(item)">
                       <v-img
-                        :src="(item.icon.toggled)?'/images/boxOF.svg':'/images/box.svg'"
+                        :src="(item.icon.toggled)?require('@/assets/boxOF.svg'):require('@/assets/box.svg')"
                         :alt="item.name"
                         width="60px"
                         height="65px"
@@ -163,30 +174,31 @@
           </v-col>
         </v-row>
       <div class="mWidth">
-        <v-dialog v-model="dialog" transition="bounce">
+        <v-dialog v-model="dialog" persistent transition="bounce">
            <v-card class="mx-auto" outlined>
+             <v-btn icon @click="open(null)" style="position:absolute;right:0;z-index:1;"><v-icon>close</v-icon></v-btn>
             <v-list-item three-line>
-              <v-list-item-avatar tile size="150" color="grey"></v-list-item-avatar>
+              <v-list-item-avatar tile size="150" color="grey lighten-1"><img :src="require('@/assets/auxIcon.svg')"></v-list-item-avatar>
               <v-list-item-content>
                 <div class="overline mb-4">PESTAÑA DETALLADA</div>
-                <v-list-item-title class="headline mb-1">{{ selectedItem === null ? null : selectedItem.name}}</v-list-item-title>
-                <v-list-item-subtitle>{{ selectedItem === null ? null : selectedItem.description}}</v-list-item-subtitle>
+                <v-list-item-title class="headline mb-1" style="white-space: normal;line-height:1.3rem;font-size:1.1rem;">{{ selectedItem === null ? null : selectedItem.name}}</v-list-item-title>
+                <v-list-item-subtitle style="padding-top:10px;">
+                  <div class="overline mb-4">DESCRIPCIÓN</div>
+                  <p>{{ selectedItem === null ? null : selectedItem.description}}</p>
+                </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
-            <v-list disabled>
+            <v-list disabled style="margin-top:-30px;">
               <v-subheader>Detalles de Existencias</v-subheader>
               <v-list-item-group v-model="selectedItem" color="primary">
                 <v-list-item >
                   <v-list-item-content>
-                    <v-list-item-title v-text="''"></v-list-item-title>
+                    <v-list-item-title v-text="'Existencia Mínima: ' + selectedItem.stockMin !== null ? selectedItem.stockMin : 'No definida.' "></v-list-item-title>
+                    <v-list-item-title v-text="'Existencia Máxima: ' + selectedItem.stockMax !== null ? selectedItem.stockMin : 'No definida.' "></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
             </v-list>
-            <v-card-actions>
-              <v-btn text>Button</v-btn>
-              <v-btn text>Button</v-btn>
-            </v-card-actions>
           </v-card>
         </v-dialog>
       </div>
@@ -222,7 +234,10 @@ export default {
       apiConceptsAux: null,
       apiInvoices: null,
       apiGroups: null,
-      selectedItem: null,
+      selectedItem: {
+        stockMin:null, 
+        stockMax:null
+      },
       apiSubGroups: [],
       grupos: [],
       subgrupos: [],
@@ -342,7 +357,6 @@ export default {
          await this.getConcept((this.search !== ""), this.search, this.$data.apiConcepts.data.data.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage));
       }else{
         await this.getConcept((this.search !== ""), this.search, this.$data.filteredConcepts);
-        console.log(this.$data.filteredConcepts);
       }
     },
   
@@ -433,7 +447,7 @@ export default {
       let StockDatesAux = stock_dates.length > 1000 ? stock_dates.slice(product.stock_end.length/50,product.stock_end.length-1) : stock_dates;
       product.stock_days = reports.chart__area(stockEndAux, StockDatesAux, false,  "stockdays" );
       product.stock_costs = reports.chart__donut([Math.trunc(+product.sale), Math.trunc(+product.cost)], "Beneficios del", ["Precio", "Costo"], null, "benefits");
-      product.stock_rotation = reports.chart__donut([product.sold, product.stock], "Rotación del", ["Consumo", "Existencias"]);
+      product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"]);
       //esto da formato de BSF + Precio (formato español -> Bs1.000,00)
       product.sale = accounting.formatMoney(+product.sale, { symbol   : "Bs", thousand : ".", decimal  : ",", });
       return product;
@@ -572,7 +586,7 @@ export default {
 
     this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
     await this.getConcept(false,"",this.$data.apiConcepts.data.data); 
-    console.log(this.apiInvoices);
+    console.log(this.apiConcepts);
   },
 };
 </script>
@@ -611,19 +625,31 @@ thead.v-data-table-header-mobile{
   display:none;
 }
 
-.xsMarginFix{
+.loadState{
+  z-index:0;
+  position:relative;
 
-  @media screen and (max-width: 600px){
-      margin-top: -40px!important;
+  @media screen and (max-width: 600px) {
+    margin-top:-25px!important;
+    width: 100%!important;
   }
 
+  @media screen and (min-width: 600px) and (max-width: 960px) {
+    margin-top:-35px;
+    width: 70%!important;
+  }
+
+  @media screen and (min-width:960px) {
+    margin-top:-45px;
+    width: 60%!important;
+  }
 }
 
 .v-dialog:not(.v-dialog--fullscreen) {
 
   width: auto;
 
-  @media screen and (max-width: 600x) {
+  @media screen and (max-width: 600px) {
     width: 300px!important;
   }
 

@@ -24,11 +24,11 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                                 formatter: function (val) {
                                     if(formatter === null || formatter === 'default'){
                                         return (
-                                            isNaN(Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100))?0+"%":Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)+'%'
+                                            isNaN(Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)) || !isFinite(Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)) ? 0 + "%" : Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)+'%'
                                         );
                                     }else{
                                         return (
-                                            isNaN(Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 100))?0+"%":Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 100)+'%'
+                                            isNaN(Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 100)) || !isFinite(Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 100)) ? 0+"%" : Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 100)+'%'
                                         );
                                     }
                                         

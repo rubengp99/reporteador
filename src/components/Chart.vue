@@ -165,6 +165,7 @@ export default {
     ctype: String,
     height: String
   },
-  beforeMount(){}
+  beforeMount(){
+  }
 };
 </script>
