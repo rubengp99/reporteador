@@ -1,11 +1,16 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+//import Home from '../views/Home.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
     {
+        path: '/',
+        name: 'Inicio',
+        component: () => import('../views/Inventario.vue')
+    },
+    /*{
         path: '/Inicio',
         name: 'Inicio',
         component: Home
@@ -17,20 +22,20 @@ const routes = [
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
         component: () =>
-            import( /* webpackChunkName: "about" */ '../views/Ventas.vue')
-    },
+            import(  //'../views/Ventas.vue')
+    /*},
     {
         path: '/Inventario',
         name: 'Inventario',
         component: () => import('../views/Inventario.vue')
 
-    }
+    }*/
 ]
 
 const router = new VueRouter({
     routes,
     mode: "history",
-    base: '/Report',
+    base: '/Reporteador',
     linkActiveClass: 'router-link-active',
     linkExactActiveClass: 'router-link-exact-active',
     scrollBehavior(to, from, savedPosition) {

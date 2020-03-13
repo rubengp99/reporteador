@@ -54,6 +54,15 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                     let concat = (formatter !== 'default')?'Bs':'';
                     return opts.w.config.series[opts.seriesIndex] + concat
                 },
+                background: {
+                    enabled: true,
+                    foreColor: '#40514e',
+                    borderRadius: 2,
+                    padding: 4,
+                    opacity: 0.9,
+                    borderWidth: 3,
+                    borderColor: '#fff',
+                },
             },
             legend: {
                 position: "bottom"
@@ -114,19 +123,6 @@ exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab',
             legend: {
                 horizontalAlign: 'left'
             },
-            animations: {
-                enabled: false,
-                easing: 'easeinout',
-                speed: 800,
-                animateGradually: {
-                    enabled: true,
-                    delay: 150
-                },
-                dynamicAnimation: {
-                    enabled: true,
-                    speed: 350
-                }
-            }
         },
     };
 };

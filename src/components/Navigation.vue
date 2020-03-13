@@ -86,10 +86,7 @@
         style="width: 300px"
         class="ml-0 pl-4"
       >
-        <span>Reporteador</span>
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn
+        <span><v-btn
         icon
         large
       >
@@ -98,10 +95,13 @@
           item
         >
           <v-img
-            src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
+            src="@/assets/AFTIM.png"
             alt="Vuetify"
           /></v-avatar>
-      </v-btn>
+      </v-btn>Reporteador</span>
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      
     </v-app-bar>
   </nav>
 </template>
@@ -115,11 +115,11 @@
       dialog: false,
       drawer: false,
       items: [
-        { icon: 'home', text: 'Inicio', path: '/Inicio' },
-        { icon: 'show_chart', text: 'Rentabilidad', path: '/Rentabilidad' },
-        { icon: 'score', text: 'Inventario', path: '/Inventario' },
-        { icon: 'multiline_chart', text: 'Ventas', path: '/Ventas' },
-        { icon: 'mdi-help-circle', text: 'Ayuda', path: '/Ayuda' },
+       // { icon: 'home', text: 'Inicio', path: '/Inicio' },
+        //{ icon: 'show_chart', text: 'Rentabilidad', path: '/Rentabilidad' },
+        { icon: 'score', text: 'Inventario', /*path: '/Inventario'*/ path: '/' },
+        //{ icon: 'multiline_chart', text: 'Ventas', path: '/Ventas' },
+        //{ icon: 'mdi-help-circle', text: 'Ayuda', path: '/Ayuda' },
       ],
     }),
   }

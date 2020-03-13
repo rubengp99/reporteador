@@ -7,14 +7,16 @@ import ApexCharts from 'vue-apexcharts/src/ApexCharts.component'
 //import FusionChart from 'vue-fusioncharts/src/vue-fusioncharts-component';
 import VueFusionCharts from 'vue-fusioncharts';
 import FusionCharts from 'fusioncharts';
-import Maps from 'fusioncharts/fusioncharts.maps'
-import World from 'fusioncharts/maps/fusioncharts.world'
+import Maps from 'fusioncharts/fusioncharts.maps';
+import World from 'fusioncharts/maps/fusioncharts.world';
+import vueheader from 'vue-head';
 
 //import the theme
 import FusionTheme from 'fusioncharts/themes/fusioncharts.theme.fusion';
 
 // register VueFusionCharts component
 Vue.use(VueFusionCharts, FusionCharts, Maps, World, FusionTheme)
+Vue.use(vueheader);
 Vue.component('apexchart', ApexCharts);
 
 Vue.config.productionTip = false

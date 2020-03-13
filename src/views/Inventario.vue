@@ -6,7 +6,7 @@
             <v-card>
               <v-card-title>
                 <v-spacer></v-spacer>
-                  Reporte de Inventario
+                  Reportes Estadísticos del Inventario
                 <v-spacer></v-spacer>
               </v-card-title>
               <v-row style="padding:0 20px;">
@@ -64,21 +64,20 @@
                 :search="table.search"
                 :single-expand="table.expand"
                 :expanded.sync="table.expanded"
-                item-key="name"
+                item-key="id"
                 show-expand
                 :sort-by.sync="table.sortBy"
                 :sort-desc.sync="table.sortDesc"
                 :page.sync="table.page"
                 :items-per-page="table.itemsPerPage"
                 :server-items-length="table.totalConceptos"
-                
                 hide-default-footer
                 class="elevation-1"
                 @update:page="paginate"
                 @page-count="table.pageCount = $event"
               >
                 <template slot="loading">
-                  <p class="headline" style="margin-top:20px;color:#0d0d0d!important;z-index:1;position:relative;">Buscando conceptos...</p>
+                  <p class="body-1" style="margin-top:20px;color:#0d0d0d!important;z-index:1;position:relative;">Procesando estadísticas...</p>
                   <v-spacer></v-spacer>
                   <!-- 
                     MONEDA CORRIENDO: https://i.pinimg.com/originals/90/04/b2/9004b278c6a1d58c9fdf4a1b05222127.gif
@@ -89,7 +88,7 @@
                   <v-spacer></v-spacer>
                 </template>
                 <template slot="no-data">
-                  <p class="headline" style="margin-top:20px;color:#0d0d0d!important;">No se encontraron conceptos.</p>
+                  <p class="body-1" style="margin-top:20px;color:#0d0d0d!important;">No se encontraron conceptos.</p>
                   <v-spacer></v-spacer>
                   <img :src="require('@/assets/noresults.svg')" alt="" width="400px" style="margin:20px 0;">
                   <v-spacer></v-spacer>
@@ -98,7 +97,7 @@
                   <div class="p-2">
                     <v-btn icon height="70px" width="65px" hoverable @focus="open(item)">
                       <v-img
-                        :src="(item.icon.toggled)?require('@/assets/boxOF.svg'):require('@/assets/box.svg')"
+                        :src="(typeof item !== 'undefined') ? item.icon.toggled ? require('@/assets/boxOF.svg'):require('@/assets/box.svg') :  require('@/assets/boxOF.svg')"
                         :alt="item.name"
                         width="60px"
                         height="65px"
@@ -177,25 +176,30 @@
         <v-dialog v-model="dialog" persistent transition="bounce">
            <v-card class="mx-auto" outlined>
              <v-btn icon @click="open(null)" style="position:absolute;right:0;z-index:1;"><v-icon>close</v-icon></v-btn>
+              <img v-if="selectedItem.stock === 0" src="@/assets/agotado.png" width="150px" height="75px" style="flex: 0 0 0%;position:absolute;top: 55px;left: 15px;z-index: 1;">
             <v-list-item three-line>
-              <v-list-item-avatar tile size="150" color="grey lighten-1"><img :src="require('@/assets/auxIcon.svg')"></v-list-item-avatar>
+              <v-list-item-avatar tile size="150" color="grey lighten-1"><img :src="typeof selectedItem.image === 'undefined'  || selectedItem.image === 'default.png' ? require('@/assets/box.svg') : '' "></v-list-item-avatar>
               <v-list-item-content>
                 <div class="overline mb-4">PESTAÑA DETALLADA</div>
-                <v-list-item-title class="headline mb-1" style="white-space: normal;line-height:1.3rem;font-size:1.1rem;">{{ selectedItem === null ? null : selectedItem.name}}</v-list-item-title>
-                <v-list-item-subtitle style="padding-top:10px;">
-                  <div class="overline mb-4">DESCRIPCIÓN</div>
-                  <p>{{ selectedItem === null ? null : selectedItem.description}}</p>
+                <v-list-item-title class="title mb-1" style="white-space: normal;line-height:1.3rem;font-size:1.1rem;">{{ selectedItem === null ? null : selectedItem.name}}</v-list-item-title>
+                <v-list-item-subtitle style="padding-top:15px;">
+                  <div class="caption mb-1" style="color:black;">DESCRIPCIÓN</div>
+                  <p class="overline" style="color:#424242">{{ selectedItem === null ? null : selectedItem.description}}</p>
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-list disabled style="margin-top:-30px;">
-              <v-subheader>Detalles de Existencias</v-subheader>
+              <v-subheader style="color:black;" class="subtitle-1">Detalles de Existencias</v-subheader>
               <v-list-item-group v-model="selectedItem" color="primary">
                 <v-list-item >
-                  <v-list-item-content>
-                    <v-list-item-title v-text="'Existencia Mínima: ' + selectedItem.stockMin !== null ? selectedItem.stockMin : 'No definida.' "></v-list-item-title>
-                    <v-list-item-title v-text="'Existencia Máxima: ' + selectedItem.stockMax !== null ? selectedItem.stockMin : 'No definida.' "></v-list-item-title>
-                  </v-list-item-content>
+                    <v-list-item-content style="padding: 6px 0;width:50%">
+                      <p class="caption mb-1" ><strong>Existencia mínima:</strong> {{ selectedItem.stockMin !== null ? selectedItem.stockMin : '---' }}</p>
+                      <p class="caption" ><strong>Existencia máxima:</strong> {{ selectedItem.stockMax !== null ? selectedItem.stockMin : '---' }}</p>
+                    </v-list-item-content>
+                    <v-list-item-content style="padding: 6px 0;width:50%">
+                      <p class="caption mb-1" ><strong>Referencia:</strong> {{ selectedItem.reference !== null ? selectedItem.reference : '---' }}</p>
+                    </v-list-item-content>
+                      <p class="overline" >&nbsp;</p>
                 </v-list-item>
               </v-list-item-group>
             </v-list>
@@ -212,10 +216,11 @@ import moment from "moment";
 import concept from "../services/Conceptos";
 import invoices from "../services/Factura";
 import groups from "../services/Grupos"
+import subGroups from '../services/SubGrupos'
 import accounting from 'accounting';
 import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex'
-
+import 'vue-head';
 //import movements from "../services/Movimiento_deposito";
 const reports = require("../plugins/reports");
 
@@ -223,6 +228,14 @@ export default {
   name: "Home",
   components: {
     chart: chart,
+  },
+  head: {
+    title: {
+      inner: 'Reporteador',
+      separator: '|',
+      complement: 'Inventario'
+    },
+    //omited
   },
   data() {
     return {
@@ -233,10 +246,14 @@ export default {
       apiConcepts: null,
       apiConceptsAux: null,
       apiInvoices: null,
+      apiSales: null,
       apiGroups: null,
       selectedItem: {
+        referece: null,
+        stock: null,
         stockMin:null, 
-        stockMax:null
+        stockMax:null,
+        stock_lastDay: null
       },
       apiSubGroups: [],
       grupos: [],
@@ -244,6 +261,8 @@ export default {
       grupo: "",
       subgrupo: "",
       search: "",
+      grupoChanged: false,
+      subgrupoChanged: false,
       transitioned: [],
       closeTimeouts: {},
       singleExpand: false,
@@ -267,12 +286,12 @@ export default {
           { text: "Más Detalles", align: "center", sortable: false, value: "image" },
           //{ text: "ID", align: "center", value: "id", sortable: false, },
           { text: "Código", align: "center", value: "codigo", sortable: false, },
-          { text: "Producto", align: "center", value: "name", sortable: true, },
+          { text: "Producto", align: "center", value: "name", sortable: false, },
           { text: "Grupo", align: "center", value: "category.name", sortable: false, },
           { text: "Sub-Grupo", align: "center", value: "subCategory.name", sortable: false, },
-          { text: "En Inventario", align: "center", value: "stock", sortable: true, },
+          { text: "En Inventario", align: "center", value: "stock", sortable:false, },
           //{ text: "Vendidos", align: "center", value: "sold", sortable: false, },
-          { text: "Precio", align: "center", value: "sale", sortable: true, },
+          { text: "Precio", align: "center", value: "sale", sortable: false, },
           { text: "Estadísticas", align: "center", value: "data-table-expand", sortable: false, }
         ],
         products: [],
@@ -282,16 +301,6 @@ export default {
   computed: {
     ...mapState(['loading']),
     ...mapGetters(['getStatebyIndex']),
-    imageHeight () {
-        switch (this.$vuetify.breakpoint.name) {
-          case 'xs': return '220px'
-          case 'sm': return '400px'
-          case 'md': return '500px'
-          case 'lg': return '600px'
-          case 'xl': return '800px'
-        }
-        return null;
-      },
   },
   methods: {
     //este bloque de codigo es un copy-paste para animacion al expandir un row en datatable
@@ -334,13 +343,15 @@ export default {
     // @param concepto
     // configura la variable concepto.toggle = true/false para el cambio
     open(item){
-      if (item === null){
-        this.table.products.map(p => p.icon.toggled = p.icon.toggled ? !p.icon.toggled : p.icon.toggled);
-        this.dialog = false;
-      }else{
-        item.icon.toggled = !item.icon.toggled;
-        this.selectedItem = item;
-        this.dialog = true;
+      if(typeof item !== 'undefined'){
+        if (item === null){
+          this.table.products.map(p => p.icon.toggled = p.icon.toggled ? !p.icon.toggled : p.icon.toggled);
+          this.dialog = false;
+        }else{
+          item.icon.toggled = !item.icon.toggled;
+          this.selectedItem = item;
+          this.dialog = true;
+        }
       }
     },
     //en caso de carga por paginación, no tocar si no es necesario
@@ -354,7 +365,7 @@ export default {
       this.table.products = [];
       this.table.page_old = page;
       if (this.grupo === "" && this.subgrupo === ""){
-         await this.getConcept((this.search !== ""), this.search, this.$data.apiConcepts.data.data.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage));
+         await this.getConcept((this.search !== ""), this.search, this.$data.apiConcepts.data.data);
       }else{
         await this.getConcept((this.search !== ""), this.search, this.$data.filteredConcepts);
       }
@@ -373,10 +384,14 @@ export default {
       for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do YYYY').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do YYYY').slice(1));
       fechas.reverse();
       let sales = [0,0,0,0,0,0,0];
-      for (let invoice of this.apiInvoices.data.data){
-        product.sold += (typeof invoice.detalles.find(sold => sold.conceptos_id === product.id || sold.adm_conceptos_id === product.id) === 'object')?+Math.trunc(invoice.detalles.find(sold => sold.conceptos_id === product.id || sold.adm_conceptos_id === product.id).cantidad):0;
+      product.sold = await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount);
+      for(let i = 6; i === 0; i--) sales[i] = console.log(await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount+'&fecha_at='+moment('2019-10-29').locale('es').subtract(i,'days').format('YYYY-MM-DD')))
+      for(let i = 6; i === 0; i--) sales[i] = +Math.trunc(+sales[i].data.ventas)
+      product.sold = +Math.trunc(+product.sold.data.ventas);
+      //for (let invoice of this.apiInvoices.data.data){
+        //product.sold = (typeof invoice.find(sold => sold.conceptos_id === product.id || sold.adm_conceptos_id === product.id) === 'object')?+Math.trunc(invoice.detalles.find(sold => sold.conceptos_id === product.id || sold.adm_conceptos_id === product.id).vendidos):0;
         //como la factura se devuelve completa, entonces se suman todas las existencias vendidas a devoluciones.
-        if (invoice.tipos_facturas_id === 3 || invoice.adm_tipos_facturas_id === 3) product.returned += (typeof invoice.detalles.find(detail => detail.conceptos_id === product.id || detail.adm_conceptos_id === product.id) === 'object')?+Math.trunc(invoice.detalles.find(detail => detail.conceptos_id === product.id  || detail.adm_conceptos_id === product.id).cantidad):0;
+        //if (invoice.tipos_facturas_id === 3 || invoice.adm_tipos_facturas_id === 3) product.returned += (typeof invoice.detalles.find(detail => detail.conceptos_id === product.id || detail.adm_conceptos_id === product.id) === 'object')?+Math.trunc(invoice.detalles.find(detail => detail.conceptos_id === product.id  || detail.adm_conceptos_id === product.id).cantidad):0;
         product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#E91E63", "#3f72af"]);
         product.stock_claims = reports.chart__donut(
             [0, product.sold],
@@ -384,7 +399,7 @@ export default {
             ["Reclamos", "Compras"],    //solo hay que cambiar el 0 por el Nº de reclamos
             ["#FFC107", "#3f72af"]
         );
-        if (typeof fechas.find(date => date === moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').slice(1)) !== 'undefined'){
+        /*if (typeof fechas.find(date => date === moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').slice(1)) !== 'undefined'){
           switch (moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').slice(1)){
             case fechas[0]: sales[0]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
             case fechas[1]: sales[1]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
@@ -394,8 +409,8 @@ export default {
             case fechas[5]: sales[5]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
             case fechas[6]: sales[6]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
           }
-        }
-      }
+        }*/
+      //}
       product.stock_daily_sells = sales;
       fechas = [];
       for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do').slice(1));
@@ -413,7 +428,7 @@ export default {
     */
     async configStockDays(product,onlyData = false) {
       let existencias = await concept().get("/" + product.id + "/depositos");
-      existencias.data.data.filter(a => (product.stock += +a.existencia));
+      existencias.data.data.filter(a => (product.stock += +Math.trunc(a.existencia)));
       // esta condicion solo se usa para filtrar items, no es necesario calcular todo, solo se sacan los
       //datos esenciales
       if (onlyData){
@@ -456,23 +471,41 @@ export default {
       consultas de api anteriores: @param limit="?offset=" + this.table.dataOffset + "&limit=" + this.table.itemsPerPage
     */
     getConcept: _.debounce(async function(search = false, input = "", pConcept = null) {
+      //let index = []
+      //let setCustomConcept = false;
       let aux = [];
       let apiConcepts = (pConcept.length > 8) ? 
         pConcept.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage) : pConcept;
       if (search && input !== ""){
-        apiConcepts = ((this.grupo !== "") ? apiConcepts : this.$data.apiConcepts.data.data)
-          .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
+        this.filteredConcepts = ((this.grupo !== "") ? apiConcepts : this.$data.apiConcepts.data.data)
+          .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase()));
+        apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
         this.table.totalConceptos = ((this.grupo !== "") ? apiConcepts : this.$data.apiConcepts.data.data)
           .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).length;
-      } 
+      }
+     
+
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
-      for(let concept of apiConcepts){
+      
+     /* for (const concept of apiConcepts) {
+        if (typeof concept.fullData === 'undefined'){
+          setCustomConcept = true;
+          index.push(concept);
+        }else if(concept.fullData === true){
+          aux.push(concept);
+        }
+      }*/
+      
+      
+      for(let concept of apiConcepts/*((setCustomConcept) ? index : apiConcepts)*/){
         aux.push(await this.configStockDays(await this.configMovements({
+          fullData: true,
           image: concept.imagen,
           icon: {
             img: '/images/box.svg',
             toggled: false,
           },
+          reference: concept.referencia,
           id: concept.id,
           codigo: concept.codigo,
           name: concept.nombre,
@@ -492,9 +525,9 @@ export default {
           },
           subCategory: {
             id: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
-                  this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].id:0,
+                  typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].id : 0 : 0,
             name: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
-                    this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre:'-'
+                    typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' :'-'
           },
           price$: concept.precio_dolar,
           stock_daily_sells: [0,0,0,0,0,0],
@@ -508,16 +541,19 @@ export default {
           stock_costs: null,
         })));
       }
-      //apiConcepts.forEach(async concept =>{});
-      this.table.products = aux;
-      this.table.loading = false;
 
+      //for (let i = this.table.dataOffset; i < this.table.dataOffset + this.table.itemsPerPage; i++) this.apiConcepts.data.data[i] = aux[i]
+      this.table.products = aux.sort((a, b) => a.id - b.id);
+      this.table.loading = false;
     },333), 
   },
   watch: {
     search: function (input) {
+      this.table.loading = true;
+      if (this.grupo !== "" && input === "" || this.subgrupo !== "" && input === "") return;
+      
       if (input === ""){
-        this.getConcept(false,input, this.$data.apiConcepts.data.data);
+        this.getConcept(false, input,  this.apiConcepts.data.data);
         return;
       }
       this.table.page = 1;
@@ -534,27 +570,33 @@ export default {
     },
     grupo: function() {
       this.table.page = 1;
+      this.table.page_old = 1;
+      this.table.dataOffset = 0;
+      this.search = "";
       if (this.grupo === "") return;
       this.table.loading = true;
       this.subgrupos = [];
       let aux = this.apiSubGroups.filter(e => e.grupos_id === this.grupo.id || e.adm_grupos_id === this.grupo.id);
       if (typeof aux !== 'undefined') aux.forEach(asp => this.subgrupos.push({text: asp.nombre, value: {id: asp.id, name: asp.nombre} }));
       else this.subNoData = (this.grupo.hasSub)?'Seleccione un «Grupo» primero.':'El grupo «'+this.grupo.name+'» no contiene Sub-Grupos.'
-      this.filteredConcepts = this.$data.apiConcepts.data.data.filter(c => c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id);
+      this.filteredConcepts = ((this.search === "") ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id);
       this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
-      this.getConcept(false,"",this.filteredConcepts,true);
+      this.getConcept(false,this.search,this.filteredConcepts, (this.search === ""));
     },
     subgrupo: function() {
       this.table.page = 1;
-      if (this.subgrupo === "") return;
+      this.table.page_old = 1;
+      this.table.dataOffset = 0;
+      this.search = "";
       this.table.loading = true;
-      this.filteredConcepts = this.$data.apiConcepts.data.data.filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_grupos_id === this.grupo.id);
+      this.filteredConcepts = ((this.search === "" ) ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id);
       this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
-      this.getConcept(false,"",this.filteredConcepts,true);
+      this.getConcept(false,this.search,this.filteredConcepts,(this.search === ""));
     },
     clear: function(){
+      this.table.products = [];
       this.table.loading = true;
       this.search = "";
       this.grupo = "";
@@ -562,16 +604,28 @@ export default {
       this.table.page = 1;
       this.table.totalConceptos = this.apiConcepts.data.totalCount;
       this.getConcept(false,"",this.apiConcepts.data.data);
-    }
+    },
   },
   async beforeMount() {
-    this.$data.apiConcepts = await concept().get();
-    this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount)
-    this.$data.apiInvoices =  await invoices().get();
-    this.$data.apiInvoices =  await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount);
+    this.$data.apiConcepts = await concept().get('?limit=1');
+    this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount);
+    //this.$data.apiSales = await concept().get('/mostSold?limit='+this.$data.apiConcepts.data.totalCount);
+    this.$data.apiInvoices = await invoices().get('?limit=1');
     this.$data.apiGroups = await groups().get();
     this.$data.apiGroups = await groups().get('?limit='+this.$data.apiGroups.data.totalCount);
+    this.$data.apiSubGroups = await subGroups().get('?limit=1');
+    this.$data.apiSubGroups = await subGroups().get('?limit='+this.$data.apiSubGroups.data.totalCount);
+    this.$data.apiSubGroups = this.$data.apiSubGroups.data.data;
+
     for (let group of this.$data.apiGroups.data.data){
+      let result = this.$data.apiSubGroups.filter(asg => asg.grupos_id === group.id || asg.adm_grupos_id === group.id);
+      let hasSubGroups = true;
+      if(result.length === 0){
+        hasSubGroups = false;
+      }
+      this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
+    }
+    /*for (let group of this.$data.apiGroups.data.data){
       let hasSubGroups = true;
       let promise = null;
       try {
@@ -582,11 +636,10 @@ export default {
       if (typeof promise.data !== 'string') promise.data.data.forEach(p => this.$data.apiSubGroups.push(p));
       else hasSubGroups = false;
       this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
-    }
-
+    }*/
     this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
     await this.getConcept(false,"",this.$data.apiConcepts.data.data); 
-    console.log(this.apiConcepts);
+    
   },
 };
 </script>
@@ -678,19 +731,19 @@ thead.v-data-table-header-mobile{
 }
 @keyframes bounce-in {
   0% {
-    transform: translate(-15%,0%) scale(0);
+    transform: scale(0);
   }
   25% {
-    transform: translate(-30%,0%) scale(1);
+    transform:scale(1);
   }
   50% {
-    transform: translate(-50%,0%) scale(1.5);
+    transform:scale(1.5);
   }
   75% {
-    transform: translate(-30%,0%) scale(1);
+    transform: scale(1);
   }
   100% {
-    transform: translate(0%,0%) scale(1);
+    transform:scale(1);
   }
 }
 @keyframes bounce-out {
