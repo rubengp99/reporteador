@@ -10,13 +10,14 @@ import FusionCharts from 'fusioncharts';
 import Maps from 'fusioncharts/fusioncharts.maps';
 import World from 'fusioncharts/maps/fusioncharts.world';
 import vueheader from 'vue-head';
-
+import Toasted from 'vue-toasted';
 //import the theme
 import FusionTheme from 'fusioncharts/themes/fusioncharts.theme.fusion';
 
 // register VueFusionCharts component
 Vue.use(VueFusionCharts, FusionCharts, Maps, World, FusionTheme)
 Vue.use(vueheader);
+Vue.use(Toasted);
 Vue.component('apexchart', ApexCharts);
 
 Vue.config.productionTip = false

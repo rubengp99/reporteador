@@ -13,12 +13,15 @@
                 <v-col cols="12" sm="5">
                   <v-text-field
                     v-model="search"
-                    append-icon="search"
+                    :append-icon="search === '' ? 'search' : 'close'"
                     label="Nombre"
                     outlined
                     hide-details
                     dense
+                    :disabled="loading"
                     style="height:39px;"
+                    @keyup.enter="goSearch = !goSearch"
+                    @click:append="search = ''"
                 ></v-text-field>
                 </v-col>
                 <v-col cols="6" sm="3">
@@ -28,6 +31,7 @@
                     label="Grupo"
                     outlined
                     dense
+                    :disabled="loading"
                     style="height:39px;"
                   ></v-select>
                 </v-col>
@@ -38,6 +42,7 @@
                     label="Sub-Grupo"
                     outlined
                     dense
+                    :disabled="loading"
                     :no-data-text="subNoData"
                     style="height:39px;"
                   ></v-select>
@@ -58,7 +63,7 @@
               -->
               <v-data-table
                 ref="Inventario"
-                :loading="table.loading && '#01579B'"
+                :loading="loading && '#01579B'"
                 :headers="table.headers"
                 :items="table.products"
                 :search="table.search"
@@ -219,9 +224,7 @@ import groups from "../services/Grupos"
 import subGroups from '../services/SubGrupos'
 import accounting from 'accounting';
 import _ from 'lodash';
-import { mapState, mapGetters } from 'vuex'
-import 'vue-head';
-//import movements from "../services/Movimiento_deposito";
+//import { mapState, mapGetters } from 'vuex'
 const reports = require("../plugins/reports");
 
 export default {
@@ -235,7 +238,6 @@ export default {
       separator: '|',
       complement: 'Inventario'
     },
-    //omited
   },
   data() {
     return {
@@ -261,6 +263,7 @@ export default {
       grupo: "",
       subgrupo: "",
       search: "",
+      goSearch: false,
       grupoChanged: false,
       subgrupoChanged: false,
       transitioned: [],
@@ -270,12 +273,10 @@ export default {
       filteredConcepts: [],
       clear: false,
       dialog: false,
+      loading: true,
       table: {
-        loading: true,
         expanded: [],
         expand: false,
-        //sortBy: ["name", "stock", "sold", "price"],
-        //sortDesc: true,
         page: 1,
         page_old: 1,
         pageCount: 0,
@@ -289,7 +290,7 @@ export default {
           { text: "Producto", align: "center", value: "name", sortable: false, },
           { text: "Grupo", align: "center", value: "category.name", sortable: false, },
           { text: "Sub-Grupo", align: "center", value: "subCategory.name", sortable: false, },
-          { text: "En Inventario", align: "center", value: "stock", sortable:false, },
+          { text: "Existencia", align: "center", value: "stock", sortable:false, },
           //{ text: "Vendidos", align: "center", value: "sold", sortable: false, },
           { text: "Precio", align: "center", value: "sale", sortable: false, },
           { text: "Estadísticas", align: "center", value: "data-table-expand", sortable: false, }
@@ -298,15 +299,12 @@ export default {
       }
     };
   },
-  computed: {
-    ...mapState(['loading']),
-    ...mapGetters(['getStatebyIndex']),
-  },
   methods: {
     //este bloque de codigo es un copy-paste para animacion al expandir un row en datatable
     getItemId (item) {
       return item.name // Must be uid of record (would be nice if v-data-table exposed a "getItemKey" method)
     },
+
     toggleExpand (props) {
       const item = props.item
       const id = this.getItemId(item)
@@ -325,6 +323,7 @@ export default {
         if (this.singleExpand) this.$nextTick(() => this.expanded.forEach(i => i !== item && this.closeExpand(i)))
       }
     },
+
     closeExpand (item) {
       const id = this.getItemId(item)
       // Mark that this item is in the process of closing
@@ -332,16 +331,12 @@ export default {
       // Remove expansion content from DOM after transition animation has had enough time to finish
       this.closeTimeouts[id] = setTimeout(() => this.$refs.Inventario.expand(item, false), 600)
     },
+
     //-------------------------------------------------
-    filter(items, index, isDesc){
-      console.log(items);
-      console.log(index);
-      console.log(isDesc);
-      return 1;
-    },
     // este metodo solo abre la caja al lado de los products
     // @param concepto
     // configura la variable concepto.toggle = true/false para el cambio
+
     open(item){
       if(typeof item !== 'undefined'){
         if (item === null){
@@ -354,9 +349,13 @@ export default {
         }
       }
     },
-    //en caso de carga por paginación, no tocar si no es necesario
+
+    //este metodo procesa una cantidad especifica de conceptos por cada página
+    //dependiendo del número de página se calcula desde donde empieza a leer el arreglo general
+    //para empezar a calcular los reportes.
+
     async paginate(page) {
-      this.table.loading = true;
+      this.loading = true;
       if (page === 1) this.table.dataOffset = 0;
       else if (page > this.table.page_old)
         this.table.dataOffset += Math.abs(page - this.table.page_old) === 0 ? 8 : Math.abs(page - this.table.page_old) * 8;
@@ -378,6 +377,7 @@ export default {
         -- Devoluciones
         -- Reclamos??
     */
+
    //PARA PRUEBAS USAR moment('02/20/2020')
     async configMovements(product){
       let fechas = [];
@@ -385,32 +385,18 @@ export default {
       fechas.reverse();
       let sales = [0,0,0,0,0,0,0];
       product.sold = await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount);
-      for(let i = 6; i === 0; i--) sales[i] = console.log(await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount+'&fecha_at='+moment('2019-10-29').locale('es').subtract(i,'days').format('YYYY-MM-DD')))
-      for(let i = 6; i === 0; i--) sales[i] = +Math.trunc(+sales[i].data.ventas)
+      let devolutions = await concept().get(product.id+'/devolutions');
+      product.returned = +devolutions.data.devoluciones;
+      for(let i = 6; i === 0; i--) sales[i] = await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount+'&fecha_at='+moment('2019-10-29').locale('es').subtract(i,'days').format('YYYY-MM-DD'));
+      for(let i = 6; i === 0; i--) sales[i] = +Math.trunc(+sales[i].data.ventas);
       product.sold = +Math.trunc(+product.sold.data.ventas);
-      //for (let invoice of this.apiInvoices.data.data){
-        //product.sold = (typeof invoice.find(sold => sold.conceptos_id === product.id || sold.adm_conceptos_id === product.id) === 'object')?+Math.trunc(invoice.detalles.find(sold => sold.conceptos_id === product.id || sold.adm_conceptos_id === product.id).vendidos):0;
-        //como la factura se devuelve completa, entonces se suman todas las existencias vendidas a devoluciones.
-        //if (invoice.tipos_facturas_id === 3 || invoice.adm_tipos_facturas_id === 3) product.returned += (typeof invoice.detalles.find(detail => detail.conceptos_id === product.id || detail.adm_conceptos_id === product.id) === 'object')?+Math.trunc(invoice.detalles.find(detail => detail.conceptos_id === product.id  || detail.adm_conceptos_id === product.id).cantidad):0;
-        product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#E91E63", "#3f72af"]);
-        product.stock_claims = reports.chart__donut(
-            [0, product.sold],
-            "Reclamos del",             //esto corresponde a reclamos, aún no está hecho, 
-            ["Reclamos", "Compras"],    //solo hay que cambiar el 0 por el Nº de reclamos
-            ["#FFC107", "#3f72af"]
-        );
-        /*if (typeof fechas.find(date => date === moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').slice(1)) !== 'undefined'){
-          switch (moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(invoice.fecha_at).locale('es').format('MMM Do YYYY').slice(1)){
-            case fechas[0]: sales[0]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
-            case fechas[1]: sales[1]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
-            case fechas[2]: sales[2]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
-            case fechas[3]: sales[3]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
-            case fechas[4]: sales[4]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
-            case fechas[5]: sales[5]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
-            case fechas[6]: sales[6]+= (typeof invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id) === 'undefined')?0:Math.trunc(+invoice.detalles.find(detalle => detalle.conceptos_id === product.id || detalle.adm_conceptos_id === product.id).cantidad);break;
-          }
-        }*/
-      //}
+      product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#E91E63", "#3f72af"]);
+      product.stock_claims = reports.chart__donut(
+          [0, product.sold],
+          "Reclamos del",             //esto corresponde a reclamos, aún no está hecho, 
+          ["Reclamos", "Compras"],    //solo hay que cambiar el 0 por el Nº de reclamos
+          ["#FFC107", "#3f72af"]
+      );
       product.stock_daily_sells = sales;
       fechas = [];
       for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do').slice(1));
@@ -419,6 +405,7 @@ export default {
 
       return product;
     },
+
     /* ----------------------------
       Diseñado para configurar:
         -- Inventario
@@ -426,17 +413,10 @@ export default {
         -- Rotación de Stock (50%)
         -- Rentabilidad
     */
-    async configStockDays(product,onlyData = false) {
+
+    async configStockDays(product) {
       let existencias = await concept().get("/" + product.id + "/depositos");
       existencias.data.data.filter(a => (product.stock += +Math.trunc(a.existencia)));
-      // esta condicion solo se usa para filtrar items, no es necesario calcular todo, solo se sacan los
-      //datos esenciales
-      if (onlyData){
-        //esto da formato de BSF + Precio (formato español -> Bs1.000,00)
-        product.sale = accounting.formatMoney(+product.sale, { symbol   : "Bs", thousand : ".", decimal  : ",", });
-        return product;
-      } 
-
       var stock_aux = product.stock;
       var stock_dates = [];
       if(product.stock_daily_sells.reduce((a, b) => a + b) > 0){
@@ -461,43 +441,30 @@ export default {
       let stockEndAux = product.stock_end.length > 1000 ? product.stock_end.slice(product.stock_end.length/50,product.stock_end.length-1) : product.stock_end;
       let StockDatesAux = stock_dates.length > 1000 ? stock_dates.slice(product.stock_end.length/50,product.stock_end.length-1) : stock_dates;
       product.stock_days = reports.chart__area(stockEndAux, StockDatesAux, false,  "stockdays" );
-      product.stock_costs = reports.chart__donut([Math.trunc(+product.sale), Math.trunc(+product.cost)], "Beneficios del", ["Precio", "Costo"], null, "benefits");
+      product.stock_costs = reports.chart__donut([+product.sale, +product.cost], "Beneficios del", ["Precio", "Costo"], null, "benefits");
       product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"]);
       //esto da formato de BSF + Precio (formato español -> Bs1.000,00)
-      product.sale = accounting.formatMoney(+product.sale, { symbol   : "Bs", thousand : ".", decimal  : ",", });
+      product.sale = accounting.formatMoney(+product.sale, { symbol   : "$", thousand : ".", decimal  : ",", });
       return product;
     },
+
     /*
       consultas de api anteriores: @param limit="?offset=" + this.table.dataOffset + "&limit=" + this.table.itemsPerPage
     */
+
     getConcept: _.debounce(async function(search = false, input = "", pConcept = null) {
-      //let index = []
-      //let setCustomConcept = false;
       let aux = [];
       let apiConcepts = (pConcept.length > 8) ? 
         pConcept.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage) : pConcept;
-      if (search && input !== ""){
-        this.filteredConcepts = ((this.grupo !== "") ? apiConcepts : this.$data.apiConcepts.data.data)
+      if (search){
+        this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.$data.apiConcepts.data.data)
           .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase()));
         apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
-        this.table.totalConceptos = ((this.grupo !== "") ? apiConcepts : this.$data.apiConcepts.data.data)
+        this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.$data.apiConcepts.data.data)
           .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).length;
       }
-     
-
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
-      
-     /* for (const concept of apiConcepts) {
-        if (typeof concept.fullData === 'undefined'){
-          setCustomConcept = true;
-          index.push(concept);
-        }else if(concept.fullData === true){
-          aux.push(concept);
-        }
-      }*/
-      
-      
-      for(let concept of apiConcepts/*((setCustomConcept) ? index : apiConcepts)*/){
+      for(let concept of apiConcepts){
         aux.push(await this.configStockDays(await this.configMovements({
           fullData: true,
           image: concept.imagen,
@@ -515,8 +482,8 @@ export default {
           stockMax: concept.existencia_maxima,
           description: concept.descripcion,
           returned: 0,
-          sale: +concept.precio_a,
-          cost: +concept.ultimo_costo,
+          sale: +concept.precio_dolar,
+          cost: +concept.costo_dolar,
           category: {
             id: (typeof this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
                   this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).id:0,
@@ -529,7 +496,6 @@ export default {
             name: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
                     typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' :'-'
           },
-          price$: concept.precio_dolar,
           stock_daily_sells: [0,0,0,0,0,0],
           stock_end: [],
           stock_lastDay: "",
@@ -541,26 +507,42 @@ export default {
           stock_costs: null,
         })));
       }
-
-      //for (let i = this.table.dataOffset; i < this.table.dataOffset + this.table.itemsPerPage; i++) this.apiConcepts.data.data[i] = aux[i]
       this.table.products = aux.sort((a, b) => a.id - b.id);
-      this.table.loading = false;
-    },333), 
+      this.loading = false;
+    },555), 
   },
   watch: {
-    search: function (input) {
-      this.table.loading = true;
-      if (this.grupo !== "" && input === "" || this.subgrupo !== "" && input === "") return;
-      
-      if (input === ""){
-        this.getConcept(false, input,  this.apiConcepts.data.data);
+    search: function(after){
+      if (this.grupo === "" && this.grupo === ""){
+        if(this.search === "" && this.filteredConcepts.length > 0){
+          this.loading = true;
+          this.getConcept(false, after,  this.apiConcepts.data.data);
+        }else
+          return;
+      }else if (this.grupo !== "" || this.grupo !== ""){
+        if(this.search === ""){
+          this.loading = true;
+          if(this.subgrupo !== ""){
+            this.filteredConcepts = ((this.search === "" ) ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id);
+          }else if(this.grupo !== ""){
+            this.filteredConcepts = ((this.search === "") ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id);
+          } 
+          this.getConcept(false, after,  this.filteredConcepts);
+        }else
+          return;
+      }else
         return;
-      }
+    },
+
+    goSearch: _.debounce(function () {
+      this.loading = true;
+      this.table.products = [];
       this.table.page = 1;
       this.table.page_old = 1;
       this.table.dataOffset = 0;
-      this.getConcept(true,input, this.$data.apiConcepts.data.data);
-    },
+      this.getConcept(true,this.search, (this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.$data.apiConcepts.data.data);
+    },555),
+
     singleExpand (v) {
       if (!v) return
       // Single expand enabled. Hide all but the first expanded item
@@ -568,13 +550,14 @@ export default {
         if (i > 0) this.closeExpand(item)
       })
     },
-    grupo: function() {
+
+    grupo: _.debounce(function() {
+      if (this.grupo === "") return;
       this.table.page = 1;
       this.table.page_old = 1;
       this.table.dataOffset = 0;
       this.search = "";
-      if (this.grupo === "") return;
-      this.table.loading = true;
+      this.loading = true;
       this.subgrupos = [];
       let aux = this.apiSubGroups.filter(e => e.grupos_id === this.grupo.id || e.adm_grupos_id === this.grupo.id);
       if (typeof aux !== 'undefined') aux.forEach(asp => this.subgrupos.push({text: asp.nombre, value: {id: asp.id, name: asp.nombre} }));
@@ -583,33 +566,37 @@ export default {
       this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
       this.getConcept(false,this.search,this.filteredConcepts, (this.search === ""));
-    },
-    subgrupo: function() {
+    },555),
+
+    subgrupo: _.debounce(function() {
+      if (this.subgrupo === "") return;
       this.table.page = 1;
       this.table.page_old = 1;
       this.table.dataOffset = 0;
       this.search = "";
-      this.table.loading = true;
+      this.loading = true;
       this.filteredConcepts = ((this.search === "" ) ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id);
       this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
       this.getConcept(false,this.search,this.filteredConcepts,(this.search === ""));
-    },
-    clear: function(){
+    },555),
+
+    clear: _.debounce(function(){
+      if (this.search === "" && this.grupo === "" && this.subgrupo === "") return;
       this.table.products = [];
-      this.table.loading = true;
+      this.loading = true;
       this.search = "";
       this.grupo = "";
       this.subgrupo = "";
       this.table.page = 1;
       this.table.totalConceptos = this.apiConcepts.data.totalCount;
       this.getConcept(false,"",this.apiConcepts.data.data);
-    },
+    },555),
   },
+
   async beforeMount() {
     this.$data.apiConcepts = await concept().get('?limit=1');
-    this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount);
-    //this.$data.apiSales = await concept().get('/mostSold?limit='+this.$data.apiConcepts.data.totalCount);
+    this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount+'&order=DESC');
     this.$data.apiInvoices = await invoices().get('?limit=1');
     this.$data.apiGroups = await groups().get();
     this.$data.apiGroups = await groups().get('?limit='+this.$data.apiGroups.data.totalCount);
@@ -625,21 +612,8 @@ export default {
       }
       this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
     }
-    /*for (let group of this.$data.apiGroups.data.data){
-      let hasSubGroups = true;
-      let promise = null;
-      try {
-        promise = await groups().get(group.id+'/subgrupos');
-      } catch (error) {
-        null;
-      }
-      if (typeof promise.data !== 'string') promise.data.data.forEach(p => this.$data.apiSubGroups.push(p));
-      else hasSubGroups = false;
-      this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
-    }*/
     this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
     await this.getConcept(false,"",this.$data.apiConcepts.data.data); 
-    
   },
 };
 </script>

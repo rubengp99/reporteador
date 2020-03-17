@@ -51,7 +51,7 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
             dataLabels:{
                 enabled:true,
                 formatter: function (val, opts) {
-                    let concat = (formatter !== 'default')?'Bs':'';
+                    let concat = (formatter !== 'default')?'$':'';
                     return opts.w.config.series[opts.seriesIndex] + concat
                 },
                 background: {
