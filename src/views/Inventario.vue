@@ -90,6 +90,7 @@
                     LAPTOP: https://i.pinimg.com/originals/44/f0/02/44f002166db0c224c90703f18a659dae.gif
                   -->
                   <img :src="require('@/assets/loading.gif')" alt="" class="loadState">
+                  
                   <v-spacer></v-spacer>
                 </template>
                 <template slot="no-data">
@@ -124,43 +125,43 @@
                           <!-- container for content. replace with whatever you want -->
                           <div style="min-height: 50px; border-bottom:0px!important;">
                            <v-row style="position:relative;margin:0;">
-                              <chart type="Rotación" :item="item" :options="item.stock_rotation" ctype="donut" height="298" />
+                              <chart type="Rotación" :item="item" :options="item.stock_rotation" ctype="donut" height="298" wait=1 />
                               <v-divider inset vertical class="absolute-center"></v-divider>
-                              <chart type="Demanda" :item="item" :options="item.stock_demand" ctype="area" height="252"/>
+                              <chart type="Demanda" :item="item" :options="item.stock_demand" ctype="area" height="252" wait=2 />
                             </v-row>
                             <!--linea de gráficos para DIAS DE INVENTARIO-->
                             <v-divider inset></v-divider>
                             <v-row style="position:relative;margin:0;">
-                              <chart type="Reclamos" :item="item" :options="item.stock_claims" ctype="donut" height="298" />
+                              <chart type="Reclamos" :item="item" :options="item.stock_claims" ctype="donut" height="298" wait=3 />
                               <v-divider
                                 inset
                                 vertical
                                 class="absolute-center"
                               ></v-divider>
-                              <chart type="Devoluciones" :item="item" :options="item.stock_devolution" ctype="donut" height="298" />
+                              <chart type="Devoluciones" :item="item" :options="item.stock_devolution" ctype="donut" height="298" wait=4 />
                             </v-row>
                             <v-divider inset></v-divider>
                             <v-row style="position:relative;margin:0;">
-                              <chart type="Agotamiento" :item="item" :options="item.stock_days" ctype="area" height="251"/>
+                              <chart type="Agotamiento" :item="item" :options="item.stock_days" ctype="area" height="251" wait=5 />
                               <v-divider
                                 inset
                                 vertical
                                 class="absolute-center"
                               ></v-divider>
-                              <chart type="Rentabilidad" :item="item" :options="item.stock_costs" ctype="donut" height="298"/>
+                              <chart type="Rentabilidad" :item="item" :options="item.stock_costs" ctype="donut" height="298" wait=6 />
                             </v-row>
                           </div>
                       </div>
                     </v-expand-transition>
                   </td>
                 </template>
-                <template v-slot:item.data-table-expand="props">
+                <template v-slot:item.data-table-expand="item">
                   <v-icon
                     :class="{
                             'v-data-table__expand-icon': true,
-                            'v-data-table__expand-icon--active': props.isExpanded && transitioned[getItemId(props.item)]
+                            'v-data-table__expand-icon--active': isExpanded && transitioned[getItemId(item)]
                             }"
-                    @click="toggleExpand(props)"
+                    @click="toggleExpand(item)"
                   >
                     mdi-chevron-down
                   </v-icon>
@@ -242,6 +243,7 @@ export default {
   },
   data() {
     return {
+      isExpanded: false,
       stock: false,
       abc: false,
       sales: false,
@@ -304,7 +306,7 @@ export default {
   methods: {
     //este bloque de codigo es un copy-paste para animacion al expandir un row en datatable
     getItemId (item) {
-      return item.name // Must be uid of record (would be nice if v-data-table exposed a "getItemKey" method)
+      return item.id // Must be uid of record (would be nice if v-data-table exposed a "getItemKey" method)
     },
 
     toggleExpand (props) {
@@ -383,7 +385,7 @@ export default {
    //PARA PRUEBAS USAR moment('02/20/2020')
     async configMovements(product){
       let fechas = [];
-      for (let i = 0; i < 7; i++) fechas.push(moment('2019-10-29').locale('es').subtract(i,'days').format('MMM Do YYYY').charAt(0).toUpperCase() + moment('2019-10-29').locale('es').subtract(i,'days').format('MMM Do YYYY').slice(1));
+      for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do YYYY').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do YYYY').slice(1));
       fechas.reverse();
       let sales = [0,0,0,0,0,0,0];
       product.sold = await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount);
@@ -475,7 +477,6 @@ export default {
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
       for(let concept of apiConcepts){
         aux.push(await this.configStockDays(await this.configMovements({
-          fullData: true,
           image: concept.imagen,
           icon: {
             img: '/images/box.svg',
@@ -627,7 +628,7 @@ export default {
     }
     this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
     for (let i = 6; i > -1; i--)
-      this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment('2019-10-29').locale('es').subtract(i,'days').format('YYYY-MM-DD')));
+      this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment().locale('es').subtract(i,'days').format('YYYY-MM-DD')));
     
     await this.getConcept(false,"",this.$data.apiConcepts.data.data);
   },
@@ -696,20 +697,12 @@ thead.v-data-table-header-mobile{
     width: 300px!important;
   }
 
-  @media screen and (min-width: 600px) and (max-width: 960px) {
-    width: 500px!important;
-  }
-
-  @media screen and (min-width: 960px) and (max-width: 1264px) {
-    width: 600px!important;
-  }
-
-  @media screen and (min-width: 1264px) and (max-width: 1904px) {
-    width: 700px!important;
+  @media screen and (min-width: 600px) and (max-width: 1904px) {
+    width: 400px!important;
   }
 
   @media screen and (min-width: 1904px){
-    width: 800px!important;
+    width: 700px!important;
   }
 }
 
