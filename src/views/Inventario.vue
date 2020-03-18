@@ -248,6 +248,7 @@ export default {
       apiConcepts: null,
       apiConceptsAux: null,
       apiInvoices: null,
+      weeklySales: [],
       apiSales: null,
       apiGroups: null,
       selectedItem: {
@@ -381,14 +382,23 @@ export default {
    //PARA PRUEBAS USAR moment('02/20/2020')
     async configMovements(product){
       let fechas = [];
-      for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do YYYY').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do YYYY').slice(1));
+      for (let i = 0; i < 7; i++) fechas.push(moment('2019-10-29').locale('es').subtract(i,'days').format('MMM Do YYYY').charAt(0).toUpperCase() + moment('2019-10-29').locale('es').subtract(i,'days').format('MMM Do YYYY').slice(1));
       fechas.reverse();
       let sales = [0,0,0,0,0,0,0];
       product.sold = await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount);
       let devolutions = await concept().get(product.id+'/devolutions');
       product.returned = +devolutions.data.devoluciones;
-      for(let i = 6; i === 0; i--) sales[i] = await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount+'&fecha_at='+moment('2019-10-29').locale('es').subtract(i,'days').format('YYYY-MM-DD'));
-      for(let i = 6; i === 0; i--) sales[i] = +Math.trunc(+sales[i].data.ventas);
+
+      for(let j = 6; j > -1; j--){
+        if (typeof this.weeklySales[j].data === 'object'){
+          let aux = [].concat(...this.weeklySales[j].data.data
+                      .filter(i => i.detalles.every(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)))
+                      .map(i => +i.detalles.filter(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)[0].cantidad);
+          sales[j] = aux.length > 0 ? aux.reduce((a,b) => a+= +Math.trunc(+b)) : 0;
+        }
+      }
+
+      product.stock_daily_sells = sales;
       product.sold = +Math.trunc(+product.sold.data.ventas);
       product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#E91E63", "#3f72af"]);
       product.stock_claims = reports.chart__donut(
@@ -397,7 +407,6 @@ export default {
           ["Reclamos", "Compras"],    //solo hay que cambiar el 0 por el Nº de reclamos
           ["#FFC107", "#3f72af"]
       );
-      product.stock_daily_sells = sales;
       fechas = [];
       for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do').slice(1));
       fechas.reverse();
@@ -509,12 +518,13 @@ export default {
       }
       this.table.products = aux.sort((a, b) => a.id - b.id);
       this.loading = false;
-    },555), 
+    },555),
   },
   watch: {
     search: function(after){
       if (this.grupo === "" && this.grupo === ""){
         if(this.search === "" && this.filteredConcepts.length > 0){
+          this.table.products = [];
           this.loading = true;
           this.getConcept(false, after,  this.apiConcepts.data.data);
         }else
@@ -522,6 +532,7 @@ export default {
       }else if (this.grupo !== "" || this.grupo !== ""){
         if(this.search === ""){
           this.loading = true;
+          this.table.products = [];
           if(this.subgrupo !== ""){
             this.filteredConcepts = ((this.search === "" ) ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id);
           }else if(this.grupo !== ""){
@@ -559,6 +570,7 @@ export default {
       this.search = "";
       this.loading = true;
       this.subgrupos = [];
+      this.table.products = [];
       let aux = this.apiSubGroups.filter(e => e.grupos_id === this.grupo.id || e.adm_grupos_id === this.grupo.id);
       if (typeof aux !== 'undefined') aux.forEach(asp => this.subgrupos.push({text: asp.nombre, value: {id: asp.id, name: asp.nombre} }));
       else this.subNoData = (this.grupo.hasSub)?'Seleccione un «Grupo» primero.':'El grupo «'+this.grupo.name+'» no contiene Sub-Grupos.'
@@ -575,6 +587,7 @@ export default {
       this.table.dataOffset = 0;
       this.search = "";
       this.loading = true;
+      this.table.products = [];
       this.filteredConcepts = ((this.search === "" ) ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id);
       this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
@@ -603,7 +616,6 @@ export default {
     this.$data.apiSubGroups = await subGroups().get('?limit=1');
     this.$data.apiSubGroups = await subGroups().get('?limit='+this.$data.apiSubGroups.data.totalCount);
     this.$data.apiSubGroups = this.$data.apiSubGroups.data.data;
-
     for (let group of this.$data.apiGroups.data.data){
       let result = this.$data.apiSubGroups.filter(asg => asg.grupos_id === group.id || asg.adm_grupos_id === group.id);
       let hasSubGroups = true;
@@ -613,7 +625,10 @@ export default {
       this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
     }
     this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
-    await this.getConcept(false,"",this.$data.apiConcepts.data.data); 
+    for (let i = 6; i > -1; i--)
+      this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment('2019-10-29').locale('es').subtract(i,'days').format('YYYY-MM-DD')));
+    
+    await this.getConcept(false,"",this.$data.apiConcepts.data.data);
   },
 };
 </script>
