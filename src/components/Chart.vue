@@ -41,7 +41,7 @@
         <span transition="scale-transition" origin="center center" style="color:#0D47A1" v-if="!(type === 'Agotamiento' && Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 === 0)">{{ item.name }}</span>
 
         <!--Rotacion de stock-->
-        <span transition="scale-transition" origin="center center" v-if="type === 'Rotación' && options.series[1] > 0"> ha rotado un </span>
+        <span transition="scale-transition" origin="center center" v-if="type === 'Rotación' && options.series[1] > 0 && options.series[0] > 0"> ha rotado un </span>
 
         <!--Reclamos-->
         <span transition="scale-transition" origin="center center" v-if="type === 'Reclamos' && options.series[1] > 0"> ha recibido reclamos de un </span>
@@ -85,7 +85,7 @@
         </span>
         <span transition="scale-transition" origin="center center"
           style="color:#0D47A1"
-          v-else-if="ctype === 'donut' && type !== 'Rotación' && type !== 'Rentabilidad' && type !== 'Devoluciones' && type !== 'Reclamos' ||  options.series[1] > 0"
+          v-else-if="ctype === 'donut' && type !== 'Rotación' && type !== 'Rentabilidad' && type !== 'Devoluciones' && type !== 'Reclamos' ||  (options.series[1] > 0 && options.series[0] > 0 )"
         >
           {{
             isNaN(Math.round((options.series[0] / options.series[1] + Number.EPSILON) * 100 )) || !isFinite(Math.round((options.series[0] / options.series[1] + Number.EPSILON) * 100 )) ? 0 +'% '
@@ -96,7 +96,7 @@
         
 
         <!--Rotacion de stock-->
-        <span transition="scale-transition" origin="center center" v-if="type === 'Rotación' && options.series[1] > 0">
+        <span transition="scale-transition" origin="center center" v-if="type === 'Rotación' && options.series[1] > 0 && options.series[0] > 0">
           <span transition="scale-transition" origin="center center" style="color:#0D47A1">{{ "(" + options.series[0] + " unidades)" }}</span> de sus existencias en el
           almacén.
         </span>
@@ -114,16 +114,17 @@
         -->
 
         <!--Devoluciones, reclamos y rotacion en 0-->
-        <span transition="scale-transition" origin="center center"  v-if="(type === 'Devoluciones'  && options.series[1] > 0) || (type === 'Reclamos'  && options.series[1] > 0)">
+        <span transition="scale-transition" origin="center center"  v-if="(type === 'Devoluciones'  && +options.series[1] > 0) || (type === 'Reclamos'  && options.series[1] > 0)">
           <span transition="scale-transition" origin="center center" style="color:#0D47A1">{{ "(" + options.series[0] + " unidades)" }}</span> de sus
           <span transition="scale-transition" origin="center center" style="color:#0D47A1">{{ options.series[1] }}</span> unidades vendidas.
         </span>
-        <span transition="scale-transition" origin="center center"  v-else-if="(type === 'Devoluciones'  && options.series[1] === 0) || (type === 'Reclamos'  && options.series[1] === 0)">
+        <span transition="scale-transition" origin="center center"  v-else-if="(type === 'Devoluciones'  && +options.series[1] === 0) || (type === 'Reclamos'  && options.series[1] === 0)">
           <span transition="scale-transition" origin="center center"> no ha vendido unidades, por lo tanto no existen {{type.toLowerCase()}}.</span>
         </span>
-        <span transition="scale-transition" origin="center center"  v-else-if="(type === 'Rotación'  && options.series[1] === 0)">
-          <span transition="scale-transition" origin="center center"> no cuenta con existencias, por lo tanto no existe {{type.toLowerCase()}}.</span>
+        <span transition="scale-transition" origin="center center"  v-else-if="(type === 'Rotación'  && (+options.series[1] === 0 || +options.series[0] === 0))">
+          <span transition="scale-transition" origin="center center"> no cuenta con {{+options.series[0] === 0 ? 'unidades ventidas' : 'existencias'}}, por lo tanto no existe {{type.toLowerCase()}}.</span>
         </span>
+
 
         <!--Días de inventario-->
         <span transition="scale-transition" origin="center center" v-if="type === 'Agotamiento'">

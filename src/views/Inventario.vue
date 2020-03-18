@@ -172,6 +172,7 @@
                   :length="table.pageCount"
                   :totalItems="table.totalConceptos"
                   light
+                  :disabled="loading"
                 ></v-pagination>
               </div>
             </v-card>
@@ -386,9 +387,9 @@ export default {
       fechas.reverse();
       let sales = [0,0,0,0,0,0,0];
       product.sold = await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount);
+      product.sold = typeof product.sold.data === 'object' ? +Math.trunc(+product.sold.data.ventas) : 0;
       let devolutions = await concept().get(product.id+'/devolutions');
-      product.returned = +devolutions.data.devoluciones;
-
+      product.returned = typeof +devolutions.data === 'object' ? +devolutions.data.devoluciones : 0;
       for(let j = 6; j > -1; j--){
         if (typeof this.weeklySales[j].data === 'object'){
           let aux = [].concat(...this.weeklySales[j].data.data
@@ -399,7 +400,6 @@ export default {
       }
 
       product.stock_daily_sells = sales;
-      product.sold = +Math.trunc(+product.sold.data.ventas);
       product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#E91E63", "#3f72af"]);
       product.stock_claims = reports.chart__donut(
           [0, product.sold],
@@ -537,7 +537,8 @@ export default {
             this.filteredConcepts = ((this.search === "" ) ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id);
           }else if(this.grupo !== ""){
             this.filteredConcepts = ((this.search === "") ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id);
-          } 
+          }
+          this.table.totalConceptos = this.filteredConcepts.length; 
           this.getConcept(false, after,  this.filteredConcepts);
         }else
           return;
