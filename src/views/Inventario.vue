@@ -52,7 +52,7 @@
                 </v-col>
                 <!-- Limpiar filtros -->
                 <v-col cols="12" sm="1">
-                  <v-btn style="height:39px;" outlined dense color="error" @click="clear = !clear">
+                  <v-btn style="height:39px;" outlined dense color="error" @click="clear = !clear" :disabled="loading">
                     <p class="d-flex d-sm-none" style="margin:0">Limpiar Filtros </p>
                     <v-icon>mdi-autorenew</v-icon>
                   </v-btn>
@@ -89,13 +89,8 @@
                 <template slot="loading">
                   <p class="body-1" style="margin-top:20px;color:#0d0d0d!important;z-index:1;position:relative;">Procesando estadísticas...</p>
                   <v-spacer></v-spacer>
-                  <!-- 
-                    MONEDA CORRIENDO: https://i.pinimg.com/originals/90/04/b2/9004b278c6a1d58c9fdf4a1b05222127.gif
-                    ALCANCIA CORRIENDO: https://i.pinimg.com/originals/d6/f4/c7/d6f4c75045b250de9761f4f68810424d.gif
-                    LAPTOP: https://i.pinimg.com/originals/44/f0/02/44f002166db0c224c90703f18a659dae.gif
-                  -->
-                  <img :src="require('@/assets/loading.gif')" alt="" class="loadState">
-                  
+                  <loader />
+                  <br>
                   <v-spacer></v-spacer>
                 </template>
 
@@ -415,7 +410,7 @@ export default {
       fechas.reverse(); //revertimos el arreglo por fines de ordenamiento
       let sales = [0,0,0,0,0,0,0];
       // pedimos a la api las ventas del producto entrante
-      product.sold = await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount);
+      product.sold = await concept().get(product.id+'/sell');
       //la api puede retornar "empty entity" en ocasiones, por eso es necesario que la data es de typeof object, sino, asignar 0 en su lugar
       //para evitar errores
       product.sold = typeof product.sold.data === 'object' ? +Math.trunc(+product.sold.data.ventas) : 0;
@@ -432,7 +427,7 @@ export default {
           //luego se mapea solo la cantidad vendida de ese detalle en específico, y como resulado tenemos un arreglo
           //de cadenas así ["1.000", "2.000", "4.000"]
           let aux = [].concat(...this.weeklySales[j].data.data
-                      .filter(i => i.detalles.every(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)))
+                      .filter(i => i.detalles.some(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)))
                       .map(i => +i.detalles.filter(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)[0].cantidad);
           //si al filtrar arriba se consiguieron ventas de ese detalle en un día, entonces se trunca el valor para eliminar imperfecciones en los datos
           //y se transforma a numero.
@@ -588,6 +583,7 @@ export default {
           this.table.products = [];
           this.loading = true;
           this.getConcept(false, after,  this.apiConcepts.data.data);
+          this.table.totalConceptos = this.apiConcepts.data.totalCount;
         }else
           return;
       }else if (this.grupo !== "" || this.grupo !== ""){
@@ -706,7 +702,6 @@ export default {
     //se piden las facturas de hoy, y de 6 dias anteriores a este para poder calcular las ventas de X producto en la semana
     for (let i = 6; i > -1; i--)
       this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment().locale('es').subtract(i,'days').format('YYYY-MM-DD')));
-    
     await this.getConcept(false,"",this.$data.apiConcepts.data.data);
   },
 };

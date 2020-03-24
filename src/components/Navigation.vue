@@ -115,9 +115,9 @@
       dialog: false,
       drawer: false,
       items: [
-       // { icon: 'home', text: 'Inicio', path: '/Inicio' },
+        { icon: 'home', text: 'Inicio', path: '/' },
         //{ icon: 'show_chart', text: 'Rentabilidad', path: '/Rentabilidad' },
-        { icon: 'score', text: 'Inventario', /*path: '/Inventario'*/ path: '/' },
+        { icon: 'score', text: 'Inventario', path: '/Inventario' },
         //{ icon: 'multiline_chart', text: 'Ventas', path: '/Ventas' },
         //{ icon: 'mdi-help-circle', text: 'Ayuda', path: '/Ayuda' },
       ],

@@ -1,28 +1,17 @@
 <template>
     <div>
-        <svg version="1.1" id="L6" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-            viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve" class="styledSvg">
-        <rect fill="#00e396" stroke="#008ffb" stroke-width="4" x="25" y="25" width="50" height="50">
-            <animateTransform
-            attributeName="transform"
-            dur="0.5s"
-            from="0 50 50"
-            to="180 50 50"
-            type="rotate"
-            id="strokeBox"
-            attributeType="XML"
-            begin="rectBox.end"/>
+        <svg width="51px" height="50px" viewBox="0 0 51 50">
+            <rect y="0" width="13" height="50" fill="#4527A0">
+                <animate attributeName="height" values="50;10;50" begin="0s" dur="1s" repeatCount="indefinite" />
+                <animate attributeName="y" values="0;20;0" begin="0s" dur="1s" repeatCount="indefinite" />
             </rect>
-            <rect x="27" y="27" fill="#008ffb" width="46" height="50">
-            <animate
-            attributeName="height"
-            dur="1.3s"
-            attributeType="XML"
-            from="50" 
-            to="0"
-            id="rectBox" 
-            fill="freeze"
-            begin="0s;strokeBox.end"/>
+            <rect x="19" y="0" width="13" height="50" fill="#303F9F">
+                <animate attributeName="height" values="50;10;50" begin="0.2s" dur="1s" repeatCount="indefinite" />
+                <animate attributeName="y" values="0;20;0" begin="0.2s" dur="1s" repeatCount="indefinite" />
+            </rect>
+            <rect x="38" y="0" width="13" height="50" fill="#1E88E5">
+                <animate attributeName="height" values="50;10;50" begin="0.4s" dur="1s" repeatCount="indefinite" />
+                <animate attributeName="y" values="0;20;0" begin="0.4s" dur="1s" repeatCount="indefinite" />
             </rect>
         </svg>
     </div>
