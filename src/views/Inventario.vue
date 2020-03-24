@@ -10,6 +10,7 @@
                 <v-spacer></v-spacer>
               </v-card-title>
               <v-row style="padding:0 20px;">
+                <!-- Barra de busqueda por nombre -->
                 <v-col cols="12" sm="5">
                   <v-text-field
                     v-model="search"
@@ -24,6 +25,7 @@
                     @click:append="search = ''"
                 ></v-text-field>
                 </v-col>
+                <!-- Select de Grupos -->
                 <v-col cols="6" sm="3">
                   <v-select
                     v-model="grupo"
@@ -35,6 +37,7 @@
                     style="height:39px;"
                   ></v-select>
                 </v-col>
+                <!-- Select de Subgrupos -->
                 <v-col cols="6" sm="3">
                   <v-select
                     v-model="subgrupo"
@@ -47,6 +50,7 @@
                     style="height:39px;"
                   ></v-select>
                 </v-col>
+                <!-- Limpiar filtros -->
                 <v-col cols="12" sm="1">
                   <v-btn style="height:39px;" outlined dense color="error" @click="clear = !clear">
                     <p class="d-flex d-sm-none" style="margin:0">Limpiar Filtros </p>
@@ -81,6 +85,7 @@
                 @update:page="paginate"
                 @page-count="table.pageCount = $event"
               >
+              <!-- Template para el mensaje de "BUSCANDO CONCEPTOS, CALCULANDO DATOS, LOADING, etc..." -->
                 <template slot="loading">
                   <p class="body-1" style="margin-top:20px;color:#0d0d0d!important;z-index:1;position:relative;">Procesando estadísticas...</p>
                   <v-spacer></v-spacer>
@@ -93,12 +98,16 @@
                   
                   <v-spacer></v-spacer>
                 </template>
+
+                <!-- Template para el mensaje de "NO SE ENCONTRARON CONCEPTOS" -->
                 <template slot="no-data">
                   <p class="body-1" style="margin-top:20px;color:#0d0d0d!important;">No se encontraron conceptos.</p>
                   <v-spacer></v-spacer>
                   <img :src="require('@/assets/noresults.svg')" alt="" width="400px" style="margin:20px 0;">
                   <v-spacer></v-spacer>
                 </template>
+
+                <!-- Template de la columna MÁS DETALLES, esta es la caja -->
                 <template v-slot:item.image="{ item }">
                   <div class="p-2">
                     <v-btn icon height="70px" width="65px" hoverable @focus="open(item)">
@@ -112,6 +121,8 @@
                     </v-btn>
                   </div>
                 </template>
+
+                <!-- Template de la columna ESTADISTICAS expandida, aqui estanlos graficos -->
                 <template v-slot:expanded-item="{headers, item}">
                   <!-- we must remove padding, margins and min-height from td -->
                   <td
@@ -125,29 +136,34 @@
                           <!-- container for content. replace with whatever you want -->
                           <div style="min-height: 50px; border-bottom:0px!important;">
                            <v-row style="position:relative;margin:0;">
+                             <!--linea de gráficos para ROTACIÓN DE INVENTARIO-->
                               <chart type="Rotación" :item="item" :options="item.stock_rotation" ctype="donut" height="298" wait=1 />
                               <v-divider inset vertical class="absolute-center"></v-divider>
+                              <!--linea de gráficos para DEMANDA DE INVENTARIO SEMANAL-->
                               <chart type="Demanda" :item="item" :options="item.stock_demand" ctype="area" height="252" wait=2 />
                             </v-row>
-                            <!--linea de gráficos para DIAS DE INVENTARIO-->
                             <v-divider inset></v-divider>
                             <v-row style="position:relative;margin:0;">
+                              <!--linea de gráficos para RECLAMOS DEL CONCEPTO-->
                               <chart type="Reclamos" :item="item" :options="item.stock_claims" ctype="donut" height="298" wait=3 />
                               <v-divider
                                 inset
                                 vertical
                                 class="absolute-center"
                               ></v-divider>
+                              <!--linea de gráficos para DEVOLUCIONES DEL CONCEPTO-->
                               <chart type="Devoluciones" :item="item" :options="item.stock_devolution" ctype="donut" height="298" wait=4 />
                             </v-row>
                             <v-divider inset></v-divider>
                             <v-row style="position:relative;margin:0;">
+                              <!--linea de gráficos para DÍAS DE INVENTARIO-->
                               <chart type="Agotamiento" :item="item" :options="item.stock_days" ctype="area" height="251" wait=5 />
                               <v-divider
                                 inset
                                 vertical
                                 class="absolute-center"
                               ></v-divider>
+                              <!--linea de gráficos para UTILIDAD DEL CONCEPTO-->
                               <chart type="Rentabilidad" :item="item" :options="item.stock_costs" ctype="donut" height="298" wait=6 />
                             </v-row>
                           </div>
@@ -155,6 +171,7 @@
                     </v-expand-transition>
                   </td>
                 </template>
+                <!-- Template de la columna ESTADISTICAS -->
                 <template v-slot:item.data-table-expand="item">
                   <v-icon
                     :class="{
@@ -179,6 +196,8 @@
             </v-card>
           </v-col>
         </v-row>
+
+      <!-- Pestaña de más detalles (MODAL) -->
       <div class="mWidth">
         <v-dialog v-model="dialog" persistent transition="bounce">
            <v-card class="mx-auto" outlined>
@@ -213,6 +232,7 @@
           </v-card>
         </v-dialog>
       </div>
+
     </div>
   </div>
 </template>
@@ -284,7 +304,7 @@ export default {
         page: 1,
         page_old: 1,
         pageCount: 0,
-        itemsPerPage: 8,
+        itemsPerPage: 8,// para cambiar el limite de conceptos por página, cambia este número, lo demas se configura solo
         dataOffset: 0,
         totalConceptos: 0,
         headers: [
@@ -342,6 +362,7 @@ export default {
     // configura la variable concepto.toggle = true/false para el cambio
 
     open(item){
+      //este metodo abre la pestaña más detalles de cada producto.
       if(typeof item !== 'undefined'){
         if (item === null){
           this.table.products.map(p => p.icon.toggled = p.icon.toggled ? !p.icon.toggled : p.icon.toggled);
@@ -360,13 +381,17 @@ export default {
 
     async paginate(page) {
       this.loading = true;
+      //esta seccion determinar las posiciones del arreglo general que se tomarán mas adelante, un limite inferior y uno superior
       if (page === 1) this.table.dataOffset = 0;
       else if (page > this.table.page_old)
         this.table.dataOffset += Math.abs(page - this.table.page_old) === 0 ? 8 : Math.abs(page - this.table.page_old) * 8;
       else if (page < this.table.page_old)
         this.table.dataOffset -= Math.abs(page - this.table.page_old) === 0 ? 8 : Math.abs(page - this.table.page_old) * 8;
+      //limpiamos los datos
       this.table.products = [];
+      //guardamos un historial de la página anterior para mayor precision al paginar.
       this.table.page_old = page;
+      //si hay datos filtrados entonces se utiliza ese arreglo, sino, se usa el arreglo general
       if (this.grupo === "" && this.subgrupo === ""){
          await this.getConcept((this.search !== ""), this.search, this.$data.apiConcepts.data.data);
       }else{
@@ -382,21 +407,35 @@ export default {
         -- Reclamos??
     */
 
-   //PARA PRUEBAS USAR moment('02/20/2020')
+   //PARA PRUEBAS USAR moment('2019/10/29') o cualquier fecha inferior
     async configMovements(product){
       let fechas = [];
+      //caculamos el día actual y 6 días anteriores a este para determinar la semana de ventas en transcurso
       for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do YYYY').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do YYYY').slice(1));
-      fechas.reverse();
+      fechas.reverse(); //revertimos el arreglo por fines de ordenamiento
       let sales = [0,0,0,0,0,0,0];
+      // pedimos a la api las ventas del producto entrante
       product.sold = await concept().get(product.id+'/sell?limit='+this.apiInvoices.data.totalCount);
+      //la api puede retornar "empty entity" en ocasiones, por eso es necesario que la data es de typeof object, sino, asignar 0 en su lugar
+      //para evitar errores
       product.sold = typeof product.sold.data === 'object' ? +Math.trunc(+product.sold.data.ventas) : 0;
+      //pedimos las devoluciones
       let devolutions = await concept().get(product.id+'/devolutions');
+      //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
       product.returned = typeof +devolutions.data === 'object' ? +devolutions.data.devoluciones : 0;
+      
+      //WeekylySales es un arreglo de 7 posiciones que almacena las facturas de 1 semana, por dias.
       for(let j = 6; j > -1; j--){
+        //a veces arroja "empty entity", es decir, .data === string, por lo que se debe checkear su typeof
         if (typeof this.weeklySales[j].data === 'object'){
+          //si pasa la prueba, entonces se debe filtrar cada factura donde aparezca un detalle en específico
+          //luego se mapea solo la cantidad vendida de ese detalle en específico, y como resulado tenemos un arreglo
+          //de cadenas así ["1.000", "2.000", "4.000"]
           let aux = [].concat(...this.weeklySales[j].data.data
                       .filter(i => i.detalles.every(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)))
                       .map(i => +i.detalles.filter(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)[0].cantidad);
+          //si al filtrar arriba se consiguieron ventas de ese detalle en un día, entonces se trunca el valor para eliminar imperfecciones en los datos
+          //y se transforma a numero.
           sales[j] = aux.length > 0 ? aux.reduce((a,b) => a+= +Math.trunc(+b)) : 0;
         }
       }
@@ -426,34 +465,48 @@ export default {
     */
 
     async configStockDays(product) {
+      //pedimos a la api todas las existencias en los diferentes depositos para un producto
       let existencias = await concept().get("/" + product.id + "/depositos");
+      //si existen varios depositos es necesario hacer un recorrido y sumar el total
       existencias.data.data.filter(a => (product.stock += +Math.trunc(a.existencia)));
+      //variables auxiliares
       var stock_aux = product.stock;
       var stock_dates = [];
+
+      //si la ventas totales de la semana son mayores a 0 se calculan la decadencia del inventario según esta demanda
       if(product.stock_daily_sells.reduce((a, b) => a + b) > 0){
           do{
+            //se resta la demanda al inventario por cada dia transcurrido
             stock_aux -= (Math.round((product.stock_daily_sells.reduce((a, b) => a + b) / 7) * 100 ) / 100);
             product.stock_end.push(Math.trunc(stock_aux));
             if (stock_aux < 0) break;
           }while (stock_aux > 0)  
+          //se asignan los dias transcurridos en formato ej: "Feb 13 2020"
         for (let i = 0; i < product.stock_end.length; i++) {
           stock_dates.push(
             moment().locale("es").add(i, "days").format("MMM Do YYYY").charAt(0).toUpperCase() + moment().locale("es").add(i, "days").format("MMM Do YYYY").slice(1)
           );
         }
+        //este es el día que representa el final de las existencias de un producto
         product.stock_lastDay = moment().locale("ES").add(stock_dates.length - 1, "days").format("LL");
       }else{
+        //si no hay demanda, se crea un arreglo auxiliar donde no existen movimientos, el valor se repite 7 veces
+        //esto con fines visuales en el reporte.
         for (let i = 0; i < 7; i++) {
           product.stock_end.push(stock_aux);
           stock_dates.push(moment().locale("es").add(i, "days").format("MMM Do").charAt(0).toUpperCase() + moment().locale("es").add(i, "days").format("MMM Do").slice(1));
         }
         product.stock_lastDay = '';
       }
-      let stockEndAux = product.stock_end.length > 1000 ? product.stock_end.slice(product.stock_end.length/50,product.stock_end.length-1) : product.stock_end;
-      let StockDatesAux = stock_dates.length > 1000 ? stock_dates.slice(product.stock_end.length/50,product.stock_end.length-1) : stock_dates;
+
+      //Graficar un arreglo muy grande representa un problema para el rendimiento visual de la APP, por se toma una porcion del arreglo
+      let stockEndAux = product.stock_end.length > 1000 ? product.stock_end.slice(Math.ceil(product.stock_end.length/50),product.stock_end.length-1) : product.stock_end;
+      let StockDatesAux = stock_dates.length > 1000 ? stock_dates.slice(Math.ceil(product.stock_end.length/50),product.stock_end.length-1) : stock_dates;
+      
       product.stock_days = reports.chart__area(stockEndAux, StockDatesAux, false,  "stockdays" );
       product.stock_costs = reports.chart__donut([+product.sale, +product.cost], "Beneficios del", ["Precio", "Costo"], null, "benefits");
       product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"]);
+      
       //esto da formato de BSF + Precio (formato español -> Bs1.000,00)
       product.sale = accounting.formatMoney(+product.sale, { symbol   : "$", thousand : ".", decimal  : ",", });
       return product;
@@ -465,9 +518,12 @@ export default {
 
     getConcept: _.debounce(async function(search = false, input = "", pConcept = null) {
       let aux = [];
-      let apiConcepts = (pConcept.length > 8) ? 
+      //este metodo solo procesa el limite por pagina, por eso se corta el arreglo segun lo calculado en paginate()
+      let apiConcepts = (pConcept.length > this.table.itemsPerPage) ? 
         pConcept.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage) : pConcept;
+      //si se ha habilitado alguna busqueda por nombre entonces  
       if (search){
+        //se filtran los resultados del arreglo general si no hay grupos activos, sino, se filtran desde el arreglo previamente filtrado
         this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.$data.apiConcepts.data.data)
           .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase()));
         apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
@@ -475,6 +531,9 @@ export default {
           .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).length;
       }
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
+      //procesamos los productos que apareceran en la página
+      //aunado a ello, construimos nuestro propio objecto debido a que el modulo requiere una estructura diferente
+      //a la planteada en la base de datos
       for(let concept of apiConcepts){
         aux.push(await this.configStockDays(await this.configMovements({
           image: concept.imagen,
@@ -521,6 +580,7 @@ export default {
       this.loading = false;
     },555),
   },
+
   watch: {
     search: function(after){
       if (this.grupo === "" && this.grupo === ""){
@@ -548,6 +608,7 @@ export default {
     },
 
     goSearch: _.debounce(function () {
+      //watch se activa cuando presionas enter en el text input de busqueda
       this.loading = true;
       this.table.products = [];
       this.table.page = 1;
@@ -565,6 +626,8 @@ export default {
     },
 
     grupo: _.debounce(function() {
+      //los watchers a veces pueden caer en bucles, es por ello que cuando se limpia la variable es necesaria una
+      //condición que nos saque del procedimiento.
       if (this.grupo === "") return;
       this.table.page = 1;
       this.table.page_old = 1;
@@ -573,9 +636,13 @@ export default {
       this.loading = true;
       this.subgrupos = [];
       this.table.products = [];
+      //al seleccionar un grupo es necesario filtrar los subgrupos pertenecientes a el
       let aux = this.apiSubGroups.filter(e => e.grupos_id === this.grupo.id || e.adm_grupos_id === this.grupo.id);
+      //se puede dar el caso de que el grupo no tenga subgrupos, por eso es necesario hacer la verificación
       if (typeof aux !== 'undefined') aux.forEach(asp => this.subgrupos.push({text: asp.nombre, value: {id: asp.id, name: asp.nombre} }));
       else this.subNoData = (this.grupo.hasSub)?'Seleccione un «Grupo» primero.':'El grupo «'+this.grupo.name+'» no contiene Sub-Grupos.'
+      //el usuario puede haber habilitado una busqueda antes de seleccionar un grupo, por ello se verifica si es cierto
+      //para así poder saber si filtrar el arreglo general o el arreglo previamente filtrado por la busqueda anterior
       this.filteredConcepts = ((this.search === "") ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id);
       this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
@@ -583,6 +650,8 @@ export default {
     },555),
 
     subgrupo: _.debounce(function() {
+      //los watchers a veces pueden caer en bucles, es por ello que cuando se limpia la variable es necesaria una
+      //condición que nos saque del procedimiento.
       if (this.subgrupo === "") return;
       this.table.page = 1;
       this.table.page_old = 1;
@@ -590,6 +659,8 @@ export default {
       this.search = "";
       this.loading = true;
       this.table.products = [];
+      //el usuario puede haber habilitado una busqueda antes de seleccionar un subgrupo, por ello se verifica si es cierto
+      //para así poder saber si filtrar el arreglo general o el arreglo previamente filtrado por la busqueda anterior
       this.filteredConcepts = ((this.search === "" ) ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id);
       this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
@@ -597,6 +668,8 @@ export default {
     },555),
 
     clear: _.debounce(function(){
+      //los watchers a veces pueden caer en bucles, es por ello que cuando se limpia la variable es necesaria una
+      //condición que nos saque del procedimiento.
       if (this.search === "" && this.grupo === "" && this.subgrupo === "") return;
       this.table.products = [];
       this.loading = true;
@@ -610,6 +683,7 @@ export default {
   },
 
   async beforeMount() {
+    //llamadas a la api
     this.$data.apiConcepts = await concept().get('?limit=1');
     this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount+'&order=DESC');
     this.$data.apiInvoices = await invoices().get('?limit=1');
@@ -618,7 +692,9 @@ export default {
     this.$data.apiSubGroups = await subGroups().get('?limit=1');
     this.$data.apiSubGroups = await subGroups().get('?limit='+this.$data.apiSubGroups.data.totalCount);
     this.$data.apiSubGroups = this.$data.apiSubGroups.data.data;
+    //se crea un arreglo con objectos personalizados de grupos para poder filtrar los subgrupos pertenecientes al mas adelante
     for (let group of this.$data.apiGroups.data.data){
+      // si result contiene datos, entonces el grupo tiene subgrupos (hasSubGroups)
       let result = this.$data.apiSubGroups.filter(asg => asg.grupos_id === group.id || asg.adm_grupos_id === group.id);
       let hasSubGroups = true;
       if(result.length === 0){
@@ -627,6 +703,7 @@ export default {
       this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
     }
     this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
+    //se piden las facturas de hoy, y de 6 dias anteriores a este para poder calcular las ventas de X producto en la semana
     for (let i = 6; i > -1; i--)
       this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment().locale('es').subtract(i,'days').format('YYYY-MM-DD')));
     
