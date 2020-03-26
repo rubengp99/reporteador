@@ -1,15 +1,14 @@
 import axios from 'axios';
-import header from './header';
-import extension from './extension';
+import variables from './variables'
 
 export default () => {
     return axios.create({
-        baseURL:`http://${extension}/api/empresa`,
+        baseURL:`http://${variables.data}/api/empresa`,
         withCredentials:false,
         headers:{
             Accept:'application/json',
             'Content-Type':'application/json',
-            "x-access-control":header
+            "x-access-control":variables.header
         }
     });
 };

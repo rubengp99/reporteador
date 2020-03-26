@@ -410,14 +410,14 @@ export default {
       fechas.reverse(); //revertimos el arreglo por fines de ordenamiento
       let sales = [0,0,0,0,0,0,0];
       // pedimos a la api las ventas del producto entrante
-      product.sold = await concept().get(product.id+'/sell');
+      product.sold = await concept().get(product.id+'/sell/?limit='+this.apiInvoices.data.totalCount);
       //la api puede retornar "empty entity" en ocasiones, por eso es necesario que la data es de typeof object, sino, asignar 0 en su lugar
       //para evitar errores
       product.sold = typeof product.sold.data === 'object' ? +Math.trunc(+product.sold.data.ventas) : 0;
       //pedimos las devoluciones
-      let devolutions = await concept().get(product.id+'/devolutions');
+      let devolutions = await concept().get(product.id+'/devolutions/?limit='+this.apiInvoices.data.totalCount);
       //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
-      product.returned = typeof +devolutions.data === 'object' ? +devolutions.data.devoluciones : 0;
+      product.returned = typeof devolutions.data === 'object' ? +devolutions.data.devoluciones : 0;
       
       //WeekylySales es un arreglo de 7 posiciones que almacena las facturas de 1 semana, por dias.
       for(let j = 6; j > -1; j--){

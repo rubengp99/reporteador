@@ -1,15 +1,14 @@
 import axios from 'axios';
-import header from './header';
-import extension from './extension';
+import variables from './variables'
 
-export default (query = '') => {
+export default () => {
     return axios.create({
-        baseURL:`http://${extension}/api/movimiento_inventario/${query}`,
+        baseURL:`http://${variables.data}/api/movimiento_inventario`,
         withCredentials:false,
         headers:{
             Accept:'application/json',
             'Content-Type':'application/json',
-            "x-access-control":header
+            "x-access-control":variables.header
         }
     });
 };

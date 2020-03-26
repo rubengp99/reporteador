@@ -3,7 +3,7 @@ import variables from './variables'
 
 export default () => {
     return axios.create({
-        baseURL:`http://${variables.image}/api/galeria`,
+        baseURL:`http://${variables.auth}/auth`,
         withCredentials:false,
         headers:{
             Accept:'application/json',
