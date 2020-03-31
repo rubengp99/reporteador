@@ -20,6 +20,7 @@ Vue.use(vueheader);
 Vue.use(Toasted);
 Vue.component('apexchart', ApexCharts);
 Vue.component('loader',loader);
+Vue.use(router);
 
 Vue.config.productionTip = false
 

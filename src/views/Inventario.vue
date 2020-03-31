@@ -460,10 +460,6 @@ export default {
     */
 
     async configStockDays(product) {
-      //pedimos a la api todas las existencias en los diferentes depositos para un producto
-      let existencias = await concept().get("/" + product.id + "/depositos");
-      //si existen varios depositos es necesario hacer un recorrido y sumar el total
-      existencias.data.data.filter(a => (product.stock += +Math.trunc(a.existencia)));
       //variables auxiliares
       var stock_aux = product.stock;
       var stock_dates = [];
@@ -540,7 +536,7 @@ export default {
           id: concept.id,
           codigo: concept.codigo,
           name: concept.nombre,
-          stock: 0,
+          stock: +Math.trunc(+concept.existencia),
           sold: 0,
           stockMin: concept.existencia_minima,
           stockMax: concept.existencia_maxima,
@@ -703,6 +699,8 @@ export default {
     for (let i = 6; i > -1; i--)
       this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment().locale('es').subtract(i,'days').format('YYYY-MM-DD')));
     await this.getConcept(false,"",this.$data.apiConcepts.data.data);
+
+    
   },
 };
 </script>

@@ -126,3 +126,59 @@ exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab',
         },
     };
 };
+
+exports.chart__barRank = (data) => {
+    return {
+        series: data,
+        chartOptions: {
+            chart: {
+              type: 'bar',
+              height: 350,
+              stacked: true,
+              stackType: '100%'
+            },
+            plotOptions: {
+              bar: {
+                horizontal: true,
+              },
+            },
+            stroke: {
+              width: 1,
+              colors: ['#fff']
+            },
+            title: {
+              text: 'LOS GRUPOS MÁS VENDIDOS',
+              align: 'center'
+            },
+            xaxis: {
+              type: 'numeric'
+            },
+            tooltip: {
+              x: {
+                  show: false,
+              },
+              y: {
+                formatter: function (val) {
+                  return val + " unidades vendidas."
+                },
+                title: {
+                    formatter: function(seriesName,globals){
+                        seriesName = NaN;
+                        return globals.w.globals.seriesX[globals.seriesIndex][globals.dataPointIndex]; 
+                    },
+                },
+              },
+            },
+            fill: {
+              opacity: 1
+            
+            },
+            legend: {
+              show: false,
+              position: 'top',
+              horizontalAlign: 'left',
+              offsetX: 40
+            }
+          },
+    };
+};
