@@ -13,7 +13,9 @@ import vueheader from 'vue-head';
 import Toasted from 'vue-toasted';
 import FusionTheme from 'fusioncharts/themes/fusioncharts.theme.fusion';
 import loader from './components/loading.vue';
+import Auth from '@/services/auth';
 
+let token = window.localStorage.getItem('token');
 // register VueFusionCharts component
 Vue.use(VueFusionCharts, FusionCharts, Maps, World, FusionTheme)
 Vue.use(vueheader);
@@ -24,9 +26,22 @@ Vue.use(router);
 
 Vue.config.productionTip = false
 
-new Vue({
-    vuetify,
-    store,
-    router,
-    render: h => h(App)
-}).$mount('#app')
+Auth().post("/sesion",{token:token}).then((response) => {
+    store.state.user.data = response.data.data;
+    store.state.user.loggedIn = true;
+    store.state.user.token = token;
+    new Vue({
+        vuetify,
+        store,
+        router,
+        render: h => h(App)
+    }).$mount('#app')
+
+}).catch(() => {
+    new Vue({
+        vuetify,
+        store,
+        router,
+        render: h => h(App)
+    }).$mount('#app')
+});

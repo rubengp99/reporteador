@@ -14,12 +14,12 @@
       </v-row>
       <v-row>
         <v-col cols="12" md="6">
-          <v-card v-if="loading[4]" class="storages" outlined>
+          <v-card v-if="loading[4]" class="storages" outlined style="padding:100px 0;">
             <v-spacer></v-spacer>
             <loader class="absolute-center" />
             <v-spacer></v-spacer>
           </v-card>
-          <v-card v-else width="100%" class="GroupSales">
+          <v-card v-else-if="!loading[4]" width="100%" class="GroupSales">
             <apexchart type="bar" height="350" :options="ranking.chartOptions" :series="series"></apexchart>
           </v-card>
         </v-col>
@@ -81,13 +81,13 @@ export default {
       this.$data.apiConcepts = await concept().get('?limit=1');
       this.$data.apiConcepts = await concept().get('?limit='+this.apiConcepts.data.totalCount);
       this.$data.apiInvoices = await invoices().get('?limit=1');
-      this.$data.apiInvoices = await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment('2019-10-23').locale('es').format('YYYY-MM-DD'));
+      this.$data.apiInvoices = await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment('').format('YYYY-MM-DD'));
       //cantidad de facturas hoy
       this.$data.invoices =  this.$data.apiInvoices.data.count;
-      this.loading[1] = !this.loading[1];
+      this.loading[1] = false;
       //sumamos las ganancias producidas por esa cantidad de facturas
       this.$data.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.$data.gains$ += +d.precio_dolar * +Math.trunc(+d.cantidad)));
-      this.loading[0] = !this.loading[0];
+      this.loading[0] = false;
       //le damos un formato contable
       this.$data.gains$ = accounting.formatMoney(+this.$data.gains$, { symbol   : "$", thousand : ".", decimal  : ",", });
       //productos con existencia mínima y máxima
@@ -95,8 +95,8 @@ export default {
         this.stockMin += typeof concept.existencia_minima !== 'string' ? 0 : +concept.existencia_minima > +concept.existencia ? 1 : 0;
         this.stockMax += typeof concept.existencia_maxima !== 'string' ? 0 : +concept.existencia_maxima > +concept.existencia ? 1 : 0;
       }
-      this.loading[2] = !this.loading[2];
-      this.loading[3] = !this.loading[3];
+      this.loading[2] = false;
+      this.loading[3] = false;
     },
     /*
       Diseñado para crear la segunda fila de datos (0-50%):
@@ -110,36 +110,13 @@ export default {
       this.$data.apiSubGroups = await subGroups().get('?limit=1');
       this.$data.apiSubGroups = await subGroups().get('?limit='+this.$data.apiSubGroups.data.totalCount);
       this.$data.apiSubGroups = this.$data.apiSubGroups.data.data;
-      let groupSales = await groups().get('/mostSold/?limit='+gCount.data.totalCount);
+      let groupSales = await groups().get('/mostSold/?limit='+gCount.data.totalCount+'&fecha_at='+moment().format('YYYY-MM-DD'));
       let max = this.apiSubGroups.length;
       let gVentas = groupSales.data.data.slice(0,5);
-      let sVentas = await subGroups().get('/mostsold/?limit='+sCount.data.totalCount);
+      let sVentas = await subGroups().get('/mostsold/?limit='+sCount.data.totalCount+'&fecha_at='+moment().format('YYYY-MM-DD'));
       //inicializamos la data del gráficos, esto es solo con fines de establecer una matriz de
       //5 files con una cantidad de columnas proporcional al número de subgrupos
       //(el diseño de apexchart nos obliga a hacer el gráfico de barras stackeadas de esta manera)
-      this.series.push({
-        name: "Grupos",
-        data: [{
-          x: gVentas[0].nombre,
-          y: 0,
-        },
-        {
-          x: gVentas[1].nombre,
-          y: 0
-        },
-        {
-          x: gVentas[2].nombre,
-          y: 0
-        },
-        {
-          x: gVentas[3].nombre,
-          y: 0
-        },
-        {
-          x: gVentas[4].nombre,
-          y: 0
-        }]
-      });
       for (let i = 0; i < max+1; i++){
         max;
         this.series.push({
@@ -166,18 +143,21 @@ export default {
           }]
         });
       }
+
       for (let i = 1; i < max+1; i++){
         for (let j = 0; j < 5; j++) {
           this.series[i].data[j].x = typeof sVentas.data.data.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i) !== 'undefined' ?  
                                         sVentas.data.data.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).nombre  : '';
           this.series[i].data[j].y = typeof sVentas.data.data.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i) !== 'undefined' ?  
-                                        sVentas.data.data.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).venta : 0;
+                                        Math.trunc(sVentas.data.data.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).venta) : 0;
         }
       }
+      this.ranking = reports.chart__barRank(this.series,
+          [gVentas[0].nombre,gVentas[1].nombre,gVentas[2].nombre,gVentas[3].nombre,gVentas[4].nombre],
+          moment().locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment().locale('es').format('MMM Do YYYY').slice(1,14),
+      );
 
-      this.ranking = reports.chart__barRank(this.series);
-
-      this.loading[4] = !this.loading[4];
+      this.loading[4] = false;
     },
     /*
       Diseñado para crear la segunda fila de datos (50%-100%):
@@ -198,7 +178,7 @@ export default {
         });
       }
       
-      this.loading[5] = !this.loading[5];
+      this.loading[5] = false;
     },
   },
   async beforeMount(){

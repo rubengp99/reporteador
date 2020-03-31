@@ -3,7 +3,20 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
         series: data,
         chartOptions: {
             chart: {
-                type: "pie"
+                type: "pie",
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 1000,
+                    animateGradually: {
+                        enabled: true,
+                        delay: 150
+                    },
+                    dynamicAnimation: {
+                        enabled: true,
+                        speed: 350
+                    }
+                }
             },
             plotOptions: {
                 pie: {
@@ -88,6 +101,19 @@ exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab',
                 },
                 menu: {
                     enabled:false
+                },
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 1000,
+                    animateGradually: {
+                        enabled: true,
+                        delay: 150
+                    },
+                    dynamicAnimation: {
+                        enabled: true,
+                        speed: 350
+                    }
                 }
             },
             dataLabels: {
@@ -127,7 +153,7 @@ exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab',
     };
 };
 
-exports.chart__barRank = (data) => {
+exports.chart__barRank = (data,category,today) => {
     return {
         series: data,
         chartOptions: {
@@ -135,23 +161,48 @@ exports.chart__barRank = (data) => {
               type: 'bar',
               height: 350,
               stacked: true,
-              stackType: '100%'
+              stackType: '100%',
+              animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 1000,
+                    animateGradually: {
+                        enabled: true,
+                        delay: 150
+                    },
+                    dynamicAnimation: {
+                        enabled: true,
+                        speed: 350
+                    }
+                },
             },
             plotOptions: {
               bar: {
                 horizontal: true,
+                barHeight: "100%",
+                distributed: false,
               },
+            },
+            dataLabels: {
+                enabled: false,
+                hideOverflowingLabels: true,
             },
             stroke: {
               width: 1,
               colors: ['#fff']
             },
             title: {
-              text: 'LOS GRUPOS MÁS VENDIDOS',
+              text: 'LOS GRUPOS MÁS VENDIDOS - '+today,
               align: 'center'
             },
             xaxis: {
-              type: 'numeric'
+                type: 'category',
+                categories: category,
+                labels: {
+                    show: true,
+                    rotate: -25,
+                    rotateAlways: false,
+                },
             },
             tooltip: {
               x: {

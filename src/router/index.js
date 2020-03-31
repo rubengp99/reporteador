@@ -1,7 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-//import Home from '../views/Home.vue'
-
 Vue.use(VueRouter)
 
 const routes = [
@@ -10,26 +8,72 @@ const routes = [
         name: 'Inicio',
         component: () => import('../views/Home.vue')
     },
-    /*{
-        path: '/Inicio',
-        name: 'Inicio',
-        component: Home
+    {
+        path: '/Login',
+        name: 'Login',
+        component: () => import('../views/Login.vue'),
+        meta:{
+            auth:false
+        }
     },
     {
-        path: '/Ventas',
-        name: 'Ventas',
+        path: "/forgot",
+        name:"forgot",
+        component:() => import('../views/Forgot.vue'),
+        meta:{
+            auth:false
+        }
+    },
+   // {
+        //path: '/Ventas',
+        //name: 'Ventas',
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
-        component: () =>
-            import(  //'../views/Ventas.vue')
-    },*/
+       // component: () =>
+         //   import(  //'../views/Ventas.vue')
+    //},
     {
         path: '/Inventario',
         name: 'Inventario',
         component: () => import('../views/Inventario.vue')
 
-    }
+    },
+    {
+        path:'/Cuenta',
+        name:'Cuenta',
+        component: () => import('../views/Account.vue'),
+        meta:{
+            auth:true
+        },
+
+        children:[
+            {
+                path: "Perfil",
+                name: "Perfil",
+                component: () => import('../views/Profile.vue'),
+                meta: {
+                    auth: true
+                }
+            },
+            /*{
+                path: "ayuda",
+                name: "ayuda",
+                component: Ayuda,
+                meta: {
+                    auth: true
+                }
+            },
+            {
+                path: "notificaciones",
+                name: "notificaciones",
+                component: Notificaciones,
+                meta: {
+                    auth: true
+                }
+            },*/
+        ]
+    },
 ]
 
 const router = new VueRouter({

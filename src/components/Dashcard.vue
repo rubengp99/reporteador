@@ -98,9 +98,12 @@ export default {
 
 $stroke: linear-gradient(to right top, #4527a0, #402da0, #3c32a1, #3836a0, #343aa0, #3142a6, #2e4aac, #2c51b1, #295fbf, #256ccc, #217ad9, #1e88e5);
 $surrounding: white;
-
+$width:null;
+$height: null;
 $square-size: 50px;
 $stroke-size: 2px;
+$size:null;
+$fraction:null;
 
 .mx-auto{
     .loading{

@@ -17,7 +17,7 @@
                 label="Contraseña"
                 single-line
                 :type="showPassword ? 'text' : 'password'"
-                :rules="[required('Contraseña'), minLength('Contraseña',8)]"
+                :rules="[required('Contraseña'), minLength('Contraseña',6)]"
                 @click:append="showPassword = !showPassword"
                 :append-icon="showPassword ?  'visibility' : 'visibility_off'"
                 :prepend-inner-icon="showPassword ?  'lock_open' : 'lock'"
@@ -48,9 +48,9 @@
 </template>
 
 <script>
-import Auth from '@/services/Auth';
-import validations from '@/validations/validations';
-import Snackbar from '@/components/snackbars/Snackbar';
+import Auth from '@/services/auth';
+import validations from '../validations/validations';
+import Snackbar from '@/components/Snackbar';
 import {mapActions} from 'vuex';
 import router from '@/router';
     export default {
@@ -88,9 +88,7 @@ import router from '@/router';
                 this.setSnackbar(true);
                 this.loading = false;
                 setTimeout(() =>{ 
-                    if(this.$router.name=='login'){
-                        router.push('/');
-                    }
+                    router.push('/');
                     this.setModalSesion(false);
                 },1000);
             },
