@@ -114,7 +114,7 @@
             </v-col>
         </v-row>
 
-        <Snackbar :mensaje="mensaje" :icon="icon" :color="color" />
+        <Snackbar v-if="!mesage === ''" :mensaje="mensaje" :icon="icon" :color="color" />
     </div>
 </template>
 
@@ -157,10 +157,10 @@ import Snackbar from '@/components/Snackbar';
                 }
                 this.loading = true;
                 Usuario().post(`/${id}`,{data:data}).then(() => {
-                    this.mensajeSnackbar('#388E3C','done','Actualizado extisamente.');
+                    this.mensajeSnackbar('#388E3C','done','Actualizado exitosamente.');
                 }).catch(e => {
                     console.log(e);
-                    this.mensajeSnackbar('#D32F2F','error','Opsss, Error al intentar actualizar.');
+                    this.mensajeSnackbar('#D32F2F','error','Ha ocurrido un error inesperado.');
                 });
             }
         }

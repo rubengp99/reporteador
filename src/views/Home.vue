@@ -43,6 +43,7 @@ import groups from "../services/Grupos"
 import subGroups from "../services/SubGrupos"
 import reports from '../plugins/reports'
 import loader from '../components/loading'
+import w from '../services/variables';
 
 export default {
   name: "Home",
@@ -81,12 +82,17 @@ export default {
       this.$data.apiConcepts = await concept().get('?limit=1');
       this.$data.apiConcepts = await concept().get('?limit='+this.apiConcepts.data.totalCount);
       this.$data.apiInvoices = await invoices().get('?limit=1');
-      this.$data.apiInvoices = await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment('').format('YYYY-MM-DD'));
-      //cantidad de facturas hoy
-      this.$data.invoices =  this.$data.apiInvoices.data.count;
-      this.loading[1] = false;
+      this.$data.apiInvoices = await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD'));
       //sumamos las ganancias producidas por esa cantidad de facturas
-      this.$data.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.$data.gains$ += +d.precio_dolar * +Math.trunc(+d.cantidad)));
+      try {
+        //cantidad de facturas hoy
+        this.$data.invoices =  this.$data.apiInvoices.data.count;
+        this.loading[1] = false;
+        this.$data.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.$data.gains$ += +d.precio_dolar * +Math.trunc(+d.cantidad)));
+      } catch (e) {
+        this.$data.invoices = 0;
+        console.log(e);
+      }
       this.loading[0] = false;
       //le damos un formato contable
       this.$data.gains$ = accounting.formatMoney(+this.$data.gains$, { symbol   : "$", thousand : ".", decimal  : ",", });
@@ -110,10 +116,10 @@ export default {
       this.$data.apiSubGroups = await subGroups().get('?limit=1');
       this.$data.apiSubGroups = await subGroups().get('?limit='+this.$data.apiSubGroups.data.totalCount);
       this.$data.apiSubGroups = this.$data.apiSubGroups.data.data;
-      let groupSales = await groups().get('/mostSold/?limit='+gCount.data.totalCount+'&fecha_at='+moment().format('YYYY-MM-DD'));
+      let groupSales = await groups().get('/mostSold/?limit='+gCount.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD'));
       let max = this.apiSubGroups.length;
       let gVentas = groupSales.data.data.slice(0,5);
-      let sVentas = await subGroups().get('/mostsold/?limit='+sCount.data.totalCount+'&fecha_at='+moment().format('YYYY-MM-DD'));
+      let sVentas = await subGroups().get('/mostsold/?limit='+sCount.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD'));
       //inicializamos la data del gráficos, esto es solo con fines de establecer una matriz de
       //5 files con una cantidad de columnas proporcional al número de subgrupos
       //(el diseño de apexchart nos obliga a hacer el gráfico de barras stackeadas de esta manera)
@@ -154,7 +160,7 @@ export default {
       }
       this.ranking = reports.chart__barRank(this.series,
           [gVentas[0].nombre,gVentas[1].nombre,gVentas[2].nombre,gVentas[3].nombre,gVentas[4].nombre],
-          moment().locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment().locale('es').format('MMM Do YYYY').slice(1,14),
+          moment(w.test).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(w.test).locale('es').format('MMM Do YYYY').slice(1,14),
       );
 
       this.loading[4] = false;
@@ -190,11 +196,11 @@ export default {
 </script>
 
 <style lang="scss">
-
+/*
 @function square($x, $y, $color:$surrounding) {
     @return $x*$size $y*$size 0 $stroke-size $color;
 }
-
+*/
 a {
   text-decoration: none;
 }

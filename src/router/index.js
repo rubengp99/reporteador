@@ -1,19 +1,25 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '@/store';
+
 Vue.use(VueRouter)
 
 const routes = [
     {
         path: '/',
         name: 'Inicio',
-        component: () => import('../views/Home.vue')
+        component: () => import('../views/Home.vue'),
+        meta:{
+            auth:true,
+        },
     },
     {
         path: '/Login',
-        name: 'Login',
+        name: 'login',
         component: () => import('../views/Login.vue'),
         meta:{
-            auth:false
+            auth:false,
+            transitionName: 'slide'
         }
     },
     {
@@ -21,7 +27,8 @@ const routes = [
         name:"forgot",
         component:() => import('../views/Forgot.vue'),
         meta:{
-            auth:false
+            auth:false,
+            transitionName: 'slide'
         }
     },
    // {
@@ -36,15 +43,19 @@ const routes = [
     {
         path: '/Inventario',
         name: 'Inventario',
-        component: () => import('../views/Inventario.vue')
-
+        component: () => import('../views/Inventario.vue'),
+        meta:{
+            auth:true,
+            transitionName: 'slide'
+        }
     },
     {
         path:'/Cuenta',
         name:'Cuenta',
         component: () => import('../views/Account.vue'),
         meta:{
-            auth:true
+            auth:true,
+            transitionName: 'slide'
         },
 
         children:[
@@ -53,7 +64,8 @@ const routes = [
                 name: "Perfil",
                 component: () => import('../views/Profile.vue'),
                 meta: {
-                    auth: true
+                    auth: true,
+                    transitionName: 'slide'
                 }
             },
             /*{
@@ -92,5 +104,19 @@ const router = new VueRouter({
     parseQuery: q => q,
     fallback: true,
 })
+
+router.beforeEach((to,from,next) => {
+    let user = store.state.user.loggedIn;
+
+    if(to.meta.auth){
+        if(user){
+            next();
+        }else{
+            next({name: 'login'});
+        }
+    }else{
+        next();
+    }
+});
 
 export default router

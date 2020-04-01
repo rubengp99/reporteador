@@ -241,8 +241,8 @@ import groups from "../services/Grupos"
 import subGroups from '../services/SubGrupos'
 import accounting from 'accounting';
 import _ from 'lodash';
-//import { mapState, mapGetters } from 'vuex'
-const reports = require("../plugins/reports");
+import w from '../services/variables'
+import reports from '../plugins/reports';
 
 export default {
   name: "Home",
@@ -406,7 +406,7 @@ export default {
     async configMovements(product){
       let fechas = [];
       //caculamos el día actual y 6 días anteriores a este para determinar la semana de ventas en transcurso
-      for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do YYYY').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do YYYY').slice(1));
+      for (let i = 0; i < 7; i++) fechas.push(moment(w.test).locale('es').subtract(i,'days').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(w.test).locale('es').subtract(i,'days').format('MMM Do YYYY').slice(1));
       fechas.reverse(); //revertimos el arreglo por fines de ordenamiento
       let sales = [0,0,0,0,0,0,0];
       // pedimos a la api las ventas del producto entrante
@@ -444,7 +444,7 @@ export default {
           ["#FFC107", "#3f72af"]
       );
       fechas = [];
-      for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do').charAt(0).toUpperCase() + moment().locale('es').subtract(i,'days').format('MMM Do').slice(1));
+      for (let i = 0; i < 7; i++) fechas.push(moment().locale('es').subtract(i,'days').format('MMM Do').charAt(0).toUpperCase() + moment(w.test).locale('es').subtract(i,'days').format('MMM Do').slice(1));
       fechas.reverse();
       product.stock_demand = reports.chart__area(product.stock_daily_sells,fechas);
 
@@ -475,17 +475,17 @@ export default {
           //se asignan los dias transcurridos en formato ej: "Feb 13 2020"
         for (let i = 0; i < product.stock_end.length; i++) {
           stock_dates.push(
-            moment().locale("es").add(i, "days").format("MMM Do YYYY").charAt(0).toUpperCase() + moment().locale("es").add(i, "days").format("MMM Do YYYY").slice(1)
+            moment(w.test).locale("es").add(i, "days").format("MMM Do YYYY").charAt(0).toUpperCase() + moment(w.test).locale("es").add(i, "days").format("MMM Do YYYY").slice(1)
           );
         }
         //este es el día que representa el final de las existencias de un producto
-        product.stock_lastDay = moment().locale("ES").add(stock_dates.length - 1, "days").format("LL");
+        product.stock_lastDay = moment(w.test).locale("ES").add(stock_dates.length - 1, "days").format("LL");
       }else{
         //si no hay demanda, se crea un arreglo auxiliar donde no existen movimientos, el valor se repite 7 veces
         //esto con fines visuales en el reporte.
         for (let i = 0; i < 7; i++) {
           product.stock_end.push(stock_aux);
-          stock_dates.push(moment().locale("es").add(i, "days").format("MMM Do").charAt(0).toUpperCase() + moment().locale("es").add(i, "days").format("MMM Do").slice(1));
+          stock_dates.push(moment(w.test).locale("es").add(i, "days").format("MMM Do").charAt(0).toUpperCase() + moment(w.test).locale("es").add(i, "days").format("MMM Do").slice(1));
         }
         product.stock_lastDay = '';
       }
@@ -536,7 +536,7 @@ export default {
           id: concept.id,
           codigo: concept.codigo,
           name: concept.nombre,
-          stock: +Math.trunc(+concept.existencia),
+          stock: /*concept.existencias*/0,
           sold: 0,
           stockMin: concept.existencia_minima,
           stockMax: concept.existencia_maxima,
@@ -697,7 +697,7 @@ export default {
     this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
     //se piden las facturas de hoy, y de 6 dias anteriores a este para poder calcular las ventas de X producto en la semana
     for (let i = 6; i > -1; i--)
-      this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment().locale('es').subtract(i,'days').format('YYYY-MM-DD')));
+      this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment(w.test).locale('es').subtract(i,'days').format('YYYY-MM-DD')));
     await this.getConcept(false,"",this.$data.apiConcepts.data.data);
 
     

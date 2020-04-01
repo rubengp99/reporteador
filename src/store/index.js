@@ -43,7 +43,6 @@ export default new Vuex.Store({
             state.user.token=null;
             state.user.data={};
             state.user.loggedIn=false;
-            state.pedidos = [];//se elimina los pedidos en local
             window.localStorage.setItem('token',"");//se elimina el token del storage
         },
 

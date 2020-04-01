@@ -67,12 +67,13 @@ import router from '@/router';
             ...mapState(['user'])
         },
         methods: {
-            ...mapActions(['logout']),
+            ...mapActions(['setSnackbar','logout']),
             transition(){
                 return "slide-y-transition"
             },
             logOut(){
                 this.logout();
+                this.setSnackbar(false);
                 router.push('/login');
             },
         },

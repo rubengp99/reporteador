@@ -179,7 +179,6 @@ exports.chart__barRank = (data,category,today) => {
             plotOptions: {
               bar: {
                 horizontal: true,
-                barHeight: "100%",
                 distributed: false,
               },
             },

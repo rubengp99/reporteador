@@ -25,8 +25,9 @@
 </template>
 
 <script>
-import loader from '../components/loading'
+import loader from '../components/loading';
 import moment from 'moment';
+import w from '../services/variables';
 
 export default {
     name:'dCard',
@@ -82,7 +83,7 @@ export default {
     beforeMount(){
         this.$data.cssClass = (this.$props.hoverable) ? 'mx-auto fill hoverable' : 'mx-auto fill ';
         this.$data.cssClass += (this.$props.title === 0) ? 'loading' : '';
-        this.hoy = moment().locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment().locale('es').format('MMM Do YYYY').slice(1,14);
+        this.hoy = moment(w.test).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(w.test).locale('es').format('MMM Do YYYY').slice(1,14);
     }
 }
 </script>
@@ -95,7 +96,7 @@ export default {
 .hoverable:hover{
     background: #ECEFF1!important;
 }
-
+/*
 $stroke: linear-gradient(to right top, #4527a0, #402da0, #3c32a1, #3836a0, #343aa0, #3142a6, #2e4aac, #2c51b1, #295fbf, #256ccc, #217ad9, #1e88e5);
 $surrounding: white;
 $width:null;
@@ -110,7 +111,7 @@ $fraction:null;
         animation: snake 1s linear 1 infinite;
         $width: 100% !global;
         $height: 100% !global;
-        $size: calc($width + $height) + $stroke-size !global;
+        $size: $width + $height + $stroke-size !global;
         $fraction: $stroke-size / $size !global;
     }
 }
@@ -157,7 +158,7 @@ $fraction:null;
     square(0,0,$stroke);
   }
 }
-
+*/
 .fill{
     position: relative;
     height: 100%;
