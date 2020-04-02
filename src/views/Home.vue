@@ -172,7 +172,7 @@ export default {
     async createStorageValue(){
       let apiStorages = await storages().get();
       for (const storage of apiStorages.data.data) {
-        let aux = await storages().get(storage.id+'/conceptos/?limit='+this.apiConcepts.data.totalCount)
+        let aux = await storages().get(storage.id+'/conceptos/?limit='+this.apiConcepts.data.totalCount+'&fields=id,nombre,precio_dolar,precio_a,existencias')
         let count = aux.data.data.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b);
         this.storages.push({
           id: storage.id,
@@ -222,5 +222,9 @@ a {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.fix-lowRes{
+  white-space: nowrap;
 }
 </style>

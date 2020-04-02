@@ -9,16 +9,16 @@
     <v-row v-show="!loading" class="storage" align="center" justify="center">
       <v-spacer class="d-none d-sm-flex"></v-spacer>
       <v-col cols="3" sm="2">
-        <p class="subtitle-2">Depósito</p>
+        <p class="subtitle-2 fix-lowRes">Depósito</p>
       </v-col>
       <v-col cols="3" sm="2">
-        <p class="subtitle-2">Conceptos</p>
+        <p class="subtitle-2 fix-lowRes">Conceptos</p>
       </v-col>
       <v-col cols="3">
-        <p class="subtitle-2">Valor en Bs</p>
+        <p class="subtitle-2 fix-lowRes">Valor en Bs</p>
       </v-col>
       <v-col cols="3">
-        <p class="subtitle-2">Valor en $</p>
+        <p class="subtitle-2 fix-lowRes">Valor en $</p>
       </v-col>
     </v-row>
     <v-row v-show="!loading" class="storage" align="center" justify="center" v-for="object in objects" :key="object.id">

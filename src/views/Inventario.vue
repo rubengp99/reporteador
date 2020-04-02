@@ -277,7 +277,9 @@ export default {
         stock_lastDay: null
       },
       apiSubGroups: [],
-      grupos: [],
+      //existen conceptos con subgrupos_id = null, esta categoría las engloba para que no se pierdan
+      //durante el filtrado, PD: se pushean más grupos, pero este es el inicial
+      grupos: [{text: 'Indefinidos', value: {id: null, name: '-', hasSub: true} }],
       subgrupos: [],
       grupo: "",
       subgrupo: "",
@@ -304,7 +306,7 @@ export default {
         totalConceptos: 0,
         headers: [
           { text: "Más Detalles", align: "center", sortable: false, value: "image" },
-          //{ text: "ID", align: "center", value: "id", sortable: false, },
+          { text: "ID", align: "center", value: "id", sortable: false, },
           { text: "Código", align: "center", value: "codigo", sortable: false, },
           { text: "Producto", align: "center", value: "name", sortable: false, },
           { text: "Grupo", align: "center", value: "category.name", sortable: false, },
@@ -536,7 +538,7 @@ export default {
           id: concept.id,
           codigo: concept.codigo,
           name: concept.nombre,
-          stock: /*concept.existencias*/0,
+          stock: concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b),
           sold: 0,
           stockMin: concept.existencia_minima,
           stockMax: concept.existencia_maxima,
@@ -567,7 +569,7 @@ export default {
           stock_costs: null,
         })));
       }
-      this.table.products = aux.sort((a, b) => a.id - b.id);
+      this.table.products = aux.sort((a, b) => a.id + b.id);
       this.loading = false;
     },555),
   },
@@ -628,6 +630,9 @@ export default {
       this.loading = true;
       this.subgrupos = [];
       this.table.products = [];
+      //existen conceptos con subgrupos_id = null, esta categoría las engloba para que no se pierdan
+      //durante el filtrado
+      this.subgrupos.push({text: 'Indefinidos', value: {id: null, name: '-', hasSub: true} })
       //al seleccionar un grupo es necesario filtrar los subgrupos pertenecientes a el
       let aux = this.apiSubGroups.filter(e => e.grupos_id === this.grupo.id || e.adm_grupos_id === this.grupo.id);
       //se puede dar el caso de que el grupo no tenga subgrupos, por eso es necesario hacer la verificación
@@ -653,7 +658,7 @@ export default {
       this.table.products = [];
       //el usuario puede haber habilitado una busqueda antes de seleccionar un subgrupo, por ello se verifica si es cierto
       //para así poder saber si filtrar el arreglo general o el arreglo previamente filtrado por la busqueda anterior
-      this.filteredConcepts = ((this.search === "" ) ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id);
+      this.filteredConcepts = ((this.search === "" ) ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => (c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id) && (c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id));
       this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
       this.getConcept(false,this.search,this.filteredConcepts,(this.search === ""));
@@ -700,7 +705,7 @@ export default {
       this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment(w.test).locale('es').subtract(i,'days').format('YYYY-MM-DD')));
     await this.getConcept(false,"",this.$data.apiConcepts.data.data);
 
-    
+    console.log(this.$data.apiConcepts.data.data.find(a => a.id === 1371));
   },
 };
 </script>
