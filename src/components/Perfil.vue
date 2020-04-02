@@ -84,13 +84,7 @@ export default {
 .customized {
   border: 1px solid #d5cec8;
   display: block;
-  right: 50%;
-  padding: 10px;
-  position: absolute;
-  width: 300px;
   background: white;
-  z-index: 2;
-  transform: translateX(50%);
 }
 .customized:before,
 .customized:after {
