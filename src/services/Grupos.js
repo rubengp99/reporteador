@@ -3,7 +3,7 @@ import variables from './variables'
 
 export default () => {
     return axios.create({
-        baseURL:`http://${variables.data}/api/grupos`,
+        baseURL:`${variables.http}://${variables.data}/api/grupos`,
         withCredentials:false,
         headers:{
             Accept:'application/json',

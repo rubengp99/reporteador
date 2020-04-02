@@ -3,7 +3,7 @@ import variables from './variables'
 
 export default () => {
     return axios.create({
-        baseURL:`http://${variables.data}/api/pedidos`,
+        baseURL:`${variables.http}://${variables.data}/api/pedidos`,
         withCredentials:false,
         headers:{
             Accept:'application/json',
