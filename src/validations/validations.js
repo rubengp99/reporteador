@@ -12,7 +12,7 @@ let maxLength = (properType,maxLength) => {
 }
 
 let emailFormat = () => {
-    let regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/ 
+    let regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/ 
 
     return v => v && regex.test(v) || `Correo Electrónico no válido`;
 }
@@ -25,12 +25,6 @@ let number = (properType) => {
 let cedula = (properType) => {
     let regex = /^[V|E|J|P][0-9]{5,9}$/ 
     return v => v && regex.test(v) || `${properType} incorrecta`
-}
-
-//incompleto, falta expresion regular para los 4 primeros numeros del telefono
-let telefonoFormat = () => {
-    let regex= aa;
-    return v => v && regex.test(v) || `debe ser un telefono válido`;
 }
 
 export default{
