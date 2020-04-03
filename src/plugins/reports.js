@@ -7,15 +7,18 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                 animations: {
                     enabled: true,
                     easing: 'easeinout',
-                    speed: 1000,
+                    speed: 700,
                     animateGradually: {
                         enabled: true,
-                        delay: 150
+                        delay:350
                     },
                     dynamicAnimation: {
                         enabled: true,
                         speed: 350
                     }
+                },
+                toolbar:{
+                    show:false,
                 }
             },
             plotOptions: {
@@ -105,15 +108,18 @@ exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab',
                 animations: {
                     enabled: true,
                     easing: 'easeinout',
-                    speed: 1000,
+                    speed: 700,
                     animateGradually: {
                         enabled: true,
-                        delay: 150
+                        delay:350
                     },
                     dynamicAnimation: {
                         enabled: true,
                         speed: 350
                     }
+                },
+                toolbar:{
+                    show:false,
                 }
             },
             dataLabels: {
@@ -165,16 +171,19 @@ exports.chart__barRank = (data,category,today) => {
               animations: {
                     enabled: true,
                     easing: 'easeinout',
-                    speed: 1000,
+                    speed: 500,
                     animateGradually: {
                         enabled: true,
-                        delay: 150
+                        delay: 50
                     },
                     dynamicAnimation: {
                         enabled: true,
                         speed: 350
                     }
                 },
+                toolbar:{
+                    show:false,
+                }
             },
             plotOptions: {
               bar: {

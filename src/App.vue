@@ -3,7 +3,7 @@
     <navigation  class="v-application"/>
     <transition :name="transitionName" mode="out-in" @beforeLeave="beforeLeave" @enter="enter" @afterEnter="afterEnter">
         <router-view/>
-      </transition>
+    </transition>
   </v-app>
 </template>
 
