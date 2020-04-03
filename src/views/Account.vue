@@ -6,7 +6,7 @@
                 <div class="shadow">
                     <v-card width="100%" height="400" elevation="0">
                         <v-row justify="center" align="center" class="mx-4 py-8">
-                            <v-avatar size="100" class="elevation-3">
+                            <v-avatar size="120" class="elevation-3">
                                 <v-img :src="user.data.fotografia === 'default.png' ? require('@/assets/user.svg') : image+user.data.fotografia"></v-img>
                             </v-avatar>
                             <div>

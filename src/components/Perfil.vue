@@ -1,8 +1,8 @@
 <template>
   <div v-if="user.loggedIn">
-    <v-menu :transition="transition()" bottom open-on-click offset-y position-y=270>
+    <v-menu :transition="transition()" bottom open-on-click offset-y>
       <template v-slot:activator="{ on }">
-        <v-avatar v-on="on" color="#f5f5f5" size="45" class="mx-3 elevation-3 hoverMe">
+        <v-avatar v-on="on" color="#f5f5f5" size="50" class="mx-3 elevation-3 hoverMe">
           <v-img
             :src="user.data.fotografia === 'default.png' ? require('@/assets/user.svg') : image+user.data.fotografia"
           ></v-img>
@@ -12,7 +12,7 @@
       <v-card class="customized">
         <v-list width="250" elevation="0">
           <v-list-item class="border">
-            <v-list-item-avatar>
+            <v-list-item-avatar size="70">
               <v-img
                 class="hoverMe"
                 :src="user.data.fotografia === 'default.png' ? require('@/assets/user.svg') : image+user.data.fotografia"
