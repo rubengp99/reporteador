@@ -266,6 +266,7 @@ export default {
       apiConcepts: null,
       apiConceptsAux: null,
       apiInvoices: null,
+      apiConceptSales: null,
       weeklySales: [],
       apiSales: null,
       apiGroups: null,
@@ -412,10 +413,10 @@ export default {
       fechas.reverse(); //revertimos el arreglo por fines de ordenamiento
       let sales = [0,0,0,0,0,0,0];
       // pedimos a la api las ventas del producto entrante
-      product.sold = await concept().get(product.id+'/sell/?limit='+this.apiInvoices.data.totalCount);
+      //product.sold = await concept().get(product.id+'/sell/?limit='+this.apiInvoices.data.totalCount);
       //la api puede retornar "empty entity" en ocasiones, por eso es necesario que la data es de typeof object, sino, asignar 0 en su lugar
       //para evitar errores
-      product.sold = typeof product.sold.data === 'object' ? +Math.trunc(+product.sold.data.ventas) : 0;
+      product.sold = typeof this.apiConceptSales.data.data.find(c => c.id === product.id) !== 'undefined' ? +Math.trunc(+ this.apiConceptSales.data.data.find(c => c.id === product.id).vendidos) : 0;
       //pedimos las devoluciones
       let devolutions = await concept().get(product.id+'/devolutions/?limit='+this.apiInvoices.data.totalCount);
       //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
@@ -528,46 +529,50 @@ export default {
       //aunado a ello, construimos nuestro propio objecto debido a que el modulo requiere una estructura diferente
       //a la planteada en la base de datos
       for(let concept of apiConcepts){
-        aux.push(await this.configStockDays(await this.configMovements({
-          image: concept.imagen,
-          icon: {
-            img: '/images/box.svg',
-            toggled: false,
-          },
-          reference: concept.referencia,
-          id: concept.id,
-          codigo: concept.codigo,
-          name: concept.nombre,
-          stock: concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b),
-          sold: 0,
-          stockMin: concept.existencia_minima,
-          stockMax: concept.existencia_maxima,
-          description: concept.descripcion,
-          returned: 0,
-          sale: +concept.precio_dolar,
-          cost: +concept.costo_dolar,
-          category: {
-            id: (typeof this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
-                  this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).id:0,
-            name: (typeof this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
-                    this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).nombre:'-',
-          },
-          subCategory: {
-            id: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
-                  typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].id : 0 : 0,
-            name: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
-                    typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' :'-'
-          },
-          stock_daily_sells: [0,0,0,0,0,0],
-          stock_end: [],
-          stock_lastDay: "",
-          stock_rotation: null,
-          stock_demand: null,
-          stock_devolution: null,
-          stock_claims: null,
-          stock_days: null,
-          stock_costs: null,
-        })));
+        aux.push(
+          await this.configStockDays(
+            await this.configMovements({
+              image: concept.imagen,
+              icon: {
+                img: '/images/box.svg',
+                toggled: false,
+              },
+              reference: concept.referencia,
+              id: concept.id,
+              codigo: concept.codigo,
+              name: concept.nombre,
+              stock: concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b),
+              sold: 0,
+              stockMin: concept.existencia_minima,
+              stockMax: concept.existencia_maxima,
+              description: concept.descripcion,
+              returned: 0,
+              sale: +concept.precio_dolar,
+              cost: +concept.costo_dolar,
+              category: {
+                id: (typeof this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
+                      this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).id:0,
+                name: (typeof this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
+                        this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).nombre:'-',
+              },
+              subCategory: {
+                id: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
+                      typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].id : 0 : 0,
+                name: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
+                        typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' :'-'
+              },
+              stock_daily_sells: [0,0,0,0,0,0],
+              stock_end: [],
+              stock_lastDay: "",
+              stock_rotation: null,
+              stock_demand: null,
+              stock_devolution: null,
+              stock_claims: null,
+              stock_days: null,
+              stock_costs: null,
+            })
+          )
+        );
       }
       this.table.products = aux.sort((a, b) => a.id + b.id);
       this.loading = false;
@@ -682,7 +687,10 @@ export default {
   async beforeMount() {
     //llamadas a la api
     this.$data.apiConcepts = await concept().get('?limit=1');
-    this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount+'&order=DESC');
+    this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount);
+    this.$data.apiConcepts.data.data.reverse();
+    this.$data.apiConceptSales = await concept().get('/mostSold/?limit='+this.$data.apiConcepts.data.totalCount)
+    //this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount+'&order=DESC');
     this.$data.apiInvoices = await invoices().get('?limit=1');
     this.$data.apiGroups = await groups().get();
     this.$data.apiGroups = await groups().get('?limit='+this.$data.apiGroups.data.totalCount);
@@ -705,7 +713,6 @@ export default {
       this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment(w.test).locale('es').subtract(i,'days').format('YYYY-MM-DD')));
     await this.getConcept(false,"",this.$data.apiConcepts.data.data);
 
-    console.log(this.$data.apiConcepts.data.data.find(a => a.id === 1371));
   },
 };
 </script>
