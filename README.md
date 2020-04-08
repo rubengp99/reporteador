@@ -13,6 +13,8 @@ Este es un sistema de gestión para la inteligencia financiera desarrollado dura
 
 ## Auth / Login / Password Recover
 
+### Login
+
 ***(English)*** Since it is a management system, it is clearly mandatory for the user to log in before proceeding. Any attempt to access a path through the URL will result in a redirect to this page.
 
 ___
@@ -20,6 +22,8 @@ ___
 ***(Español)*** Dado que es un sistema de gestión, es netamente obligatorio que el usuario inicie sesión antes de proceder. Cualquier intento de acceso a una ruta a través de la URL terminará en una redirección hacia esta página.
 
 ![1](capturas/login.png)
+
+### Password Recover
 
 ***(English)*** In the event that the user has forgotten their password and thinks that the system is inaccessible, then they do not have to worry, the password can be recovered, since the account has a linked email for these cases.
 
@@ -55,7 +59,6 @@ ___
 ![5](capturas/storage.png)
 
 ### Concept (Product) / Concepto (Producto)
-
 ***(English)*** Each concept has information related to its registration, and its stocks in the warehouse.
 
 ___
