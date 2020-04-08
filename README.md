@@ -4,6 +4,8 @@
 
 This is a management system for financial intelligence developed during my internships at Somos Sistemas C.A. It is in charge of managing information related to the company that uses it, generating reports that represent support material for decision-making. This project is still under development.
 
+___
+
 ## Descripción en español.
 
 Este es un sistema de gestión para la inteligencia financiera desarrollado durante mis pasantias en Somos Sistemas C.A. Se encarga de la gestión de información relacionada con la empresa que lo utiliza, generando reportes que representan un material de apoyo para la toma de decisiones. Este proyecto sigue en desarrollo.
