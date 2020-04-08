@@ -11,9 +11,9 @@ Este es un sistema de gestión para la inteligencia financiera desarrollado dura
 ### [Demo](http://reporteadordemo.000webhostapp.com)
 
 
-## Auth / Login / Password Recover
+## Auth / Login / Password Recover (Inicio de Sesion y Recuperar contraseña)
 
-### Login
+### Login / Inicio de Sesion
 
 ***(English)*** Since it is a management system, it is clearly mandatory for the user to log in before proceeding. Any attempt to access a path through the URL will result in a redirect to this page.
 
@@ -23,7 +23,7 @@ ___
 
 ![1](capturas/login.png)
 
-### Password Recover
+### Password Recover / Recuperar contraseña
 
 ***(English)*** In the event that the user has forgotten their password and thinks that the system is inaccessible, then they do not have to worry, the password can be recovered, since the account has a linked email for these cases.
 
