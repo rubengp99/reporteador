@@ -4,6 +4,8 @@
 
 This is a management system for financial intelligence developed during my internships at Somos Sistemas C.A. It is in charge of managing information related to the company that uses it, generating reports that represent support material for decision-making. This project is still under development.
 
+___
+
 ## Descripción en español.
 
 Este es un sistema de gestión para la inteligencia financiera desarrollado durante mis pasantias en Somos Sistemas C.A. Se encarga de la gestión de información relacionada con la empresa que lo utiliza, generando reportes que representan un material de apoyo para la toma de decisiones. Este proyecto sigue en desarrollo.
@@ -11,9 +13,9 @@ Este es un sistema de gestión para la inteligencia financiera desarrollado dura
 ### [Demo](http://reporteadordemo.000webhostapp.com)
 
 
-## Auth / Login / Password Recover
+## Auth / Login / Password Recover (Inicio de Sesion y Recuperar contraseña)
 
-### Login
+### Login / Inicio de Sesion
 
 ***(English)*** Since it is a management system, it is clearly mandatory for the user to log in before proceeding. Any attempt to access a path through the URL will result in a redirect to this page.
 
@@ -23,7 +25,7 @@ ___
 
 ![1](capturas/login.png)
 
-### Password Recover
+### Password Recover / Recuperar contraseña
 
 ***(English)*** In the event that the user has forgotten their password and thinks that the system is inaccessible, then they do not have to worry, the password can be recovered, since the account has a linked email for these cases.
 
