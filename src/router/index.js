@@ -8,7 +8,7 @@ const routes = [
     {
         path: '/',
         name: 'Inicio',
-        component: () => import('../views/Home.vue'),
+        component: () => import('../views/dashboard/Home.vue'),
         meta:{
             auth:true,
         },
@@ -16,7 +16,7 @@ const routes = [
     {
         path: '/Login',
         name: 'login',
-        component: () => import('../views/Login.vue'),
+        component: () => import('../views/auth/Login.vue'),
         meta:{
             auth:false,
             transitionName: 'slide'
@@ -25,25 +25,36 @@ const routes = [
     {
         path: "/forgot",
         name:"forgot",
-        component:() => import('../views/Forgot.vue'),
+        component:() => import('../views/auth/Forgot.vue'),
         meta:{
             auth:false,
             transitionName: 'slide'
         }
     },
-   // {
-        //path: '/Ventas',
-        //name: 'Ventas',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-       // component: () =>
-         //   import(  //'../views/Ventas.vue')
-    //},
+    {
+        path: "/ventas",
+        name:"ventas",
+        component:() => import('../views/ventas/Ventas.vue'),
+        meta:{
+            auth:true,
+            transitionName: 'slide'
+        },
+        children:[
+            {
+                path: "/ranking",
+                name:"ranking",
+                component:() => import('../views/ventas/ranking.vue'),
+                meta:{
+                    auth:true,
+                    transitionName: 'slide'
+                },
+            }
+        ]
+    },
     {
         path: '/Inventario',
         name: 'Inventario',
-        component: () => import('../views/Inventario.vue'),
+        component: () => import('../views/inventario/Inventario.vue'),
         meta:{
             auth:true,
             transitionName: 'slide'
@@ -52,7 +63,7 @@ const routes = [
     {
         path:'/Cuenta',
         name:'Cuenta',
-        component: () => import('../views/Account.vue'),
+        component: () => import('../views/auth/Account.vue'),
         meta:{
             auth:true,
             transitionName: 'slide'
@@ -62,7 +73,7 @@ const routes = [
             {
                 path: "Perfil",
                 name: "Perfil",
-                component: () => import('../views/Profile.vue'),
+                component: () => import('../views/auth/Profile.vue'),
                 meta: {
                     auth: true,
                     transitionName: 'slide'

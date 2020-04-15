@@ -12,8 +12,9 @@ import World from 'fusioncharts/maps/fusioncharts.world';
 import vueheader from 'vue-head';
 import Toasted from 'vue-toasted';
 import FusionTheme from 'fusioncharts/themes/fusioncharts.theme.fusion';
-import loader from './components/loading.vue';
+import loader from '@/components/aplicacion/loading.vue';
 import Auth from '@/services/auth';
+import './assets/css/styles.scss';
 
 let token = window.localStorage.getItem('token');
 // register VueFusionCharts component
