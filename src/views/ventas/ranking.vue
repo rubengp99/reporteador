@@ -8,7 +8,7 @@
       </v-card-title>
       <v-row v-if="!loading">
         <v-col cols="12" sm="4" v-for="(concept,i) in ranking.slice(offset, offset + itemsPerPage)" :key="concept.id">
-          <v-card class="mx-auto hoverable" max-width="344" height="100%">
+          <v-card class="mx-auto hoverable" max-width="344" height="100%" :to="'/Inventario/'+concept.nombre">
             <v-list-item three-line>
               <v-list-item-content>
                 <div class="overline mb-2"><span class="bold">{{concept.vendidos.split(",")[0]}}</span> <br> unidades vendidas.</div>
@@ -22,7 +22,7 @@
                 <v-img :src="concept.imagen === 'default.png' ? require('@/assets/box.svg') : image+concept.imagen"></v-img>
               </v-list-item-avatar>
             </v-list-item>
-
+            <v-divider></v-divider>
             <v-card-actions>
                 <v-row style="text-align:center;" align="center">
                     <v-spacer></v-spacer>
@@ -34,7 +34,7 @@
                           }}
                         </v-list-item-subtitle>
                     </v-col>
-                    <v-col cols=1 align="center">></v-col>
+                    <v-col cols=1 align="center"><v-icon>mdi-chevron-right</v-icon></v-col>
                     <v-col cols=5 align="left" style="text-align:center;">
                         <v-list-item-subtitle class="subtitle-2" style="text-overflow:none;white-space:normal;">
                           {{
@@ -102,11 +102,6 @@ export default {
       else if (page < this.page_old)
         this.offset -= Math.abs(page - this.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.page_old) * this.itemsPerPage;
       this.page_old = page;
-    }
-  },
-  watch:{
-    page:function(old, actual){
-      console.log(old +" " + actual);
     }
   },
   async beforeMount(){

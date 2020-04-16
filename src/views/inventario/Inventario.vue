@@ -168,13 +168,9 @@
                 </template>
                 <!-- Template de la columna ESTADISTICAS -->
                 <template v-slot:item.data-table-expand="item">
-                  <v-icon
-                    :class="{
-                            'v-data-table__expand-icon': true,
-                            'v-data-table__expand-icon--active': isExpanded && transitioned[getItemId(item)]
-                            }"
-                    @click="toggleExpand(item)"
-                  >
+                  <v-icon :ref="typeof $route.params.nombre !== 'undefined' ? 'expand1' : 'expand'+item.item.id"
+                    :class="{ 'v-data-table__expand-icon': true, 'v-data-table__expand-icon--active': isExpanded && transitioned[getItemId(item)] }"
+                    @click="toggleExpand(item)">
                     mdi-chevron-down
                   </v-icon>
                 </template>
@@ -574,7 +570,7 @@ export default {
           )
         );
       }
-      this.table.products = aux.sort((a, b) => a.id + b.id);
+      this.table.products = aux.sort((a, b) => a.id + b.id);   
       this.loading = false;
     },555),
   },
@@ -707,13 +703,23 @@ export default {
       }
       this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
     }
-    this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
     //se piden las facturas de hoy, y de 6 dias anteriores a este para poder calcular las ventas de X producto en la semana
     for (let i = 6; i > -1; i--)
       this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment(w.test).locale('es').subtract(i,'days').format('YYYY-MM-DD')));
-    await this.getConcept(false,"",this.$data.apiConcepts.data.data);
-
+    
+    if(typeof this.$route.params.nombre !== 'undefined'){
+      this.search = this.$route.params.nombre;
+      this.goSearch = !this.goSearch;
+    }else{
+      this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
+      await this.getConcept(false,"",this.$data.apiConcepts.data.data);
+    }
   },
+  updated(){
+    if(typeof this.$route.params.nombre !== 'undefined' && typeof this.$refs.expand1 !== 'undefined'){
+        this.$refs.expand1.$el.click();
+    }
+  }
 };
 </script>
 
