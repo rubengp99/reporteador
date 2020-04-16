@@ -68,6 +68,10 @@ export default {
             type:Boolean,
             default:false
         },
+        active:{
+            type:Boolean,
+            default:false
+        },
     },
     data (){
         return{
@@ -77,90 +81,16 @@ export default {
     },
     watch:{
         title: function(val){
-            val > 0 ? this.cssClass.replace('loading','') : NaN
-        } 
+            val > 0 ? this.cssClass.replace('loading','') : NaN;
+        },
+        active: function(val){
+            val ? this.cssClass+= 'active ' : this.cssClass.replace('active','');
+        },
     },
     beforeMount(){
-        this.$data.cssClass = (this.$props.hoverable) ? 'mx-auto fill hoverable' : 'mx-auto fill ';
+        this.$data.cssClass = (this.$props.hoverable) ? 'mx-auto fill hoverable ' : 'mx-auto fill ';
         this.$data.cssClass += (this.$props.title === 0) ? 'loading' : '';
         this.hoy = moment(w.test).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(w.test).locale('es').format('MMM Do YYYY').slice(1,14);
     }
 }
 </script>
-
-<style lang="scss">
-.hoverable{
-    cursor: pointer;
-}
-
-.hoverable:hover{
-    background: #ECEFF1!important;
-}
-/*
-$stroke: linear-gradient(to right top, #4527a0, #402da0, #3c32a1, #3836a0, #343aa0, #3142a6, #2e4aac, #2c51b1, #295fbf, #256ccc, #217ad9, #1e88e5);
-$surrounding: white;
-$width:null;
-$height: null;
-$square-size: 50px;
-$stroke-size: 2px;
-$size:null;
-$fraction:null;
-
-.mx-auto{
-    .loading{
-        animation: snake 1s linear 1 infinite;
-        $width: 100% !global;
-        $height: 100% !global;
-        $size: $width + $height + $stroke-size !global;
-        $fraction: $stroke-size / $size !global;
-    }
-}
-
-@keyframes snake {
-  0% {
-    box-shadow:
-    square(0,-1),
-    square(-1,0),
-    square(0,1),
-    square(1,0),
-    square(0,0,$stroke);
-  }
-  25% {
-    box-shadow:
-    square(-1 - $fraction,-1),
-    square(-1,0),
-    square(0,1),
-    square(1,0),
-    square(0,0,$stroke);
-  }
-  50% {
-    box-shadow:
-    square(-1 - $fraction,-1),
-    square(-1,1 + $fraction),
-    square(0,1),
-    square(1,0),
-    square(0,0,$stroke);
-  }
-  75% {
-    box-shadow:
-    square(-1 - $fraction,-1),
-    square(-1,1 + $fraction),
-    square(1 + $fraction,1),
-    square(1,0),
-    square(0,0,$stroke);
-  }
-  100% {
-    box-shadow:
-    square(-1 - $fraction,-1),
-    square(-1,1 + $fraction),
-    square(1 + $fraction,1),
-    square(1,-1 - $fraction),
-    square(0,0,$stroke);
-  }
-}
-*/
-.fill{
-    position: relative;
-    height: 100%;
-}
-</style>

@@ -58,7 +58,18 @@ const routes = [
         meta:{
             auth:true,
             transitionName: 'slide'
-        }
+        },
+        children:[
+            {
+                path: "/:nombre",
+                name:"concepto",
+                component:() => import('../views/inventario/Inventario.vue'),
+                meta:{
+                    auth:true,
+                    transitionName: 'slide'
+                },
+            }
+        ]
     },
     {
         path:'/Cuenta',

@@ -382,9 +382,9 @@ export default {
       //esta seccion determinar las posiciones del arreglo general que se tomarán mas adelante, un limite inferior y uno superior
       if (page === 1) this.table.dataOffset = 0;
       else if (page > this.table.page_old)
-        this.table.dataOffset += Math.abs(page - this.table.page_old) === 0 ? 8 : Math.abs(page - this.table.page_old) * 8;
+        this.table.dataOffset += Math.abs(page - this.table.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.table.page_old) * this.itemsPerPage;
       else if (page < this.table.page_old)
-        this.table.dataOffset -= Math.abs(page - this.table.page_old) === 0 ? 8 : Math.abs(page - this.table.page_old) * 8;
+        this.table.dataOffset -= Math.abs(page - this.table.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.table.page_old) * this.itemsPerPage;
       //limpiamos los datos
       this.table.products = [];
       //guardamos un historial de la página anterior para mayor precision al paginar.
@@ -541,7 +541,7 @@ export default {
               id: concept.id,
               codigo: concept.codigo,
               name: concept.nombre,
-              stock: concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b),
+              stock: concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : 0,
               sold: 0,
               stockMin: concept.existencia_minima,
               stockMax: concept.existencia_maxima,
