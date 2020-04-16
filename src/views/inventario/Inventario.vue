@@ -302,7 +302,7 @@ export default {
         page: 1,
         page_old: 1,
         pageCount: 0,
-        itemsPerPage: 8,// para cambiar el limite de conceptos por página, cambia este número, lo demas se configura solo
+        itemsPerPage: 10,// para cambiar el limite de conceptos por página, cambia este número, lo demas se configura solo
         dataOffset: 0,
         totalConceptos: 0,
         headers: [
@@ -382,9 +382,9 @@ export default {
       //esta seccion determinar las posiciones del arreglo general que se tomarán mas adelante, un limite inferior y uno superior
       if (page === 1) this.table.dataOffset = 0;
       else if (page > this.table.page_old)
-        this.table.dataOffset += Math.abs(page - this.table.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.table.page_old) * this.itemsPerPage;
+        this.table.dataOffset += Math.abs(page - this.table.page_old) === 0 ? this.table.itemsPerPage : Math.abs(page - this.table.page_old) * this.table.itemsPerPage;
       else if (page < this.table.page_old)
-        this.table.dataOffset -= Math.abs(page - this.table.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.table.page_old) * this.itemsPerPage;
+        this.table.dataOffset -= Math.abs(page - this.table.page_old) === 0 ? this.table.itemsPerPage : Math.abs(page - this.table.page_old) * this.table.itemsPerPage;
       //limpiamos los datos
       this.table.products = [];
       //guardamos un historial de la página anterior para mayor precision al paginar.
