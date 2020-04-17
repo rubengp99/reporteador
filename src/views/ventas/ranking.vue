@@ -50,7 +50,7 @@
         </v-col>
         <v-pagination
           v-model="page"
-          :length="ranking.length"
+          :length="Math.ceil(ranking.length / itemsPerPage)"
           v-on:click.native="paginate(page)"
         ></v-pagination>
       </v-row>

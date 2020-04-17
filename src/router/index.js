@@ -41,9 +41,18 @@ const routes = [
         },
         children:[
             {
-                path: "/ventas/ranking",
+                path: "ranking",
                 name:"ranking",
                 component:() => import('../views/ventas/ranking.vue'),
+                meta:{
+                    auth:true,
+                    transitionName: 'slide'
+                },
+            },
+            {
+                path: "vendedores",
+                name:"vendedores",
+                component:() => import('../views/ventas/vendedores.vue'),
                 meta:{
                     auth:true,
                     transitionName: 'slide'
@@ -61,7 +70,7 @@ const routes = [
         },
         children:[
             {
-                path: "/Inventario/:nombre",
+                path: ":nombre",
                 name:"concepto",
                 component:() => import('../views/inventario/Inventario.vue'),
                 meta:{
