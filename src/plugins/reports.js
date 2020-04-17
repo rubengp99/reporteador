@@ -42,9 +42,13 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                                         return (
                                             isNaN(Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)) || !isFinite(Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)) ? 0 + "%" : Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)+'%'
                                         );
-                                    }else{
+                                    }else if(formatter !== 'volumen'){
                                         return (
                                             isNaN(Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 100)) || !isFinite(Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 100)) ? 0+"%" : Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 100)+'%'
+                                        );
+                                    }else{
+                                        return(
+                                            Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100) > 100 ? 100 + '%' : Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100) +'%'
                                         );
                                     }
                                         

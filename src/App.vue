@@ -1,5 +1,5 @@
 <template>
-  <v-app id="app" style="background: #FAFAFA;">
+  <v-app id="app" style="background: #F5F5F5;">
     <navigation  class="v-application"/>
     <transition :name="transitionName" mode="out-in" @beforeLeave="beforeLeave" @enter="enter" @afterEnter="afterEnter">
         <router-view/>

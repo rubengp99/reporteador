@@ -8,7 +8,7 @@
       </v-card-title>
       <v-row v-if="!loading">
         <v-col cols="12" sm="4" v-for="(concept,i) in ranking.slice(offset, offset + itemsPerPage)" :key="concept.id">
-          <v-card class="mx-auto hoverable" max-width="344" height="100%" :to="'/Inventario/'+concept.nombre">
+          <v-card class="mx-auto hoverable" max-width="100%" height="100%" elevation="4" :to="'/Inventario/'+concept.nombre">
             <v-list-item three-line>
               <v-list-item-content>
                 <div class="overline mb-2"><span class="bold">{{concept.vendidos.split(",")[0]}}</span> <br> unidades vendidas.</div>
