@@ -116,10 +116,10 @@
                     <v-card-actions>
                         <v-spacer></v-spacer>
                                 <v-btn 
-                                    :v-show="false"
                                     color="#005598" dark
                                     :loading="loading" @click="updateUsuario(user.data.id)"
-                                    class="text-capitalize body-2"  
+                                    class="text-capitalize body-2" 
+                                    :disabled="!change" 
                                 >
                                     Actualizar datos
                                 </v-btn>
@@ -165,9 +165,15 @@ import transitions from '@/plugins/transitions'
             }
         },
         computed:{
-            ...mapState(['user','fotoChanged','foto']),
+            ...mapState(['user','fotoChanged','foto','fotoFile']),
         },
         watch: {
+            fotoFile:function(){
+                console.log(this.fotoFile);
+            },
+            fotoChanged: function(){
+                this.change = this.fotoChanged;
+            },
             data:{
                 handler(){
                     if(!this.fotoChanged && this.data.nombre === this.user.data.nombre && this.data.apellido === this.user.data.apellido && this.data.email === this.user.data.email && this.data.login === this.user.data.login){
@@ -192,6 +198,7 @@ import transitions from '@/plugins/transitions'
             },
             updateUsuario(id){
                 this.loading = true;
+                this.data.
                 this.data.fecha_nac = this.date;
                 Usuario().post(`/${id}`,{data:this.data}).then(() => {
                     this.mensajeSnackbar('#388E3C','done','Actualizado exitosamente.');

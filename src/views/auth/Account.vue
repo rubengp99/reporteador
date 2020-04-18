@@ -86,16 +86,18 @@ import transitions from '@/plugins/transitions'
         },
         methods:{
             ...transitions,
-            ...mapActions(['setFoto','setFotoChanged']),
+            ...mapActions(['setFoto','setFotoChanged','setFotoFile']),
             restoreFoto(){
                 this.fotoAux.remove();
                 this.setFotoChanged(false);
                 this.setFoto(this.user.data.fotografia);
+                this.setFotoFile(null);
             },
             uploadFoto(){
                 this.fotoAux.chooseFile();
             },
             onNewImage(){
+                this.setFotoFile(this.fotoAux.getChosenFile());
                 this.setFotoChanged(true);
                 this.setFoto(this.fotoAux.generateDataUrl());
             }

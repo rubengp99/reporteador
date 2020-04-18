@@ -16,6 +16,7 @@ export default new Vuex.Store({
         modalsesion:false,
         foto: '',
         fotoChanged:false,
+        fotoFile: null,
     },
     getters: {
         
@@ -50,6 +51,9 @@ export default new Vuex.Store({
         SET_FOTO(state, val){
             state.foto = val;
         },
+        SET_FOTOFILE(state, val){
+            state.fotoFile = val;
+        },
         SET_CHANGEFOTO(state, val){
             state.fotoChanged = val;
         }
@@ -75,6 +79,9 @@ export default new Vuex.Store({
         },
         setFotoChanged({commit},val){
             commit('SET_CHANGEFOTO',val);
+        },
+        setFotoFile({commit},val){
+            commit('SET_FOTOFILE',val);
         },
     }
 });
