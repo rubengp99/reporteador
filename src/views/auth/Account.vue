@@ -1,90 +1,177 @@
- 
 <template>
     <div>
-        <v-row justify="center" :class="$vuetify.breakpoint.smAndDown ? 'margen-movil mx-10':'margen mx-10'">
-            <v-col cols="12" sm="12" md="3">
-                <div class="shadow">
-                    <v-card width="100%" height="400" elevation="0">
-                        <v-row justify="center" align="center" class="mx-4 py-8">
-                            <v-avatar size="120" class="elevation-3">
-                                <v-img :src="user.data.fotografia === 'default.png' ? require('@/assets/user.jpg') : image+user.data.fotografia"></v-img>
+        <v-row style="padding:0 10px;">
+            <v-col cols="12" md=3>
+                <v-card class="bg" height="85vh">
+                    <v-list dense nav style="margin-top: 64px;background: none;">
+                        <v-list-item two-line>
+                            
+                            <v-list-item-avatar size="115" v-if="!$route.name === 'Perfil'">
+                                <v-img :src="user.data.fotografia === 'default.png' && !fotoChanged? fotoChanged ? foto  : require('@/assets/user.jpg') :  fotoChanged ? foto : image+user.data.fotografia"></v-img>
+                            </v-list-item-avatar>
+                            <v-list-item-avatar class="border" size="115" v-else>
+                                <croppa 
+                                    ref="avatar"
+                                    placeholder="" 
+                                    disable-click-to-choose 
+                                    disable-scroll-to-zoom 
+                                    disable-pinch-to-zoom 
+                                    remove-button-color="black" 
+                                    show-loading class="bg-center" 
+                                    :width="115" 
+                                    :height="115" 
+                                    v-model="fotoAux" 
+                                    canvas-color="transparent"
+                                    @new-image-drawn="onNewImage()" 
+                                    :style="(user.data.fotografia === 'default.png' && !fotoChanged? fotoChanged ? 'background:url('+foto+');'  : 'background:url('+require('@/assets/user.jpg')+');' :  fotoChanged ? 'background:url('+foto+');' : 'background:url('+image+user.data.fotografia+');')"
+                                >
+                                </croppa>
+                            </v-list-item-avatar>
+                            <v-avatar @click.native="!fotoChanged ? uploadFoto() : restoreFoto() " v-if="$route.name === 'Perfil'" class="abs_center" size="35" style="z-index:2;" color="#F5F5F5">
+                                <v-icon style="font-size:21px;">{{ !fotoChanged ? 'mdi-camera' : 'close' }}</v-icon>
                             </v-avatar>
-                            <div>
-                                <div class="caption font-weigth-black grey--text mx-4">Mi perfil</div>
-                                <div class="title font-weigth-black mx-4">{{user.data.nombre}}</div>
-                            </div>
-                        </v-row>
-                        
-                        <v-divider></v-divider>
+                            <v-list-item-content class="white--text font-weight-bold">
+                                <v-list-item-title class="subtitle-1 mb-1" style="text-overflow:none; white-space:normal;">Super usuario</v-list-item-title>
+                                <v-list-item-subtitle class="subtitle-2 white--text font-weight-bold">{{user.data.nombre +' '+ user.data.apellido}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list>
 
-                        <v-list class="mt-5">
-                            <v-list-item v-for="(opcion,i) in opciones" :key="i" :to="opcion.path" active-class="grey--text">
-                                <v-list-item-icon>
-                                    <v-icon color="#005598" small>{{opcion.icon}}</v-icon>
-                                </v-list-item-icon>
-                                <v-list-item-content>
-                                    {{opcion.text}}
-                                </v-list-item-content>
-                            </v-list-item>
-                        </v-list>
-                    </v-card>
-                </div>
+                    <v-divider class="back"></v-divider>
+
+                    <v-list dense nav style="background: none;">
+                        <v-list-item 
+                            v-for="item in items" 
+                            :key="item.title" 
+                            link 
+                            :to="item.to"
+                            active-class="white--text color font-weight-bold sombra"
+                        >
+                            <v-list-item-icon>
+                                <v-icon dark>{{ item.icon }}</v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title class="subtitle-2 white--text font-weight-bold">{{ item.title }}</v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list>
+                </v-card>
             </v-col>
-            <v-col cols="12" sm="12" md="9">
-                <div class="shadow">
-                    <v-card elevation="0" height="600" width="100%" class="pa-5">
-                        <router-view></router-view>
-                    </v-card>
-                </div>
+            <v-col cols=12 md="9">
+                <transition  :name="transitionName" mode="out-in" @beforeLeave="beforeLeave" @enter="enter" @afterEnter="afterEnter">
+                    <router-view></router-view>
+                </transition>
             </v-col>
         </v-row>
-
     </div>
 </template>
 
 <script>
-import {mapState} from 'vuex';
+import {mapState, mapActions} from 'vuex';
 import variables from '@/services/variables';
+import transitions from '@/plugins/transitions'
+  const DEFAULT_TRANSITION = 'slide';
     export default {
-        components:{
-        },
         data() {
             return {
                 ...variables,
-                opciones:[
-                    {icon:'settings',path:'/cuenta/perfil',text:'Ajustes de cuenta'},
-                  //  {icon:'history',path:'/account/notificaciones',text:'Centro de notificaciones'},
-                    //{icon:'error',path:'/account/ordenes',text:'últimas ordenes'},
-                   // {icon:'error_outline',path:'/account/ayuda',text:'Centro de ayuda'},
-                ]
+                transitionName: DEFAULT_TRANSITION,
+                fotoAux:{},
+                items: [
+                    { title: 'Perfil', icon: 'mdi-account-circle',to:'perfil' },
+                    { title: 'Notificaciones', icon: 'mdi-bell',to:'notificaciones' },
+                    { title: 'Ayuda', icon: 'mdi-help',to:'ayuda' },
+                ],
             }
         },
-        head:{
-            title(){
-                return {
-                    inner:'Reporteador',
-                    separator:'|',
-                    complement: 'Perfil'
-                }
+        methods:{
+            ...transitions,
+            ...mapActions(['setFoto','setFotoChanged']),
+            restoreFoto(){
+                this.fotoAux.remove();
+                this.setFotoChanged(false);
+                this.setFoto(this.user.data.fotografia);
+            },
+            uploadFoto(){
+                this.fotoAux.chooseFile();
+            },
+            onNewImage(){
+                this.setFotoChanged(true);
+                this.setFoto(this.fotoAux.generateDataUrl());
             }
         },
         computed:{
-            ...mapState(['user'])
+            ...mapState(['user','fotoChanged','foto']),
+        },
+        created() {
+            this.animate(this.transitionName);
+            this.setFoto(this.user.data.fotografia);
+            this.setFotoChanged(false);
+        },
+        mounted(){
+            this.fotoAux.remove();
         }
     }
 </script>
 
-<style lang="css" scoped>
-    .margen{
-        margin-top:75px;
+<style lang="scss" scoped>
+    .color{
+        background: #17468b;
     }
-    .margen-movil{
-        margin-top:120px;
+    .back{
+        background: #fff;
     }
-    .margen-footer{
-        margin-top:200px;
+    .sombra{
+        background:#01579b !important;
     }
-    .shadow{
-        box-shadow: 0px 6px 5px -4px rgba(35,35,35,0.4);
+
+    .bg{
+        background-image: linear-gradient(to right top, rgba(100, 115, 201, 0.33), rgba(25, 32, 72, 0.7)), url(../../assets/bg.jpg);
+        background-position: center center;
+    }
+
+    .bg-center{
+        background-position:center center!important;
+        width: 115px;
+        height: 115px;
+        border-radius:50%;
+    }
+
+    .border{
+         border: 2px solid #F5F5F5;
+    }
+
+    .abs_center{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(calc(-50% - 35px), calc(-50% + 35px));
+    }
+
+    .abs_center:hover{
+        cursor: pointer;
+        background: #ededed!important;
+    }
+
+    .slide-left-enter-active,
+    .slide-left-leave-active,
+    .slide-right-enter-active,
+    .slide-right-leave-active {
+        transition-duration: .3s;
+        transition-property: height, opacity, transform;
+        transition-timing-function: cubic-bezier(0.55, 0, 0.1, 1);
+        overflow: hidden;
+    }
+    
+    .slide-left-enter,
+    .slide-right-leave-active {
+        opacity: 0;
+        transform: translate(2em, 0);
+    }
+    
+    .slide-left-leave-active,
+    .slide-right-enter {
+        opacity: 0;
+        transform: translate(-2em, 0);
     }
 </style>

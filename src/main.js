@@ -14,12 +14,14 @@ import Toasted from 'vue-toasted';
 import FusionTheme from 'fusioncharts/themes/fusioncharts.theme.fusion';
 import loader from '@/components/aplicacion/loading.vue';
 import Auth from '@/services/auth';
+import croppa from 'vue-croppa';
 import './assets/css/styles.scss';
 
 let token = window.localStorage.getItem('token');
 // register VueFusionCharts component
 Vue.use(VueFusionCharts, FusionCharts, Maps, World, FusionTheme)
 Vue.use(vueheader);
+Vue.use(croppa);
 Vue.use(Toasted);
 Vue.component('apexchart', ApexCharts);
 Vue.component('loader',loader);

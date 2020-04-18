@@ -57,6 +57,15 @@ const routes = [
                     auth:true,
                     transitionName: 'slide'
                 },
+            },
+            {
+                path: "clientes",
+                name:"clientes",
+                component:() => import('../views/ventas/clientes.vue'),
+                meta:{
+                    auth:true,
+                    transitionName: 'slide'
+                },
             }
         ]
     },
@@ -106,15 +115,16 @@ const routes = [
                 meta: {
                     auth: true
                 }
-            },
+            },*/
             {
                 path: "notificaciones",
                 name: "notificaciones",
-                component: Notificaciones,
+                component: () => import('../views/auth/notificaciones.vue'),
                 meta: {
-                    auth: true
+                    auth: true,
+                    transitionName: 'slide'
                 }
-            },*/
+            },
         ]
     },
 ]

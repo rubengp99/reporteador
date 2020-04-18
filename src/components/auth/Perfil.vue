@@ -2,21 +2,18 @@
   <div v-if="user.loggedIn">
     <v-menu :transition="transition()" bottom open-on-click offset-y>
       <template v-slot:activator="{ on }">
-        <v-avatar v-on="on" color="#f5f5f5" size="50" class="mx-3 elevation-3 hoverMe">
+        <v-avatar v-on="on" color="#f5f5f5" size="55" class="mx-3 elevation-3 border">
           <v-img
-            :src="user.data.fotografia === 'default.png' ? require('@/assets/user.jpg') : image+user.data.fotografia"
+            :src="user.data.fotografia === 'default.png' && !fotoChanged? fotoChanged ? foto  : require('@/assets/user.jpg') :  fotoChanged ? foto : image+user.data.fotografia"
           ></v-img>
         </v-avatar>
       </template>
       <!-- lista de opciones-->
       <v-card class="customized">
         <v-list width="250" elevation="0">
-          <v-list-item class="border">
-            <v-list-item-avatar size="70">
-              <v-img
-                class="hoverMe"
-                :src="user.data.fotografia === 'default.png' ? require('@/assets/user.jpg') : image+user.data.fotografia"
-              ></v-img>
+          <v-list-item>
+            <v-list-item-avatar size="80" class="border">
+              <v-img class="" :src="user.data.fotografia === 'default.png' && !fotoChanged? fotoChanged ? foto  : require('@/assets/user.jpg') :  fotoChanged ? foto : image+user.data.fotografia"></v-img>
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title class="color" v-text="user.data.nombre+' '+user.data.apellido"></v-list-item-title>
@@ -60,10 +57,10 @@ export default {
     };
   },
   computed: {
-    ...mapState(["user"])
+    ...mapState(['user','fotoChanged','foto']),
   },
   methods: {
-    ...mapActions(["setSnackbar", "logout"]),
+    ...mapActions(["setSnackbar", "logout","setFotoChanged","setFoto"]),
     transition() {
       return "slide-y-transition";
     },
@@ -77,6 +74,9 @@ export default {
 </script>
 
 <style lang="scss">
+ .border{
+         border: 1px solid #F5F5F5;
+    }
 .customized {
   margin-top: 10px;
 }

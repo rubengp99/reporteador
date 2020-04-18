@@ -14,6 +14,8 @@ export default new Vuex.Store({
         drawer:false,
         snackbar:false,
         modalsesion:false,
+        foto: '',
+        fotoChanged:false,
     },
     getters: {
         
@@ -45,7 +47,12 @@ export default new Vuex.Store({
             state.user.loggedIn=false;
             window.localStorage.setItem('token',"");//se elimina el token del storage
         },
-
+        SET_FOTO(state, val){
+            state.foto = val;
+        },
+        SET_CHANGEFOTO(state, val){
+            state.fotoChanged = val;
+        }
     },
     actions: {
         setDrawer({commit},val){
@@ -62,6 +69,12 @@ export default new Vuex.Store({
         },
         logout({commit}){
             commit('LOGOUT');
+        },
+        setFoto({commit},val){
+            commit('SET_FOTO',val);
+        },
+        setFotoChanged({commit},val){
+            commit('SET_CHANGEFOTO',val);
         },
     }
 });

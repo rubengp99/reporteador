@@ -11,7 +11,7 @@
             <v-card class="mx-auto hoverable" max-width="100%" height="100%" elevation="4" @click.native="seller.expand = !seller.expand">
             <v-list-item three-line>
               <v-list-item-content>
-                <div class="overline mb-2"><span class="bold">{{seller.sales.split(",")[0]}}</span> <br> unidades vendidas.</div>
+                <div class="overline mb-2"><span class="bold">{{seller.sales.split(",")[0]}}</span> <br> ventas realizadas.</div>
                 <v-list-item-title class="subtitle-1 mb-1" style="line-height: 1.25rem;text-overflow:none;white-space:normal;word-wrap:nowrap;">
                     <span class="bold">Nombre: </span>{{seller.name}}
                 </v-list-item-title>
@@ -122,8 +122,6 @@ export default {
           expand: false,
         });
       });
-      
-      console.log(this.vendedores);
       this.$data.loading = false;
     }
   },
