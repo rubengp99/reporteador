@@ -2,7 +2,7 @@
     <div>
         <v-row style="padding:0 10px;">
             <v-col cols="12" md=3>
-                <v-card class="bg" :height="clicked ? '85vh' : '25vh'" @click="clicked = !clicked">
+                <v-card class="bg" :height="clicked ? '85vh' : '28vh'" @click="clickable ? clicked = !clicked : NaN">
                     <v-list dense nav style="margin-top: 64px;background: none;">
                         <v-list-item two-line>
                             
@@ -87,6 +87,7 @@ import transitions from '@/plugins/transitions'
                     { title: 'Ayuda', icon: 'mdi-help',to:'ayuda' },
                 ],
                 clicked:true,
+                clickable: false,
             }
         },
         methods:{
@@ -109,8 +110,10 @@ import transitions from '@/plugins/transitions'
             onResize() {
                 if (window.innerWidth < 957) {
                     this.clicked = false;
+                    this.clickable = true;
                 }else {
                     this.clicked = true;
+                    this.clickable = false;
                 }
   }
         },
@@ -121,7 +124,7 @@ import transitions from '@/plugins/transitions'
             this.animate(this.transitionName);
             this.setFoto(this.user.data.fotografia);
             this.setFotoChanged(false);
-             window.addEventListener('resize', this.onResize);
+            window.addEventListener('resize', this.onResize);
         },
         mounted(){
             this.fotoAux.remove();
