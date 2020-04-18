@@ -2,7 +2,7 @@
     <div>
         <v-row style="padding:0 10px;">
             <v-col cols="12" md=3>
-                <v-card class="bg" :height="clicked ? '85vh' : '24.5vh'" @click="clicked = !clicked">
+                <v-card class="bg" :height="clicked ? '85vh' : '25vh'" @click="clicked = !clicked">
                     <v-list dense nav style="margin-top: 64px;background: none;">
                         <v-list-item two-line>
                             
@@ -105,7 +105,14 @@ import transitions from '@/plugins/transitions'
                 this.setFotoFile(this.fotoAux.getChosenFile());
                 this.setFotoChanged(true);
                 this.setFoto(this.fotoAux.generateDataUrl());
-            }
+            },
+            onResize() {
+                if (window.innerWidth < 957) {
+                    this.clicked = false;
+                }else {
+                    this.clicked = true;
+                }
+  }
         },
         computed:{
             ...mapState(['user','fotoChanged','foto']),
@@ -114,10 +121,14 @@ import transitions from '@/plugins/transitions'
             this.animate(this.transitionName);
             this.setFoto(this.user.data.fotografia);
             this.setFotoChanged(false);
+             window.addEventListener('resize', this.onResize);
         },
         mounted(){
             this.fotoAux.remove();
-        }
+        },
+        beforeDestroy() {
+            window.removeEventListener('resize', this.onResize)
+        },
     }
 </script>
 
