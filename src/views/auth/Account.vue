@@ -145,9 +145,8 @@ import transitions from '@/plugins/transitions'
 
     .abs_center{
         position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(calc(-50% - 35px), calc(-50% + 35px));
+        top: 95px;
+        left: 85px;
     }
 
     .abs_center:hover{
