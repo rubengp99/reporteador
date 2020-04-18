@@ -2,7 +2,7 @@
     <div>
         <v-row style="padding:0 10px;">
             <v-col cols="12" md=3>
-                <v-card class="bg" height="85vh">
+                <v-card class="bg" :height="clicked ? '85vh' : '24.5vh'" @click="clicked = !clicked">
                     <v-list dense nav style="margin-top: 64px;background: none;">
                         <v-list-item two-line>
                             
@@ -37,24 +37,28 @@
                         </v-list-item>
                     </v-list>
 
-                    <v-divider class="back"></v-divider>
+                    <v-divider class="back" v-show="clicked"></v-divider>
 
-                    <v-list dense nav style="background: none;">
-                        <v-list-item 
-                            v-for="item in items" 
-                            :key="item.title" 
-                            link 
-                            :to="item.to"
-                            active-class="white--text color font-weight-bold sombra"
-                        >
-                            <v-list-item-icon>
-                                <v-icon dark>{{ item.icon }}</v-icon>
-                            </v-list-item-icon>
-                            <v-list-item-content>
-                                <v-list-item-title class="subtitle-2 white--text font-weight-bold">{{ item.title }}</v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                    </v-list>
+                    <v-expand-transition>
+                        <v-card-actions v-show="clicked">
+                            <v-list dense nav style="background: none;width:100%">
+                                <v-list-item 
+                                    v-for="item in items" 
+                                    :key="item.title" 
+                                    link 
+                                    :to="item.to"
+                                    active-class="white--text color font-weight-bold sombra"
+                                >
+                                    <v-list-item-icon>
+                                        <v-icon dark>{{ item.icon }}</v-icon>
+                                    </v-list-item-icon>
+                                    <v-list-item-content>
+                                        <v-list-item-title class="subtitle-2 white--text font-weight-bold">{{ item.title }}</v-list-item-title>
+                                    </v-list-item-content>
+                                </v-list-item>
+                            </v-list>
+                        </v-card-actions>
+                    </v-expand-transition>
                 </v-card>
             </v-col>
             <v-col cols=12 md="9">
@@ -82,6 +86,7 @@ import transitions from '@/plugins/transitions'
                     { title: 'Notificaciones', icon: 'mdi-bell',to:'notificaciones' },
                     { title: 'Ayuda', icon: 'mdi-help',to:'ayuda' },
                 ],
+                clicked:true,
             }
         },
         methods:{
@@ -130,6 +135,7 @@ import transitions from '@/plugins/transitions'
     .bg{
         background-image: linear-gradient(to right top, rgba(100, 115, 201, 0.33), rgba(25, 32, 72, 0.7)), url(../../assets/bg.jpg);
         background-position: center center;
+        transition: height .2s ease-in-out;
     }
 
     .bg-center{
