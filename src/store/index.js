@@ -1,5 +1,12 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import concept from "@/services/Conceptos";
+import invoices from "@/services/Factura";
+import groups from "@/services/Grupos"
+import subGroups from '@/services/SubGrupos'
+import storages from '@/services/Depositos';
+import w from '@/services/variables'
+import moment from "moment";
 
 Vue.use(Vuex);
 
@@ -17,6 +24,24 @@ export default new Vuex.Store({
         foto: '',
         fotoChanged:false,
         fotoFile: null,
+        vuexConcepts: null,
+        vuexConceptSales: null,
+        vuexInvoices: null,
+        vuexGroups: null,
+        vuexSubGroups: null,
+        vuexWeeklySales: null,
+        vuexStorages: null,
+        vuexGroupSales: null,
+        vuexSubGroupSales: null,
+        vuexTodayInvoices: null,
+        initAux: [false,false,false,false,false],
+        init: false,
+        inventoryUpdatedAux: [false,false,false,false,false,false],
+        inventoryUpdated: false,
+        dashboardUpdatedAux: [false,false,false,false],
+        dashboardUpdated: false,
+        rankingUpdated: false,
+        chosenRanked: 0,
     },
     getters: {
         
@@ -56,6 +81,110 @@ export default new Vuex.Store({
         },
         SET_CHANGEFOTO(state, val){
             state.fotoChanged = val;
+        },
+        SET_CHOSENRANKED(state, val){
+            state.chosenRanked = val;
+        },
+        async SET_UPDATE_INVENTARIO(state){
+            concept().get('?limit='+state.vuexConcepts.data.totalCount+'&fields=existencias').then(reponse =>{
+                state.vuexConcepts = reponse;
+                state.vuexConcepts.data.data.reverse();
+                state.inventoryUpdatedAux[0] = true;
+                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
+                    state.inventoryUpdated = true;
+                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
+                    state.rankingUpdated = true;
+            });
+            concept().get('/mostSold/?limit='+state.vuexConcepts.data.totalCount).then(reponse =>{
+                state.vuexConceptSales = reponse;
+                state.inventoryUpdatedAux[1] = true;
+                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
+                    state.inventoryUpdated = true;
+                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
+                    state.rankingUpdated = true;
+            });
+            groups().get('?limit='+state.vuexGroups.data.totalCount).then(reponse =>{
+                state.vuexGroups = reponse;
+                state.inventoryUpdatedAux[2] = true;
+                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
+                    state.inventoryUpdated = true;
+                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
+                    state.rankingUpdated = true;
+            });
+            subGroups().get('?limit='+state.vuexSubGroups.data.totalCount).then(reponse =>{
+                state.vuexSubGroups = reponse;
+                state.inventoryUpdatedAux[3] = true;
+                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
+                    state.inventoryUpdated = true;
+                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
+                    state.rankingUpdated = true;
+            });
+            let weeklySales = [];
+            for (let i = 6; i > -1; i--)
+                weeklySales.push(await invoices().get('?limit='+state.vuexInvoices.data.totalCount+'&fecha_at='+moment(w.test).locale('es').subtract(i,'days').format('YYYY-MM-DD')));
+            state.vuexWeeklySales = weeklySales;
+            state.inventoryUpdatedAux[4] = true;
+            if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
+                state.inventoryUpdated = true;
+        },
+        SET_INIT_INVENTARIO(state){
+            concept().get('?limit=1').then(reponse =>{
+                state.vuexConcepts = reponse;
+                state.initAux[0] = true;
+                if(state.initAux[0] && state.initAux[1] && state.initAux[2] && state.initAux[3] && state.initAux[4])
+                    state.init = true;
+            });
+            concept().get('/mostSold/?limit=1').then(reponse =>{
+                state.vuexConceptSales = reponse;
+                state.initAux[1] = true;
+                if(state.initAux[0] && state.initAux[1] && state.initAux[2] && state.initAux[3] && state.initAux[4])
+                    state.init = true;
+            });
+            invoices().get('?limit=1').then(reponse =>{
+                state.vuexInvoices = reponse;
+                state.initAux[2] = true;
+                if(state.initAux[0] && state.initAux[1] && state.initAux[2] && state.initAux[3] && state.initAux[4])
+                    state.init = true;
+            });
+            groups().get('?limit=1').then(reponse =>{
+                state.vuexGroups = reponse;
+                state.initAux[3] = true;
+                if(state.initAux[0] && state.initAux[1] && state.initAux[2] && state.initAux[3] && state.initAux[4])
+                    state.init = true;
+            });
+            subGroups().get('?limit=1').then(reponse =>{
+                state.vuexSubGroups = reponse;
+                state.initAux[4] = true;
+                if(state.initAux[0] && state.initAux[1] && state.initAux[2] && state.initAux[3] && state.initAux[4])
+                    state.init = true;
+            });
+        },
+        async SET_UPDATE_DASHBOARD(state){
+            storages().get().then(response =>{
+                state.vuexStorages = response;
+                state.dashboardUpdatedAux[0] = true;
+                if(state.dashboardUpdatedAux[0] && state.dashboardUpdatedAux[1] && state.dashboardUpdatedAux[2] && state.dashboardUpdatedAux[3])
+                    state.dashboardUpdated = true;
+            });
+            groups().get('/mostSold/?limit='+state.vuexGroups.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD')).then(response =>{
+                state.vuexGroupSales = response;
+                state.dashboardUpdatedAux[1] = true;
+                if(state.dashboardUpdatedAux[0] && state.dashboardUpdatedAux[1] && state.dashboardUpdatedAux[2] && state.dashboardUpdatedAux[3])
+                    state.dashboardUpdated = true;
+            });
+            subGroups().get('/mostsold/?limit='+state.vuexSubGroups.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD')).then(response =>{
+                state.vuexSubGroupSales = response;
+                state.dashboardUpdatedAux[2] = true;
+                if(state.dashboardUpdatedAux[0] && state.dashboardUpdatedAux[1] && state.dashboardUpdatedAux[2] && state.dashboardUpdatedAux[3])
+                    state.dashboardUpdated = true;
+            });
+            invoices().get('?limit='+state.vuexInvoices.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD')).then(reponse =>{
+                state.vuexTodayInvoices = reponse;
+                state.dashboardUpdatedAux[3] = true;
+                if(state.dashboardUpdatedAux[0] && state.dashboardUpdatedAux[1] && state.dashboardUpdatedAux[2] && state.dashboardUpdatedAux[3])
+                    state.dashboardUpdated = true;
+            });
+            
         }
     },
     actions: {
@@ -82,6 +211,18 @@ export default new Vuex.Store({
         },
         setFotoFile({commit},val){
             commit('SET_FOTOFILE',val);
+        },
+        setUpdateInventario({commit},val){
+            commit('SET_UPDATE_INVENTARIO',val);
+        },
+        setInitInventario({commit},val){
+            commit('SET_INIT_INVENTARIO',val);
+        },
+        setUpdateDashboard({commit},val){
+            commit('SET_UPDATE_DASHBOARD',val);
+        },
+        setChosenRanked({commit},val){
+            commit('SET_CHOSENRANKED',val);
         },
     }
 });

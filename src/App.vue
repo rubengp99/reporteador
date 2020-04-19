@@ -10,6 +10,7 @@
 <script>
   import navigation from './components/aplicacion/Navigation'
   import transitions from './plugins/transitions'
+  import {mapState, mapActions} from 'vuex';
 
   const DEFAULT_TRANSITION = 'fade';
   export default {
@@ -23,11 +24,26 @@
         transitionName: DEFAULT_TRANSITION,
      };
    },
+   computed:{
+     ...mapState(['init']),
+   },
     methods:{
-      ...transitions
+      ...transitions,
+      ...mapActions(['setInitInventario','setUpdateInventario','setUpdateDashboard']),
+    },
+    watch:{
+      init: async function(){
+        this.setUpdateInventario(null);
+        this.setUpdateDashboard(null);
+        setInterval(async ()=>{
+          this.setUpdateInventario(null);
+          this.setUpdateDashboard(null);
+        },300000)
+      }
     },
     created() {
       this.animate(this.transitionName);
+      this.setInitInventario(null);
     },
   }
 </script>

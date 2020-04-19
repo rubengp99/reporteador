@@ -205,16 +205,17 @@
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
-            <v-list disabled style="margin-top:-30px;">
+            <v-list disabled style="margin-top:-30px;text-align:left;">
               <v-subheader style="color:black;" class="subtitle-1">Detalles de Existencias</v-subheader>
               <v-list-item-group v-model="selectedItem" color="primary">
                 <v-list-item >
                     <v-list-item-content style="padding: 6px 0;width:50%">
-                      <p class="caption mb-1" ><strong>Existencia mínima:</strong> {{ selectedItem.stockMin !== null ? selectedItem.stockMin : '---' }}</p>
-                      <p class="caption" ><strong>Existencia máxima:</strong> {{ selectedItem.stockMax !== null ? selectedItem.stockMin : '---' }}</p>
+                      <p class="caption mb-1 ml-2" ><strong>Existencia mínima:</strong> {{ selectedItem.stockMin !== null ? selectedItem.stockMin : '---' }}</p>
+                      <p class="caption ml-2" ><strong>Existencia máxima:</strong> {{ selectedItem.stockMax !== null ? selectedItem.stockMin : '---' }}</p>
                     </v-list-item-content>
-                    <v-list-item-content style="padding: 6px 0;width:50%">
-                      <p class="caption mb-1" ><strong>Referencia:</strong> {{ selectedItem.reference !== null ? selectedItem.reference : '---' }}</p>
+                    <v-list-item-content style="padding: 6px 0;width:50%;text-align:left;">
+                      <p class="caption mb-1 ml-1" ><strong>Referencia:</strong> {{ selectedItem.reference !== null ? selectedItem.reference : '---' }}</p>
+                      <p class="caption ml-1" ><strong>Vendidos:</strong> {{ selectedItem.sold !== null ? selectedItem.sold : '---' }} unidades.</p>
                     </v-list-item-content>
                       <p class="overline" >&nbsp;</p>
                 </v-list-item>
@@ -232,13 +233,11 @@
 import chart from "@/components/inventario/Chart"
 import moment from "moment";
 import concept from "@/services/Conceptos";
-import invoices from "@/services/Factura";
-import groups from "@/services/Grupos"
-import subGroups from '@/services/SubGrupos'
 import accounting from 'accounting';
 import _ from 'lodash';
 import w from '@/services/variables'
 import reports from '@/plugins/reports';
+import {mapState} from 'vuex';
 
 export default {
   name: "Home",
@@ -304,7 +303,7 @@ export default {
         headers: [
           { text: "Más Detalles", align: "center", sortable: false, value: "image" },
           //{ text: "ID", align: "center", value: "id", sortable: false, },
-          { text: "Código", align: "center", value: "codigo", sortable: false, },
+          //{ text: "Código", align: "center", value: "codigo", sortable: false, },
           { text: "Producto", align: "center", value: "name", sortable: false, },
           { text: "Grupo", align: "center", value: "category.name", sortable: false, },
           { text: "Sub-Grupo", align: "center", value: "subCategory.name", sortable: false, },
@@ -316,6 +315,9 @@ export default {
         products: [],
       }
     };
+  },
+  computed:{
+    ...mapState(['vuexConcepts','vuexConceptSales','vuexInvoices','vuexGroups','vuexSubGroups','vuexWeeklySales','inventoryUpdated']),
   },
   methods: {
     //este bloque de codigo es un copy-paste para animacion al expandir un row en datatable
@@ -412,7 +414,8 @@ export default {
       //product.sold = await concept().get(product.id+'/sell/?limit='+this.apiInvoices.data.totalCount);
       //la api puede retornar "empty entity" en ocasiones, por eso es necesario que la data es de typeof object, sino, asignar 0 en su lugar
       //para evitar errores
-      product.sold = typeof this.apiConceptSales.data.data.find(c => c.id === product.id) !== 'undefined' ? +Math.trunc(+ this.apiConceptSales.data.data.find(c => c.id === product.id).vendidos) : 0;
+      let aux = this.apiConceptSales.data.data.find(c => c.id === product.id);
+      product.sold = typeof aux !== 'undefined' ? +Math.trunc(+aux.vendidos) : 0;
       //pedimos las devoluciones
       let devolutions = await concept().get(product.id+'/devolutions/?limit='+this.apiInvoices.data.totalCount);
       //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
@@ -512,13 +515,19 @@ export default {
       let apiConcepts = (pConcept.length > this.table.itemsPerPage) ? 
         pConcept.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage) : pConcept;
       //si se ha habilitado alguna busqueda por nombre entonces  
-      if (search){
-        //se filtran los resultados del arreglo general si no hay grupos activos, sino, se filtran desde el arreglo previamente filtrado
+      if (search && typeof this.$route.params.id === 'undefined'){
+        //se filtran los resultados del arreglo general si no hay grupos acti vos, sino, se filtran desde el arreglo previamente filtrado
         this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.$data.apiConcepts.data.data)
           .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase()));
         apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
         this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.$data.apiConcepts.data.data)
           .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).length;
+      }else{
+        this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.$data.apiConcepts.data.data)
+          .filter(concept => concept.id === this.$route.params.id);
+        apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
+        this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.$data.apiConcepts.data.data)
+          .filter(concept => concept.adm_grupos_id === this.$route.params.grupo && concept.adm_subgrupos_id === this.$route.params.subgrupo && concept.nombre === this.$route.params.nombre).length;
       }
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
       //procesamos los productos que apareceran en la página
@@ -546,10 +555,10 @@ export default {
               sale: +concept.precio_dolar,
               cost: +concept.costo_dolar,
               category: {
-                id: (typeof this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
-                      this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).id:0,
-                name: (typeof this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
-                        this.apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).nombre:'-',
+                id: (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
+                      this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).id:0,
+                name: (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
+                        this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).nombre:'-',
               },
               subCategory: {
                 id: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
@@ -573,10 +582,39 @@ export default {
       this.table.products = aux.sort((a, b) => a.id + b.id);   
       this.loading = false;
     },555),
+    
+    async createInventory(){
+      //se piden las facturas de hoy, y de 6 dias anteriores a este para poder calcular las ventas de X producto en la seman
+        this.weeklySales = this.vuexWeeklySales;
+        this.apiConcepts = this.vuexConcepts;
+        this.apiConceptSales = this.vuexConceptSales;
+        this.apiInvoices = this.vuexInvoices;
+        this.apiGroups = this.vuexGroups;
+        this.apiGroups = this.apiGroups.data.data;
+        this.$data.apiSubGroups = this.vuexSubGroups;
+        this.$data.apiSubGroups = this.apiSubGroups.data.data;
+        //se crea un arreglo con objectos personalizados de grupos para poder filtrar los subgrupos pertenecientes al mas adelante
+        for (let group of this.$data.apiGroups){
+          // si result contiene datos, entonces el grupo tiene subgrupos (hasSubGroups)
+          let result = this.$data.apiSubGroups.filter(asg => asg.grupos_id === group.id || asg.adm_grupos_id === group.id);
+          let hasSubGroups = true;
+          if(result.length === 0){
+            hasSubGroups = false;
+          }
+          this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
+        }
+        if(typeof this.$route.params.id !== 'undefined'){
+          this.search = this.$route.params.nombre;
+          this.goSearch = !this.goSearch;
+        }else{
+          this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
+          await this.getConcept(false,"",this.$data.apiConcepts.data.data);
+        }
+    }
   },
 
   watch: {
-    search: function(after){
+    search: async function(after){
       if (this.grupo === "" && this.grupo === ""){
         if(this.search === "" && this.filteredConcepts.length > 0){
           this.table.products = [];
@@ -595,21 +633,21 @@ export default {
             this.filteredConcepts = ((this.search === "") ? this.$data.apiConcepts.data.data : this.filteredConcepts).filter(c => c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id);
           }
           this.table.totalConceptos = this.filteredConcepts.length; 
-          this.getConcept(false, after,  this.filteredConcepts);
+          await this.getConcept(false, after,  this.filteredConcepts);
         }else
           return;
       }else
         return;
     },
 
-    goSearch: _.debounce(function () {
+    goSearch: _.debounce(async function () {
       //watch se activa cuando presionas enter en el text input de busqueda
       this.loading = true;
       this.table.products = [];
       this.table.page = 1;
       this.table.page_old = 1;
       this.table.dataOffset = 0;
-      this.getConcept(true,this.search, (this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.$data.apiConcepts.data.data);
+      await this.getConcept(true,this.search, (this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.$data.apiConcepts.data.data);
     },555),
 
     singleExpand (v) {
@@ -678,48 +716,38 @@ export default {
       this.table.totalConceptos = this.apiConcepts.data.totalCount;
       this.getConcept(false,"",this.apiConcepts.data.data);
     },555),
+    vuexConcepts(){
+      this.apiConcepts = this.vuexConcepts;
+    },
+    vuexConceptSales(){
+      this.apiConceptSales = this.vuexConceptSales;
+    },
+    vuexInvoices(){
+      this.apiInvoices = this.vuexInvoices;
+    },
+    vuexGroups(){
+      this.apiGroups = this.vuexGroups;
+      this.apiGroups =  this.apiGroups.data.data;
+    },
+    vuexSubGroups(){
+      this.apiSubGroups = this.vuexSubGroups;
+      this.apiSubGroups = this.apiSubGroups.data.data;
+    },
+    inventoryUpdated(){
+      this.createInventory();
+    }
   },
 
   async beforeMount() {
-    //llamadas a la api
-    this.$data.apiConcepts = await concept().get('?limit=1');
-    this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount);
-    this.$data.apiConcepts.data.data.reverse();
-    this.$data.apiConceptSales = await concept().get('/mostSold/?limit='+this.$data.apiConcepts.data.totalCount)
-    //this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount+'&order=DESC');
-    this.$data.apiInvoices = await invoices().get('?limit=1');
-    this.$data.apiGroups = await groups().get();
-    this.$data.apiGroups = await groups().get('?limit='+this.$data.apiGroups.data.totalCount);
-    this.$data.apiSubGroups = await subGroups().get('?limit=1');
-    this.$data.apiSubGroups = await subGroups().get('?limit='+this.$data.apiSubGroups.data.totalCount);
-    this.$data.apiSubGroups = this.$data.apiSubGroups.data.data;
-    //se crea un arreglo con objectos personalizados de grupos para poder filtrar los subgrupos pertenecientes al mas adelante
-    for (let group of this.$data.apiGroups.data.data){
-      // si result contiene datos, entonces el grupo tiene subgrupos (hasSubGroups)
-      let result = this.$data.apiSubGroups.filter(asg => asg.grupos_id === group.id || asg.adm_grupos_id === group.id);
-      let hasSubGroups = true;
-      if(result.length === 0){
-        hasSubGroups = false;
+    try {
+      //llamadas a la api
+      if(this.inventoryUpdated){
+        this.createInventory();
       }
-      this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
-    }
-    //se piden las facturas de hoy, y de 6 dias anteriores a este para poder calcular las ventas de X producto en la semana
-    for (let i = 6; i > -1; i--)
-      this.weeklySales.push(await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment(w.test).locale('es').subtract(i,'days').format('YYYY-MM-DD')));
-    
-    if(typeof this.$route.params.nombre !== 'undefined'){
-      this.search = this.$route.params.nombre;
-      this.goSearch = !this.goSearch;
-    }else{
-      this.$data.table.totalConceptos = this.$data.apiConcepts.data.totalCount;
-      await this.getConcept(false,"",this.$data.apiConcepts.data.data);
+     } catch (e) {
+      console.log(e);
     }
   },
-  updated(){
-    if(typeof this.$route.params.nombre !== 'undefined' && typeof this.$refs.expand1 !== 'undefined'){
-        this.$refs.expand1.$el.click();
-    }
-  }
 };
 </script>
 
@@ -786,7 +814,7 @@ thead.v-data-table-header-mobile{
   }
 
   @media screen and (min-width: 600px) and (max-width: 1904px) {
-    width: 400px!important;
+    width: 450px!important;
   }
 
   @media screen and (min-width: 1904px){

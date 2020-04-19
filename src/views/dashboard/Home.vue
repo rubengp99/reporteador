@@ -37,13 +37,10 @@ import dCard from "@/components/aplicacion/Dashcard"
 import moment from "moment";
 import accounting from 'accounting';
 import storages from '@/services/Depositos';
-import concept from "@/services/Conceptos";
-import invoices from "@/services/Factura";
-import groups from "@/services/Grupos"
-import subGroups from "@/services/SubGrupos"
 import reports from '@/plugins/reports'
 import loader from '@/components/aplicacion/loading'
 import w from '@/services/variables';
+import { mapState } from 'vuex';
 
 export default {
   name: "Home",
@@ -58,6 +55,9 @@ export default {
       apiGroups: null,
       apiSubGroups: null,
       apiConcepts: null,
+      sVentas: null,
+      groupSales: null,
+      apiStorages: null,
       gains$: 0,
       invoices: 0,
       stockMin: 0,
@@ -70,6 +70,9 @@ export default {
       ranking: null,  
     }
   },
+  computed:{
+    ...mapState(['dashboardUpdated','vuexTodayInvoices','vuexStorages','vuexConcepts','vuexInvoices','vuexGroupSales','vuexSubGroupSales','vuexGroups','vuexSubGroups']),
+  },
   methods:{
     /*
       Diseñado para crear la primera fila de datos:
@@ -79,19 +82,17 @@ export default {
         --?
     */
     async createBasics(){
-      this.$data.apiConcepts = await concept().get('?limit=1');
-      this.$data.apiConcepts = await concept().get('?limit='+this.apiConcepts.data.totalCount);
-      this.$data.apiInvoices = await invoices().get('?limit=1');
-      this.$data.apiInvoices = await invoices().get('?limit='+this.$data.apiInvoices.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD'));
+      this.apiConcepts = this.vuexConcepts;
+      this.apiInvoices = this.vuexTodayInvoices;
       //sumamos las ganancias producidas por esa cantidad de facturas
       try {
         //cantidad de facturas hoy
-        this.$data.invoices =  this.$data.apiInvoices.data.count;
+        this.invoices =  this.apiInvoices.data.count;
         this.loading[1] = false;
-        this.$data.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.$data.gains$ += +d.precio_dolar * +Math.trunc(+d.cantidad)));
+        this.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.$data.gains$ += +d.precio_dolar * +Math.trunc(+d.cantidad)));
       } catch (e) {
+        this.$data.gains$ = 0;
         this.$data.invoices = 0;
-        console.log(e);
       }
       this.loading[0] = false;
       //le damos un formato contable
@@ -109,17 +110,13 @@ export default {
         --Ranking de ventas por grupos (Gráfico)
     */
     async createGroupsRank(){
-      let gCount = await groups().get('?limit=1');
-      let sCount = await subGroups().get('?limit=1');
-      this.$data.apiGroups = await groups().get();
-      this.$data.apiGroups = await groups().get('?limit='+this.$data.apiGroups.data.totalCount);
-      this.$data.apiSubGroups = await subGroups().get('?limit=1');
-      this.$data.apiSubGroups = await subGroups().get('?limit='+this.$data.apiSubGroups.data.totalCount);
-      this.$data.apiSubGroups = this.$data.apiSubGroups.data.data;
-      let groupSales = await groups().get('/mostSold/?limit='+gCount.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD'));
+      this.apiGroups = this.vuexGroups;
+      this.apiSubGroups = this.vuexSubGroups;
+      this.apiSubGroups = this.$data.apiSubGroups.data.data;
+      this.groupSales = this.vuexGroupSales;
       let max = this.apiSubGroups.length;
-      let gVentas = groupSales.data.data.slice(0,5);
-      let sVentas = await subGroups().get('/mostsold/?limit='+sCount.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD'));
+      let gVentas = this.$data.groupSales.data.data.slice(0,5);
+      this.sVentas = this.vuexSubGroupSales.data.data;
       //inicializamos la data del gráficos, esto es solo con fines de establecer una matriz de
       //5 files con una cantidad de columnas proporcional al número de subgrupos
       //(el diseño de apexchart nos obliga a hacer el gráfico de barras stackeadas de esta manera)
@@ -152,10 +149,10 @@ export default {
 
       for (let i = 1; i < max+1; i++){
         for (let j = 0; j < 5; j++) {
-          this.series[i].data[j].x = typeof sVentas.data.data.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i) !== 'undefined' ?  
-                                        sVentas.data.data.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).nombre  : '';
-          this.series[i].data[j].y = typeof sVentas.data.data.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i) !== 'undefined' ?  
-                                        Math.trunc(sVentas.data.data.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).venta) : 0;
+          this.series[i].data[j].x = typeof this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i) !== 'undefined' ?  
+                                        this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).nombre  : '';
+          this.series[i].data[j].y = typeof this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i) !== 'undefined' ?  
+                                        Math.trunc(this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).venta) : 0;
         }
       }
       this.ranking = reports.chart__barRank(this.series,
@@ -170,9 +167,9 @@ export default {
         --Valorización depósitos (tabla)
     */
     async createStorageValue(){
-      let apiStorages = await storages().get();
+      this.apiStorages = this.vuexStorages;
       try{
-        for (const storage of apiStorages.data.data) {
+        for (const storage of this.$data.apiStorages.data.data) {
           let aux = await storages().get(storage.id+'/conceptos/?limit='+this.apiConcepts.data.totalCount+'&fields=id,nombre,precio_dolar,precio_a,existencias')
           let count = aux.data.data.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b);
           this.storages.push({
@@ -191,10 +188,46 @@ export default {
       }
     },
   },
+  watch:{
+    vuexConcepts(){
+      this.$data.apiConcepts = this.vuexConcepts;
+    },
+    vuexInvoices(){
+      this.$data.apiInvoices = this.vuexInvoices;
+    },
+    vuexGroups(){
+      this.$data.apiGroups = this.vuexGroups;
+      this.$data.apiGroups =  this.apiGroups.data.data;
+    },
+    vuexSubGroups(){
+      this.$data.apiSubGroups = this.vuexSubGroups;
+      this.$data.apiSubGroups = this.apiSubGroups.data.data;
+    },
+    vuexSubGroupSales(){
+      this.$data.sVentas = this.vuexSubGroupSales;
+      this.$data.sVentas = this.$data.sVentas.data.data;
+    },
+    vuexGroupSales(){
+      this.$data.groupSales = this.vuexGroupSales;
+    },
+    vuexStorages(){
+      this.$data.apiStorages = this.vuexStorages;
+    },
+    vuexTodayInvoices(){
+      this.$data.apiInvoices = this.vuexTodayInvoices;
+    },
+    dashboardUpdated(){
+      this.createBasics();
+      this.createGroupsRank();
+      this.createStorageValue();
+    }
+  },
   beforeMount(){
-    this.createBasics();
-    this.createGroupsRank();
-    this.createStorageValue();
+    if(this.dashboardUpdated){
+      this.createBasics();
+      this.createGroupsRank();
+      this.createStorageValue();
+    }
   }
 };
 </script>

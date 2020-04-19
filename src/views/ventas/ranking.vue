@@ -8,16 +8,16 @@
       </v-card-title>
       <v-row v-if="!loading">
         <v-col cols="12" sm="4" v-for="(concept,i) in ranking.slice(offset, offset + itemsPerPage)" :key="concept.id">
-          <v-card class="mx-auto hoverable" max-width="100%" height="100%" elevation="4" :to="'/Inventario/'+concept.nombre">
+          <v-card class="mx-auto hoverable" max-width="100%" height="100%" elevation="4" :to="{ name: 'concepto', params: {nombre: concept.nombre, id: concept.id, grupo:concept.adm_grupos_id, subgrupo: concept.adm_subgrupos_id}}">
             <v-list-item three-line>
               <v-list-item-content>
-                <div class="overline mb-2"><span class="bold">{{concept.vendidos.split(",")[0]}}</span> <br> unidades vendidas.</div>
+                <div class="overline mb-2"><span class="bold">{{apiConceptSalesAux[i]}}</span> <br> unidades vendidas.</div>
                 <v-list-item-title class="subtitle-1 mb-1" style="line-height: 1.25rem;text-overflow:none;white-space:normal;word-wrap:nowrap;">
                     {{concept.nombre}}
                 </v-list-item-title>
                 <v-list-item-title class="caption"> PUESTO {{offset + i + 1}}</v-list-item-title>
               </v-list-item-content>
-              <img v-if="apiConcepts[i].existencias === 0" src="@/assets/agotado.png" width="100px" height="50px" style="flex: 0 0 0%;position:absolute;top: 40px;right: 15px;z-index: 1;">
+              <img v-if="apiStockAux[i] === 0" src="@/assets/agotado.png" width="100px" height="50px" style="flex: 0 0 0%;position:absolute;top: 40px;right: 15px;z-index: 1;">
               <v-list-item-avatar tile size="100" color="grey">
                 <v-img :src="concept.imagen === 'default.png' ? require('@/assets/box.svg') : image+concept.imagen"></v-img>
               </v-list-item-avatar>
@@ -65,19 +65,12 @@
 </template>
 
 <script>
-//import dCard from "@/components/aplicacion/Dashcard";
-import concept from "@/services/Conceptos"
 import variables from "@/services/variables";
-import groups from "@/services/Grupos";
-import subGroups from "@/services/SubGrupos";
 import accounting from "accounting";
+import { mapState } from 'vuex';
 
 export default {
    name: "ranking",
-   components: {
-    //dCard: dCard,
-    //loader: loader,    
-  },
   data: () => {
     return {
       ...variables,
@@ -87,6 +80,8 @@ export default {
       apiGroups: null,
       apiSubGroups: null,
       apiConcepts: null,
+      apiConceptSalesAux: [],
+      apiStockAux: [],
       grupos: [],
       page:1,
       page_old: 1,
@@ -102,28 +97,45 @@ export default {
       else if (page < this.page_old)
         this.offset -= Math.abs(page - this.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.page_old) * this.itemsPerPage;
       this.page_old = page;
+    },
+    createRanking(){
+      this.$data.apiConcepts = this.vuexConcepts.data.data;
+      this.$data.apiConcepts.forEach(concept =>{
+        this.$data.apiStockAux.push(concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : 0);
+      });
+      this.$data.ranking = this.vuexConceptSales.data.data;
+      this.$data.ranking.forEach(concept => {
+        this.$data.apiConceptSalesAux.push(accounting.formatMoney(+Math.trunc(concept.vendidos), { symbol   : "", thousand : ".", decimal  : ",", }).split(",")[0]);
+      });
+      this.$data.apiGroups = this.vuexGroups;
+      this.$data.apiSubGroups = this.vuexSubGroups.data.data;
+      this.$data.loading = false;
+    }
+  },
+  computed:{
+    ...mapState(['vuexConcepts','vuexConceptSales','vuexGroups','vuexSubGroups','rankingUpdated']),
+  },
+  watch:{
+    vuexConcepts(){
+      this.$data.apiConcepts = this.vuexConcepts.data.data;
+    },
+    vuexConceptSales(){
+      this.$data.ranking = this.vuexConceptSales.data.data;
+    },
+    vuexGroups(){
+      this.$data.apiGroups = this.vuexGroups;
+    },
+    vuexSubGroups(){
+      this.$data.apiSubGroups = this.vuexSubGroups.data.data;
+    },
+    rankingUpdated(){
+      this.createRanking();
     }
   },
   async beforeMount(){
     try {
-      this.$data.apiConcepts = await concept().get('?limit=1');
-      this.$data.apiConcepts = await concept().get('?limit='+this.$data.apiConcepts.data.totalCount);
-      this.$data.apiConcepts = this.$data.apiConcepts.data.data;
-      this.$data.ranking = await concept().get("?limit=1");
-      this.$data.ranking = await concept().get("/mostSold/?limit="+this.$data.ranking.data.totalCount);
-      this.$data.ranking = this.$data.ranking.data.data;
-      this.$data.apiGroups = await groups().get();
-      this.$data.apiGroups = await groups().get('?limit='+this.$data.apiGroups.data.totalCount);
-      this.$data.apiSubGroups = await subGroups().get('?limit=1');
-      this.$data.apiSubGroups = await subGroups().get('?limit='+this.$data.apiSubGroups.data.totalCount);
-      this.$data.apiSubGroups = this.$data.apiSubGroups.data.data;
-      this.$data.ranking.forEach(concept => {
-        concept.vendidos = accounting.formatMoney(+Math.trunc(concept.vendidos), { symbol   : "", thousand : ".", decimal  : ",", });
-      });
-      this.$data.apiConcepts.forEach(concept => {
-        concept.existencias =  concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : 0;
-      });
-      this.$data.loading = false;
+      if(this.rankingUpdated)
+        this.createRanking();
     } catch (error) {
       this.$data.ranking = [];
     }

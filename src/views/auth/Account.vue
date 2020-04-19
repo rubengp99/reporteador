@@ -52,7 +52,7 @@
                                     <v-list-item-icon>
                                         <v-icon dark>{{ item.icon }}</v-icon>
                                     </v-list-item-icon>
-                                    <v-list-item-content>
+                                    <v-list-item-content style="text-align:left;">
                                         <v-list-item-title class="subtitle-2 white--text font-weight-bold">{{ item.title }}</v-list-item-title>
                                     </v-list-item-content>
                                 </v-list-item>
@@ -84,7 +84,7 @@ import transitions from '@/plugins/transitions'
                 items: [
                     { title: 'Perfil', icon: 'mdi-account-circle',to:'perfil' },
                     { title: 'Notificaciones', icon: 'mdi-bell',to:'notificaciones' },
-                    { title: 'Ayuda', icon: 'mdi-help',to:'ayuda' },
+                    { title: 'Ayuda', icon: 'mdi-help-circle',to:'ayuda' },
                 ],
                 clicked:true,
                 clickable: false,
@@ -156,7 +156,7 @@ import transitions from '@/plugins/transitions'
         background-position:center center!important;
         width: 115px;
         height: 115px;
-        border-radius:50%;
+        background-size: 125px !important;
     }
 
     .border{
@@ -166,7 +166,7 @@ import transitions from '@/plugins/transitions'
     .abs_center{
         position: absolute;
         top: 95px;
-        left: 85px;
+        left: 83px;
     }
 
     .abs_center:hover{
