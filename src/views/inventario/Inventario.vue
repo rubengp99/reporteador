@@ -303,7 +303,7 @@ export default {
         headers: [
           { text: "Más Detalles", align: "center", sortable: false, value: "image" },
           //{ text: "ID", align: "center", value: "id", sortable: false, },
-          //{ text: "Código", align: "center", value: "codigo", sortable: false, },
+          { text: "Código", align: "center", value: "codigo", sortable: false, },
           { text: "Producto", align: "center", value: "name", sortable: false, },
           { text: "Grupo", align: "center", value: "category.name", sortable: false, },
           { text: "Sub-Grupo", align: "center", value: "subCategory.name", sortable: false, },
