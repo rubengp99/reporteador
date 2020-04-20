@@ -391,7 +391,7 @@ export default {
       if (this.grupo === "" && this.subgrupo === ""){
          await this.getConcept((this.search !== ""), this.search, this.apiConcepts.data.data);
       }else{
-        await this.getConcept((this.search !== ""), this.search, this.$data.filteredConcepts);
+        await this.getConcept((this.search !== ""), this.search, this.filteredConcepts);
       }
     },
   
@@ -533,6 +533,7 @@ export default {
       //procesamos los productos que apareceran en la página
       //aunado a ello, construimos nuestro propio objecto debido a que el modulo requiere una estructura diferente
       //a la planteada en la base de datos
+      console.log(apiConcepts);
       for(let concept of apiConcepts){
         aux.push(
           await this.configStockDays(
@@ -546,7 +547,7 @@ export default {
               id: concept.id,
               codigo: concept.codigo,
               name: concept.nombre,
-              stock: concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : concept.existencias > 0 ? concept.existencias : 0,
+              stock: Array.isArray(concept.existencias) ? concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : 0 : concept.existencias ,
               sold: 0,
               stockMin: concept.existencia_minima,
               stockMax: concept.existencia_maxima,
@@ -591,23 +592,23 @@ export default {
         this.apiInvoices = this.vuexInvoices;
         this.apiGroups = this.vuexGroups;
         this.apiGroups = this.apiGroups.data.data;
-        this.$data.apiSubGroups = this.vuexSubGroups;
-        this.$data.apiSubGroups = this.apiSubGroups.data.data;
+        this.apiSubGroups = this.vuexSubGroups;
+        this.apiSubGroups = this.apiSubGroups.data.data;
         //se crea un arreglo con objectos personalizados de grupos para poder filtrar los subgrupos pertenecientes al mas adelante
-        for (let group of this.$data.apiGroups){
+        for (let group of this.apiGroups){
           // si result contiene datos, entonces el grupo tiene subgrupos (hasSubGroups)
-          let result = this.$data.apiSubGroups.filter(asg => asg.grupos_id === group.id || asg.adm_grupos_id === group.id);
+          let result = this.apiSubGroups.filter(asg => asg.grupos_id === group.id || asg.adm_grupos_id === group.id);
           let hasSubGroups = true;
           if(result.length === 0){
             hasSubGroups = false;
           }
-          this.$data.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
+          this.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
         }
         if(typeof this.$route.params.id !== 'undefined' && this.$route.name === 'concepto'){
           this.search = this.$route.params.nombre;
           this.goSearch = !this.goSearch;
         }else{
-          this.$data.table.totalConceptos = this.apiConcepts.data.totalCount;
+          this.table.totalConceptos = this.apiConcepts.data.totalCount;
           await this.getConcept(false,"",this.apiConcepts.data.data);
         }
     }
@@ -617,7 +618,7 @@ export default {
     search: async function(after){
       if(after == "" && this.$route.name === 'concepto')
         this.$router.push('/Inventario');
-      if (this.grupo === "" && this.grupo === ""){
+      if (this.grupo === "" && this.grupo === "" && this.$route.name !== 'concepto'){
         if(this.search === "" && this.filteredConcepts.length > 0){
           this.table.products = [];
           this.loading = true;
@@ -625,7 +626,7 @@ export default {
           this.table.totalConceptos = this.apiConcepts.data.totalCount;
         }else
           return;
-      }else if (this.grupo !== "" || this.grupo !== ""){
+      }else if (this.grupo !== "" || this.grupo !== "" && this.$route.name == 'concepto'){
         if(this.search === ""){
           this.loading = true;
           this.table.products = [];
@@ -710,7 +711,7 @@ export default {
       //condición que nos saque del procedimiento.
       if(this.$route.name === 'concepto')
         this.$router.push('/Inventario');
-      if (this.search === "" && this.grupo === "" && this.subgrupo === "") return;
+      if (this.search === "" && this.grupo === "" && this.subgrupo === "" || this.$route.name === 'concepto') return;
       this.table.products = [];
       this.loading = true;
       this.search = "";
@@ -725,18 +726,18 @@ export default {
       this.apiConcepts = this.vuexConcepts;
     },
     vuexConceptSales(){
-      this.$data.apiConceptSales = this.vuexConceptSales;
+      this.apiConceptSales = this.vuexConceptSales;
     },
     vuexInvoices(){
-      this.$data.apiInvoices = this.vuexInvoices;
+      this.apiInvoices = this.vuexInvoices;
     },
     vuexGroups(){
-      this.$data.apiGroups = this.vuexGroups;
-      this.$data.apiGroups =  this.apiGroups.data.data;
+      this.apiGroups = this.vuexGroups;
+      this.apiGroups =  this.apiGroups.data.data;
     },
     vuexSubGroups(){
-      this.$data.apiSubGroups = this.vuexSubGroups;
-      this.$data.apiSubGroups = this.apiSubGroups.data.data;
+      this.apiSubGroups = this.vuexSubGroups;
+      this.apiSubGroups = this.apiSubGroups.data.data;
     },
     inventoryUpdated(){
       this.createInventory();

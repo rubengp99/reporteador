@@ -99,18 +99,18 @@ export default {
       this.page_old = page;
     },
     createRanking(){
-      this.$data.apiConcepts = this.vuexConcepts.data.data;
-      this.$data.apiConcepts.forEach(concept =>{
-        concept.existencias.length > 0 ?  concept.existencias = concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : concept.existencias = 0
-        this.$data.apiStockAux.push(concept);
+      this.apiConcepts = this.vuexConcepts.data.data;
+      this.apiConcepts.forEach(concept =>{
+        Array.isArray(concept.existencias) ? concept.existencias.length > 0 ? concept.existencias = concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : concept.existencias = 0 : NaN ;
+        this.apiStockAux.push(concept);
       });
-      this.$data.ranking = this.vuexConceptSales.data.data;
-      this.$data.ranking.forEach(concept => {
-        this.$data.apiConceptSalesAux.push(accounting.formatMoney(+Math.trunc(concept.vendidos), { symbol   : "", thousand : ".", decimal  : ",", }).split(",")[0]);
+      this.ranking = this.vuexConceptSales.data.data;
+      this.ranking.forEach(concept => {
+        this.apiConceptSalesAux.push(accounting.formatMoney(+Math.trunc(concept.vendidos), { symbol   : "", thousand : ".", decimal  : ",", }).split(",")[0]);
       });
-      this.$data.apiGroups = this.vuexGroups;
-      this.$data.apiSubGroups = this.vuexSubGroups.data.data;
-      this.$data.loading = false;
+      this.apiGroups = this.vuexGroups;
+      this.apiSubGroups = this.vuexSubGroups.data.data;
+      this.loading = false;
     }
   },
   computed:{
@@ -118,16 +118,16 @@ export default {
   },
   watch:{
     vuexConcepts(){
-      this.$data.apiConcepts = this.vuexConcepts.data.data;
+      this.apiConcepts = this.vuexConcepts.data.data;
     },
     vuexConceptSales(){
-      this.$data.ranking = this.vuexConceptSales.data.data;
+      this.ranking = this.vuexConceptSales.data.data;
     },
     vuexGroups(){
-      this.$data.apiGroups = this.vuexGroups;
+      this.apiGroups = this.vuexGroups;
     },
     vuexSubGroups(){
-      this.$data.apiSubGroups = this.vuexSubGroups.data.data;
+      this.apiSubGroups = this.vuexSubGroups.data.data;
     },
     rankingUpdated(){
       this.createRanking();
@@ -138,7 +138,7 @@ export default {
       if(this.rankingUpdated)
         this.createRanking();
     } catch (error) {
-      this.$data.ranking = [];
+      this.ranking = [];
     }
   }
 }
