@@ -546,7 +546,7 @@ export default {
               id: concept.id,
               codigo: concept.codigo,
               name: concept.nombre,
-              stock: concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : 0,
+              stock: concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : concept.existencias > 0 ? concept.existencias : 0,
               sold: 0,
               stockMin: concept.existencia_minima,
               stockMax: concept.existencia_maxima,
