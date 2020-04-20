@@ -1,7 +1,7 @@
 <template>
-    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;"  min-height="85vh" max-height="85vh">
+    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;" min-height="570px">
         <div class="font-weight-black title" style="padding-top:10px;">Información de tu cuenta</div>
-        <v-row justify="center" align="center" class="mt-5" style="padding-top:15px;">
+        <v-row justify="center" align="center" class="mt-3" style="padding-top:15px;">
              <v-col cols="12" md="6" sm="12">
                 <v-text-field
                     dense
@@ -118,7 +118,7 @@
                                 <v-btn 
                                     color="#005598" dark
                                     :loading="loading" @click="updateUsuario(user.data.id)"
-                                    class="text-capitalize body-2" 
+                                    class="text-capitalize body-2 fixPos" 
                                     :disabled="!change" 
                                 >
                                     Actualizar datos
@@ -137,6 +137,7 @@
 <script>
 import {mapState,mapActions} from 'vuex';
 import Usuario from '@/services/Usuario';
+import Auth from '@/services/auth';
 import Snackbar from '@/components/aplicacion/Snackbar';
 import transitions from '@/plugins/transitions'
   const DEFAULT_TRANSITION = 'slide';
@@ -205,40 +206,23 @@ import transitions from '@/plugins/transitions'
                 this.setSnackbar(true);
                 this.loading = false;
             },
-            updateUsuario(id){
+            async updateUsuario(id){
+                let newUserData = {};
                 this.loading = true;
-                this.data.
-                this.data.fecha_nac = this.date;
-                Usuario().post(`/${id}`,{data:this.data}).then(() => {
+                typeof this.date !== 'undefined' && this.date !== '' ? newUserData.fecha_nac = this.date : NaN;
+                this.data.nombre !== this.user.data.nombre ? newUserData.nombre = this.data.nombre : NaN;
+                this.data.apellido !== this.user.data.apellido ? newUserData.apellido = this.data.apellido : NaN;
+                this.password === "" ? NaN : this.password === this. passwordC ? Auth().post('/resetpassword',{data:{user:this.user.data.login,password: this.password}}) : this.mensajeSnackbar('#D32F2F','error','Las contraseñas no coinciden, vuelva a intentarlo.');
+                Usuario().post(`/${id}/`,{data:{...newUserData}}).then(async () => {
                     this.mensajeSnackbar('#388E3C','done','Actualizado exitosamente.');
-                    this.user.data = this.data;
+                    let updatedUser = await Usuario().get('/'+id);
+                    this.user.data = {...updatedUser.data.data};
                     this.change = false;
                 }).catch(e => {
                     console.log(e);
                     this.mensajeSnackbar('#D32F2F','error','Opsss, Error al intentar actualizar.');
                 });
             },
-            /*fotoUpload(e){
-                const files = e.target.files
-                if(files[0] !== undefined) {
-                    this.imageName = files[0].name
-                    const fr = new FileReader ();
-                    fr.readAsDataURL(files[0])
-                    fr.addEventListener('load', () => {
-                        this.imageUrl = fr.result
-                        this.imageFile = files[0] // this is an image file that can be sent to server...
-                        this.setFotoChanged(true);
-                        this.setFoto(this.imageUrl);
-                    })
-                } else {
-                    this.imageName = ''
-                    this.imageFile = ''
-                    this.imageUrl = ''
-                    this.setFotoChanged(false);
-                    this.setFoto(this.user.data.fotografia);
-                }
-                
-            }*/
         },
         created() {
             this.animate(this.transitionName);
@@ -246,6 +230,7 @@ import transitions from '@/plugins/transitions'
          mounted() {
             this.data = Object.assign({},this.user.data);
             this.date = this.data.fecha_nac;
+            console.log(Usuario().get());
         },
     }
 </script>
@@ -277,6 +262,12 @@ import transitions from '@/plugins/transitions'
         @media (max-width:958px){
             margin-top:-25px!important;
             max-height: 100%!important;
+        }
+    }
+
+    .fixPos{
+         @media (max-width:958px){
+            transform: translateY(-25px);
         }
     }
 </style>

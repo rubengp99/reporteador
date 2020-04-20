@@ -2,7 +2,7 @@
     <div>
         <v-row style="padding:0 10px;">
             <v-col cols="12" md=3>
-                <v-card class="bg" :height="clicked ? '85vh' : '28vh'" @click="clickable ? clicked = !clicked : NaN">
+                <v-card class="bg" :min-height="clicked ? '572.5px' : '150px'" @click="clickable ? clicked = !clicked : NaN">
                     <v-list dense nav style="margin-top: 64px;background: none;">
                         <v-list-item two-line>
                             
@@ -31,8 +31,8 @@
                                 <v-icon style="font-size:21px;">{{ !fotoChanged ? 'mdi-camera' : 'close' }}</v-icon>
                             </v-avatar>
                             <v-list-item-content class="white--text font-weight-bold">
-                                <v-list-item-title class="subtitle-1 mb-1" style="text-overflow:none; white-space:normal;">Super usuario</v-list-item-title>
-                                <v-list-item-subtitle class="subtitle-2 white--text font-weight-bold">{{user.data.nombre +' '+ user.data.apellido}}</v-list-item-subtitle>
+                                <v-list-item-title class="subtitle-1 mb-1" style="text-overflow:none; white-space:normal;">{{user.data.nombre +' '+ user.data.apellido}}</v-list-item-title>
+                                <v-list-item-subtitle class="subtitle-2 white--text font-weight-bold">Administrador</v-list-item-subtitle>
                             </v-list-item-content>
                         </v-list-item>
                     </v-list>
@@ -115,7 +115,7 @@ import transitions from '@/plugins/transitions'
                     this.clicked = true;
                     this.clickable = false;
                 }
-  }
+            }
         },
         computed:{
             ...mapState(['user','fotoChanged','foto']),
@@ -125,6 +125,7 @@ import transitions from '@/plugins/transitions'
             this.setFoto(this.user.data.fotografia);
             this.setFotoChanged(false);
             window.addEventListener('resize', this.onResize);
+            this.onResize();
         },
         mounted(){
             this.fotoAux.remove();

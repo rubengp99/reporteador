@@ -1,8 +1,8 @@
 <template>
-    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;"  min-height="85vh" max-height="85vh">
+    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;"  min-height="570px">
         <div class="font-weight-black title" style="padding-top:10px;">Centro de Soporte al Cliente</div>
-        <v-row justify="center" align="center" class="mt-5" style="padding-top:15px;">
-            <div id="talkjs-container" style="width: 90%; margin: 0 30px; height: 450px"><i>Cargando chat...</i></div>
+        <v-row justify="center" align="center" class="mt-3" style="padding-top:15px;">
+            <div id="talkjs-container" style="width: 100%;; height: 450px"><i><v-spacer></v-spacer><loader style="padding-top:20%" /> <v-spacer></v-spacer></i></div>
         </v-row>
 
     </v-card>
@@ -56,14 +56,16 @@ const DEFAULT_TRANSITION = 'slide';
             this.animate(this.transitionName);
         },
         mounted() {
+            let inbox;
 
-            Talk.ready.then(() => {
+            Talk.ready.then(async () => {
                 this.me = new Talk.User({
-                    id: this.user.data.id,
-                    name: this.user.data.nombre,
-                    email: this.user.data.email,
-                    photoUrl: this.user.data.fotografia === 'default.jpg' ? require('@/assets/user.jpg') : this.imagen+this.user.data.fotografia,
-                    welcomeMessage: "¡Hola!, soy "+this.user.data.nombre+" , solicito tu ayuda.",
+                    id: this.user.data.id !== 5 ? this.user.data.id : 5,
+                    name: this.user.data.id !== 5 ? this.user.data.nombre + " " + this.user.data.apellido: "Soporte SOMOS SISTEMAS C.A",
+                    email: this.user.data.id !== 5 ? this.user.data.email !== "" ? this.user.data.email : null : null, 
+                    photoUrl: this.user.data.id !== 5 ? this.user.data.fotografia === 'default.jpg' ? require('@/assets/user.jpg') : this.imagen+this.user.data.fotografia : require('@/assets/AFTIM.png'),
+                    welcomeMessage: this.user.data.id !== 5 ?  null : "En Somos Sistemas C.A, estamos encantados de ayudarte a solventar tus problemas. Déjanos un mensaje!",
+                    role: 'customer',
                 });
 
                 window.talkSession = new Talk.Session({
@@ -71,19 +73,34 @@ const DEFAULT_TRANSITION = 'slide';
                     me: this.me
                 });
 
-                this.other = new Talk.User({
-                    id: "-1",
-                    name: "Soporte SOMOS SISTEMAS C.A",
-                    email: "azukadizero@gmail.com",
-                    photoUrl: require('@/assets/AFTIM.png'),
-                    welcomeMessage: "En Somos Sistemas C.A, estamos encantados de ayudarte a solventar tus problemas. Déjanos un mensaje!"
-                });
+                if(this.user.data.id !== 5){
+                    this.other = new Talk.User({
+                        id: "5",
+                        name: "Soporte SOMOS SISTEMAS C.A",
+                        email: "azukadizero@gmail.com",
+                        photoUrl: require('@/assets/AFTIM.png'),
+                        welcomeMessage: "En Somos Sistemas C.A, estamos encantados de ayudarte a solventar tus problemas. Déjanos un mensaje!",
+                        role:'support',
+                    });
 
-                var conversation = window.talkSession.getOrCreateConversation(Talk.oneOnOneId(this.me, this.other));
-                conversation.setParticipant(this.me);
-                conversation.setParticipant(this.other);
+                    let conversation = window.talkSession.getOrCreateConversation(Talk.oneOnOneId(this.me, this.other));
+                    conversation.setParticipant(this.me);
+                    conversation.setParticipant(this.other);
 
-                var inbox = window.talkSession.createInbox({selected: conversation});
+                    inbox = window.talkSession.createInbox({selected: conversation});
+
+
+                }else{
+                    window.talkSession = new Talk.Session({
+                        appId: process.env.VUE_APP_TALKJS_ID,
+                        me: this.me
+                    });
+
+                    let conversation = window.talkSession.getOrCreateConversation(Talk.oneOnOneId(this.me));
+                    conversation.setParticipant(this.me);
+
+                    inbox = window.talkSession.createInbox({selected: conversation});
+                }
 
                 inbox.mount(document.getElementById("talkjs-container"));
             });
