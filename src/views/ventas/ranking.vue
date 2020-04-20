@@ -89,6 +89,15 @@ export default {
       itemsPerPage: 12,
     };
   },
+  head: {
+    title() {
+      return {
+          inner: "Ranking",
+          separator:'|',
+          complement:''
+      };
+    }
+  },
   methods:{
     paginate(page){
       if (page === 1) this.offset = 0;

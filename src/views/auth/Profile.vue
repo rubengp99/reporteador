@@ -164,6 +164,15 @@ import transitions from '@/plugins/transitions'
                 transitionName: DEFAULT_TRANSITION,
             }
         },
+        head: {
+            title() {
+                return {
+                    inner: "Perfil",
+                    separator:'|',
+                    complement:' '
+                };
+            }
+        },
         computed:{
             ...mapState(['user','fotoChanged','foto','fotoFile']),
         },

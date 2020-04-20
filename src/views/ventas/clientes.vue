@@ -104,6 +104,15 @@ export default {
       loading: true,
     };
   },
+  head: {
+    title() {
+      return {
+          inner: "Clientes",
+          separator:'|',
+          complement:''
+      };
+    }
+  },
   methods:{
     async createSellers(){
       let apiBuyers = await buyers().get("?limit=1");

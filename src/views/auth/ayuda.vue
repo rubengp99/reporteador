@@ -1,0 +1,124 @@
+<template>
+    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;"  min-height="85vh" max-height="85vh">
+        <div class="font-weight-black title" style="padding-top:10px;">Centro de Soporte al Cliente</div>
+        <v-row justify="center" align="center" class="mt-5" style="padding-top:15px;">
+            <div id="talkjs-container" style="width: 90%; margin: 0 30px; height: 450px"><i>Cargando chat...</i></div>
+        </v-row>
+
+    </v-card>
+</template>
+
+<script>
+import {mapState,mapActions} from 'vuex';
+import transitions from '@/plugins/transitions'
+import Talk from 'talkjs';
+import w from '@/services/variables';
+
+const DEFAULT_TRANSITION = 'slide';
+    export default {
+        components:{
+
+        },
+        head: {
+            title() {
+                return {
+                    inner: "Soporte",
+                    separator:'|',
+                    complement:' '
+                };
+            }
+        },
+        data() {
+            return {
+                ...w,
+                me: null,
+                other: null,
+                transitionName: DEFAULT_TRANSITION,
+            }
+        },
+        computed:{
+            ...mapState(['user','fotoChanged','foto','fotoFile']),
+        },
+        watch: {
+            fotoFile:function(){
+                console.log(this.fotoFile);
+            },
+            fotoChanged: function(){
+                this.change = this.fotoChanged;
+            },
+        },
+       methods:{
+            ...mapActions(['setSnackbar','setFoto','setFotoChanged']),
+            ...transitions,
+            
+        },
+        created() {
+            this.animate(this.transitionName);
+        },
+        mounted() {
+
+            Talk.ready.then(() => {
+                this.me = new Talk.User({
+                    id: this.user.data.id,
+                    name: this.user.data.nombre,
+                    email: this.user.data.email,
+                    photoUrl: this.user.data.fotografia === 'default.jpg' ? require('@/assets/user.jpg') : this.imagen+this.user.data.fotografia,
+                    welcomeMessage: "¡Hola!, soy "+this.user.data.nombre+" , solicito tu ayuda.",
+                });
+
+                window.talkSession = new Talk.Session({
+                    appId: process.env.VUE_APP_TALKJS_ID,
+                    me: this.me
+                });
+
+                this.other = new Talk.User({
+                    id: "-1",
+                    name: "Soporte SOMOS SISTEMAS C.A",
+                    email: "azukadizero@gmail.com",
+                    photoUrl: require('@/assets/AFTIM.png'),
+                    welcomeMessage: "En Somos Sistemas C.A, estamos encantados de ayudarte a solventar tus problemas. Déjanos un mensaje!"
+                });
+
+                var conversation = window.talkSession.getOrCreateConversation(Talk.oneOnOneId(this.me, this.other));
+                conversation.setParticipant(this.me);
+                conversation.setParticipant(this.other);
+
+                var inbox = window.talkSession.createInbox({selected: conversation});
+
+                inbox.mount(document.getElementById("talkjs-container"));
+            });
+        }
+
+    }
+</script>
+
+<style lang="scss">
+    .slide-left-enter-active,
+    .slide-left-leave-active,
+    .slide-right-enter-active,
+    .slide-right-leave-active {
+        transition-duration: .3s;
+        transition-property: height, opacity, transform;
+        transition-timing-function: cubic-bezier(0.55, 0, 0.1, 1);
+        overflow: hidden;
+    }
+    
+    .slide-left-enter,
+    .slide-right-leave-active {
+        opacity: 0;
+        transform: translate(2em, 0);
+    }
+    
+    .slide-left-leave-active,
+    .slide-right-enter {
+        opacity: 0;
+        transform: translate(-2em, 0);
+    }
+
+    .fixHeight{
+        @media (max-width:958px){
+            margin-top:-25px!important;
+            max-height: 100%!important;
+        }
+    }
+</style>

@@ -33,6 +33,15 @@ export default {
       active: [false,false,false,false],
     }
   },
+  head: {
+    title() {
+      return {
+          inner: "Ventas",
+          separator:'|',
+          complement:''
+      };
+    }
+  },
   methods:{
     ...transitions,
     activate(pos){

@@ -84,7 +84,7 @@ import transitions from '@/plugins/transitions'
                 items: [
                     { title: 'Perfil', icon: 'mdi-account-circle',to:'perfil' },
                     { title: 'Notificaciones', icon: 'mdi-bell',to:'notificaciones' },
-                    { title: 'Ayuda', icon: 'mdi-help-circle',to:'ayuda' },
+                    { title: 'Soporte', icon: 'mdi-help-circle',to:'ayuda' },
                 ],
                 clicked:true,
                 clickable: false,

@@ -106,6 +106,15 @@ export default {
       promedioVentas: null,
     };
   },
+  head: {
+    title() {
+      return {
+          inner: "Vendedores",
+          separator:'|',
+          complement:''
+      };
+    }
+  },
   methods:{
     async createSellers(){
       let apiSellers = await sellers().get('?limit=1');

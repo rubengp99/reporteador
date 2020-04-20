@@ -108,14 +108,14 @@ const routes = [
                     transitionName: 'slide'
                 }
             },
-            /*{
+            {
                 path: "ayuda",
                 name: "ayuda",
-                component: Ayuda,
+                component: () => import('../views/auth/ayuda.vue'),
                 meta: {
                     auth: true
                 }
-            },*/
+            },
             {
                 path: "notificaciones",
                 name: "notificaciones",
