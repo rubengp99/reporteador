@@ -389,7 +389,7 @@ export default {
       this.table.page_old = page;
       //si hay datos filtrados entonces se utiliza ese arreglo, sino, se usa el arreglo general
       if (this.grupo === "" && this.subgrupo === ""){
-         await this.getConcept((this.search !== ""), this.search, this.vuexConcepts.data.data);
+         await this.getConcept((this.search !== ""), this.search, this.apiConcepts.data.data);
       }else{
         await this.getConcept((this.search !== ""), this.search, this.$data.filteredConcepts);
       }
@@ -517,16 +517,16 @@ export default {
       //si se ha habilitado alguna busqueda por nombre entonces  
       if (search && typeof this.$route.params.id === 'undefined'){
         //se filtran los resultados del arreglo general si no hay grupos acti vos, sino, se filtran desde el arreglo previamente filtrado
-        this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.vuexConcepts.data.data)
+        this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
           .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase()));
         apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
-        this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.vuexConcepts.data.data)
+        this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
           .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).length;
       }else if(typeof this.$route.params.id !== 'undefined'){
-        this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.vuexConcepts.data.data)
+        this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
           .filter(concept => concept.id === this.$route.params.id);
         apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
-        this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.vuexConcepts.data.data)
+        this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
           .filter(concept => concept.adm_grupos_id === this.$route.params.grupo && concept.adm_subgrupos_id === this.$route.params.subgrupo && concept.nombre === this.$route.params.nombre).length;
       }
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
@@ -607,8 +607,8 @@ export default {
           this.search = this.$route.params.nombre;
           this.goSearch = !this.goSearch;
         }else{
-          this.$data.table.totalConceptos = this.vuexConcepts.data.totalCount;
-          await this.getConcept(false,"",this.vuexConcepts.data.data);
+          this.$data.table.totalConceptos = this.apiConcepts.data.totalCount;
+          await this.getConcept(false,"",this.apiConcepts.data.data);
         }
     }
   },
@@ -621,8 +621,8 @@ export default {
         if(this.search === "" && this.filteredConcepts.length > 0){
           this.table.products = [];
           this.loading = true;
-          this.getConcept(false, after,  this.vuexConcepts.data.data);
-          this.table.totalConceptos = this.vuexConcepts.data.totalCount;
+          this.getConcept(false, after,  this.apiConcepts.data.data);
+          this.table.totalConceptos = this.apiConcepts.data.totalCount;
         }else
           return;
       }else if (this.grupo !== "" || this.grupo !== ""){
@@ -630,9 +630,9 @@ export default {
           this.loading = true;
           this.table.products = [];
           if(this.subgrupo !== ""){
-            this.filteredConcepts = ((this.search === "" ) ? this.vuexConcepts.data.data : this.filteredConcepts).filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id);
+            this.filteredConcepts = ((this.search === "" ) ? this.apiConcepts.data.data : this.filteredConcepts).filter(c => c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id);
           }else if(this.grupo !== ""){
-            this.filteredConcepts = ((this.search === "") ? this.vuexConcepts.data.data : this.filteredConcepts).filter(c => c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id);
+            this.filteredConcepts = ((this.search === "") ? this.apiConcepts.data.data : this.filteredConcepts).filter(c => c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id);
           }
           this.table.totalConceptos = this.filteredConcepts.length; 
           await this.getConcept(false, after,  this.filteredConcepts);
@@ -649,7 +649,7 @@ export default {
       this.table.page = 1;
       this.table.page_old = 1;
       this.table.dataOffset = 0;
-      await this.getConcept(true,this.search, (this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.vuexConcepts.data.data);
+      await this.getConcept(true,this.search, (this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data);
     },555),
 
     singleExpand (v) {
@@ -681,7 +681,7 @@ export default {
       else this.subNoData = (this.grupo.hasSub)?'Seleccione un «Grupo» primero.':'El grupo «'+this.grupo.name+'» no contiene Sub-Grupos.'
       //el usuario puede haber habilitado una busqueda antes de seleccionar un grupo, por ello se verifica si es cierto
       //para así poder saber si filtrar el arreglo general o el arreglo previamente filtrado por la busqueda anterior
-      this.filteredConcepts = ((this.search === "") ? this.vuexConcepts.data.data : this.filteredConcepts).filter(c => c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id);
+      this.filteredConcepts = ((this.search === "") ? this.apiConcepts.data.data : this.filteredConcepts).filter(c => c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id);
       this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
       this.getConcept(false,this.search,this.filteredConcepts, (this.search === ""));
@@ -699,7 +699,7 @@ export default {
       this.table.products = [];
       //el usuario puede haber habilitado una busqueda antes de seleccionar un subgrupo, por ello se verifica si es cierto
       //para así poder saber si filtrar el arreglo general o el arreglo previamente filtrado por la busqueda anterior
-      this.filteredConcepts = ((this.search === "" ) ? this.vuexConcepts.data.data : this.filteredConcepts).filter(c => (c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id) && (c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id));
+      this.filteredConcepts = ((this.search === "" ) ? this.apiConcepts.data.data : this.filteredConcepts).filter(c => (c.subgrupos_id === this.subgrupo.id || c.adm_subgrupos_id === this.subgrupo.id) && (c.grupos_id === this.grupo.id || c.adm_grupos_id === this.grupo.id));
       this.table.totalConceptos = Math.ceil(this.filteredConcepts.length);
       this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
       this.getConcept(false,this.search,this.filteredConcepts,(this.search === ""));
@@ -718,11 +718,11 @@ export default {
       this.subgrupo = "";
       this.table.page = 1;
       this.apiConcepts = this.vuexConcepts;
-      this.table.totalConceptos = this.vuexConcepts.data.totalCount;
-      await this.getConcept(false,"",this.vuexConcepts.data.data);
+      this.table.totalConceptos = this.apiConcepts.data.totalCount;
+      await this.getConcept(false,"",this.apiConcepts.data.data);
     },555),
     vuexConcepts(){
-      this.vuexConcepts.data.data = this.vuexConcepts;
+      this.apiConcepts = this.vuexConcepts;
     },
     vuexConceptSales(){
       this.$data.apiConceptSales = this.vuexConceptSales;
