@@ -107,9 +107,9 @@ export default {
   head: {
     title() {
       return {
-          inner: "Clientes",
+          inner: "Reporteador",
           separator:'|',
-          complement:''
+          complement:'Clientes'
       };
     }
   },

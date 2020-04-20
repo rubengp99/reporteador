@@ -167,9 +167,9 @@ import transitions from '@/plugins/transitions'
         head: {
             title() {
                 return {
-                    inner: "Perfil",
+                    inner: "Reporteador",
                     separator:'|',
-                    complement:' '
+                    complement:'Perfil'
                 };
             }
         },

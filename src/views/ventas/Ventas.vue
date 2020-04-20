@@ -36,9 +36,9 @@ export default {
   head: {
     title() {
       return {
-          inner: "Ventas",
+          inner: "Reporteador",
           separator:'|',
-          complement:''
+          complement:'Ventas'
       };
     }
   },

@@ -92,9 +92,9 @@ export default {
   head: {
     title() {
       return {
-          inner: "Ranking",
+          inner: "Reporteador",
           separator:'|',
-          complement:''
+          complement:'Ranking'
       };
     }
   },

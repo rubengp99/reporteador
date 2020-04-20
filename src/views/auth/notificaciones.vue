@@ -60,9 +60,9 @@ import transitions from '@/plugins/transitions'
         head: {
             title() {
                 return {
-                    inner: "Notificaciones",
+                    inner: "Reporteador",
                     separator:'|',
-                    complement:' '
+                    complement:'Notificaciones'
                 };
             }
         },

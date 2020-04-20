@@ -49,6 +49,15 @@ export default {
     storagesTables: dTable,
     loader: loader,
   },
+  head: {
+    title() {
+      return {
+          inner: "Reporteador",
+          separator:'|',
+          complement:'Inicio'
+      };
+    }
+  },
   data() {
     return {
       apiInvoices: null,

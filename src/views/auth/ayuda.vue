@@ -22,9 +22,9 @@ const DEFAULT_TRANSITION = 'slide';
         head: {
             title() {
                 return {
-                    inner: "Soporte",
+                    inner: "Reporteador",
                     separator:'|',
-                    complement:' '
+                    complement:'Soporte'
                 };
             }
         },
