@@ -1,5 +1,5 @@
 <template>
-    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;"  min-height="570px">
+    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;background:#fdfdfd;"  min-height="570px">
         <div class="font-weight-black title" style="padding-top:10px;">Centro de Soporte al Cliente</div>
         <v-row justify="center" align="center" class="mt-3" style="padding-top:15px;">
             <div id="talkjs-container" style="width: 100%;; height: 450px"><i><v-spacer></v-spacer><loader style="padding-top:20%" /> <v-spacer></v-spacer></i></div>
@@ -63,16 +63,18 @@ const DEFAULT_TRANSITION = 'slide';
                     id: this.user.data.id !== 5 ? this.user.data.id : 5,
                     name: this.user.data.id !== 5 ? this.user.data.nombre + " " + this.user.data.apellido: "Soporte SOMOS SISTEMAS C.A",
                     email: this.user.data.id !== 5 ? this.user.data.email !== "" ? this.user.data.email : null : null, 
-                    photoUrl: this.user.data.id !== 5 ? this.user.data.fotografia === 'default.jpg' ? require('@/assets/user.jpg') : this.imagen+this.user.data.fotografia : require('@/assets/AFTIM.png'),
+                    photoUrl: this.user.data.id !== 5 ? this.user.data.fotografia === 'default.png' ? require('@/assets/user.jpg') : this.imagen+this.user.data.fotografia : require('@/assets/AFTIM.png'),
                     welcomeMessage: this.user.data.id !== 5 ?  null : "En Somos Sistemas C.A, estamos encantados de ayudarte a solventar tus problemas. Déjanos un mensaje!",
-                    role: 'customer',
+                    role: 'Customer',
+                    locale: 'es-ES'
                 });
 
                 window.talkSession = new Talk.Session({
                     appId: process.env.VUE_APP_TALKJS_ID,
                     me: this.me
                 });
-
+                
+                
                 if(this.user.data.id !== 5){
                     this.other = new Talk.User({
                         id: "5",
@@ -80,7 +82,8 @@ const DEFAULT_TRANSITION = 'slide';
                         email: "azukadizero@gmail.com",
                         photoUrl: require('@/assets/AFTIM.png'),
                         welcomeMessage: "En Somos Sistemas C.A, estamos encantados de ayudarte a solventar tus problemas. Déjanos un mensaje!",
-                        role:'support',
+                        role:'Support',
+                        locale: 'es-ES'
                     });
 
                     let conversation = window.talkSession.getOrCreateConversation(Talk.oneOnOneId(this.me, this.other));
@@ -88,8 +91,7 @@ const DEFAULT_TRANSITION = 'slide';
                     conversation.setParticipant(this.other);
 
                     inbox = window.talkSession.createInbox({selected: conversation});
-
-
+                    
                 }else{
                     window.talkSession = new Talk.Session({
                         appId: process.env.VUE_APP_TALKJS_ID,
@@ -98,11 +100,12 @@ const DEFAULT_TRANSITION = 'slide';
 
                     let conversation = window.talkSession.getOrCreateConversation(Talk.oneOnOneId(this.me));
                     conversation.setParticipant(this.me);
-
+                    
                     inbox = window.talkSession.createInbox({selected: conversation});
                 }
 
                 inbox.mount(document.getElementById("talkjs-container"));
+                
             });
         }
 

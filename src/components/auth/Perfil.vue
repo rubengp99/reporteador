@@ -17,7 +17,7 @@
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title class="color" v-text="user.data.nombre+' '+user.data.apellido"></v-list-item-title>
-              <v-list-item-subtitle>Super Usuario</v-list-item-subtitle>
+              <v-list-item-subtitle>Administrador</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </v-list>

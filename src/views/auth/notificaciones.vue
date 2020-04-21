@@ -1,5 +1,5 @@
 <template>
-    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;"  min-height="570px">
+    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;background:#fdfdfd;"  min-height="570px">
         <div class="font-weight-black title" style="padding-top:10px;">Centro de notificaciones</div>
         <v-row justify="center" align="center" class="mt-5" style="padding-top:15px;">
             <div>

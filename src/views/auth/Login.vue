@@ -6,7 +6,7 @@
             </v-col>
 
             <v-col cols="12" md="4" sm="10">
-                <v-card width="100%" min-height="400" elevation="5" class="py-5">
+                <v-card width="100%" min-height="400" elevation="5" class="py-5" style="background:#fdfdfd;">
                     <v-row justify="center" align="center" class="mt-1">
                         <v-img contain width="130" height="45" :src="require('@/assets/AFTIM.png')"></v-img>
                     </v-row>

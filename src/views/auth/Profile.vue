@@ -1,5 +1,5 @@
 <template>
-    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;" min-height="570px">
+    <v-card class="fixHeight" style="margin-top:64px;padding: 25px 45px 0 45px;background:#fdfdfd;" min-height="570px">
         <div class="font-weight-black title" style="padding-top:10px;">Información de tu cuenta</div>
         <v-row justify="center" align="center" class="mt-3" style="padding-top:15px;">
              <v-col cols="12" md="6" sm="12">
@@ -230,7 +230,6 @@ import transitions from '@/plugins/transitions'
          mounted() {
             this.data = Object.assign({},this.user.data);
             this.date = this.data.fecha_nac;
-            console.log(Usuario().get());
         },
     }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <v-card width="100%" class="storages" :outlined="loading">
+  <v-card width="100%" class="storages" :outlined="loading" style="background:#fdfdfd;">
     <v-spacer v-show="loading"></v-spacer>
     <loader v-show="loading" class="absolute-center" />
     <v-spacer v-show="loading"></v-spacer>
