@@ -149,7 +149,7 @@ import transitions from '@/plugins/transitions'
     .slide-right-enter-active,
     .slide-right-leave-active {
         transition-duration: .3s;
-        transition-property: height, opacity, transform;
+        transition-property: all;
         transition-timing-function: cubic-bezier(0.55, 0, 0.1, 1);
         overflow: hidden;
     }

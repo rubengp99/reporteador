@@ -190,7 +190,7 @@
 
       <!-- Pestaña de más detalles (MODAL) -->
       <div class="mWidth">
-        <v-dialog v-model="dialog" persistent transition="bounce">
+        <v-dialog v-model="dialog" persistent transition="scale-transition">
            <v-card class="mx-auto" outlined>
              <v-btn icon @click="open(null)" style="position:absolute;right:0;z-index:1;"><v-icon>close</v-icon></v-btn>
               <img v-if="selectedItem.stock === 0" src="@/assets/agotado.png" width="150px" height="75px" style="flex: 0 0 0%;position:absolute;top: 55px;left: 15px;z-index: 1;">

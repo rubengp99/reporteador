@@ -2,7 +2,7 @@
     <div>
         <v-row style="padding:0 10px;">
             <v-col cols="12" md=3>
-                <v-card class="bg" :min-height="clicked ? '572.5px' : '150px'" @click="clickable ? clicked = !clicked : NaN">
+                <v-card class="bg" :min-height="clicked ? '572.5px' : '150px'" @click="expand()">
                     <v-list dense nav style="margin-top: 64px;background: none;">
                         <v-list-item two-line>
                             
@@ -27,7 +27,7 @@
                                 >
                                 </croppa>
                             </v-list-item-avatar>
-                            <v-avatar @click.native="!fotoChanged ? uploadFoto() : restoreFoto() " v-if="$route.name === 'Perfil'" class="abs_center" size="35" style="z-index:2;" color="#F5F5F5">
+                            <v-avatar  @click.prevent ="!fotoChanged ? uploadFoto() : restoreFoto() " v-if="$route.name === 'Perfil'" class="abs_center" size="35" style="z-index:2;" color="#F5F5F5">
                                 <v-icon style="font-size:21px;">{{ !fotoChanged ? 'mdi-camera' : 'close' }}</v-icon>
                             </v-avatar>
                             <v-list-item-content class="white--text font-weight-bold">
@@ -115,6 +115,9 @@ import transitions from '@/plugins/transitions'
                     this.clicked = true;
                     this.clickable = false;
                 }
+            },
+            expand(){
+                this.clickable ? this.clicked = !this.clicked : NaN
             }
         },
         computed:{
@@ -150,7 +153,7 @@ import transitions from '@/plugins/transitions'
     .bg{
         background-image: linear-gradient(to right top, rgba(100, 115, 201, 0.33), rgba(25, 32, 72, 0.7)), url(../../assets/bg.jpg);
         background-position: center center;
-        transition: height .2s ease-in-out;
+        transition: all .2s linear;
     }
 
     .bg-center{
@@ -180,7 +183,7 @@ import transitions from '@/plugins/transitions'
     .slide-right-enter-active,
     .slide-right-leave-active {
         transition-duration: .3s;
-        transition-property: height, opacity, transform;
+        transition-property: all;
         transition-timing-function: cubic-bezier(0.55, 0, 0.1, 1);
         overflow: hidden;
     }

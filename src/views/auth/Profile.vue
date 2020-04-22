@@ -140,6 +140,9 @@ import Usuario from '@/services/Usuario';
 import Auth from '@/services/auth';
 import Snackbar from '@/components/aplicacion/Snackbar';
 import transitions from '@/plugins/transitions'
+import Images from '@/services/Imagenes';
+import _ from 'lodash';
+
   const DEFAULT_TRANSITION = 'slide';
 
     export default {
@@ -175,12 +178,9 @@ import transitions from '@/plugins/transitions'
             }
         },
         computed:{
-            ...mapState(['user','fotoChanged','foto','fotoFile']),
+            ...mapState(['user','fotoChanged','foto','fotoFile','snackBar']),
         },
         watch: {
-            fotoFile:function(){
-                console.log(this.fotoFile);
-            },
             fotoChanged: function(){
                 this.change = this.fotoChanged;
             },
@@ -197,7 +197,7 @@ import transitions from '@/plugins/transitions'
             
         },
        methods:{
-            ...mapActions(['setSnackbar','setFoto','setFotoChanged']),
+            ...mapActions(['setSnackbar','setFoto','setFotoChanged','setFotoFile']),
             ...transitions,
             mensajeSnackbar(color,icon,mensaje){
                 this.color = color;
@@ -213,15 +213,25 @@ import transitions from '@/plugins/transitions'
                 this.data.nombre !== this.user.data.nombre ? newUserData.nombre = this.data.nombre : NaN;
                 this.data.apellido !== this.user.data.apellido ? newUserData.apellido = this.data.apellido : NaN;
                 this.password === "" ? NaN : this.password === this. passwordC ? Auth().post('/resetpassword',{data:{user:this.user.data.login,password: this.password}}) : this.mensajeSnackbar('#D32F2F','error','Las contraseñas no coinciden, vuelva a intentarlo.');
-                Usuario().post(`/${id}/`,{data:{...newUserData}}).then(async () => {
-                    this.mensajeSnackbar('#388E3C','done','Actualizado exitosamente.');
-                    let updatedUser = await Usuario().get('/'+id);
-                    this.user.data = {...updatedUser.data.data};
-                    this.change = false;
-                }).catch(e => {
-                    console.log(e);
-                    this.mensajeSnackbar('#D32F2F','error','Opsss, Error al intentar actualizar.');
-                });
+                
+                if(this.fotoFile !== null){
+                    let formdata = new FormData();
+                    formdata.append('image',this.fotoFile);
+                    Images().post(`/main/usuarios/${this.user.data.id}/`,formdata).then(()=> this.setFotoFile(null));
+                    newUserData.fotografia = this.foto;
+                }
+
+                if(!_.isEqual(this.data,this.user.data) || this.telefono !== "" || typeof this.date !== 'undefined'){
+                    Usuario().post(`/${id}`,{data:newUserData}).then(async () => {
+                        let updatedUser = await Usuario().get('/'+id);
+                        this.user.data = {...updatedUser.data.data};
+                        this.change = false;
+                        this.mensajeSnackbar('#388E3C','done','Actualizado exitosamente.');
+                    }).catch(e => {
+                        console.log(e);
+                        this.mensajeSnackbar('#D32F2F','error','Opsss, Error al intentar actualizar.');
+                    });
+                }
             },
         },
         created() {
@@ -230,6 +240,7 @@ import transitions from '@/plugins/transitions'
          mounted() {
             this.data = Object.assign({},this.user.data);
             this.date = this.data.fecha_nac;
+            
         },
     }
 </script>
@@ -240,7 +251,7 @@ import transitions from '@/plugins/transitions'
     .slide-right-enter-active,
     .slide-right-leave-active {
         transition-duration: .3s;
-        transition-property: height, opacity, transform;
+        transition-property: all;
         transition-timing-function: cubic-bezier(0.55, 0, 0.1, 1);
         overflow: hidden;
     }
