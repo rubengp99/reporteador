@@ -2,16 +2,16 @@
   <div class="ventas">
     <v-container data-app style="padding:0 2.5vw;margin-top: 74px;max-width:97vw;">
         <v-row>
-            <dCard col="3" icon img="buyers" title="Clientes" hoverable path="/ventas/clientes" :active="active[0]" v-on:click.native="activate(0)"/>
-            <dCard col="3" icon img="sellers" title="Vendedores" hoverable path="/ventas/vendedores" :active="active[1]" v-on:click.native="activate(1)"/>
-            <dCard col="3" icon img="routes" title="Rutas" hoverable path="/ventas/rutas" :active="active[2]" v-on:click.native="activate(2)"/>
-            <dCard col="3" icon img="ranking" title="Más vendidos" hoverable path="/ventas/ranking" :active="active[3]" v-on:click.native="activate(3)"/>
+            <dCard col="3" icon img="buyers" title="Clientes" hoverable path="/ventas/clientes" />
+            <dCard col="3" icon img="sellers" title="Vendedores" hoverable path="/ventas/vendedores" />
+            <dCard col="3" icon img="routes" title="Rutas" hoverable path="/ventas/rutas" />
+            <dCard col="3" icon img="ranking" title="Más vendidos" hoverable path="/ventas/ranking" />
         </v-row>
 
         <v-row>
-           <transition :name="'slide'" mode="out-in" @beforeLeave="beforeLeave" @enter="enter" @afterEnter="afterEnter">
-              <router-view/>
-          </transition>
+            <transition  :name="transitionName" mode="out-in" @beforeLeave="beforeLeave" @enter="enter" @afterEnter="afterEnter">
+                <router-view></router-view>
+            </transition>
         </v-row>
     </v-container>
   </div>
@@ -22,6 +22,8 @@ import dCard from "@/components/aplicacion/Dashcard";
 import transitions from '@/plugins/transitions'
 //import loader from "../components/aplicacion/loading"
 
+const DEFAULT_TRANSITION = 'slide';
+
 export default {
   name: "Ventas",
   components: {
@@ -31,6 +33,7 @@ export default {
   data(){
     return{
       active: [false,false,false,false],
+      transitionName: DEFAULT_TRANSITION,
     }
   },
   head: {
@@ -45,16 +48,37 @@ export default {
   methods:{
     ...transitions,
     activate(pos){
-      for (let i = 0; i < this.active.length; i++) {
-        this.active[i] = (i === pos);
+      for (let i = 1; i < this.active.length+1; i++) {
+        this.active[i-1] = (i === pos);
       }
     }
   },
   created(){
-    this.animate('fade');
+    this.animate(this.transitionName);
   }
 };
 </script>
 
 <style lang="scss">
+    .slide-left-enter-active,
+    .slide-left-leave-active,
+    .slide-right-enter-active,
+    .slide-right-leave-active {
+        transition-duration: .3s;
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.55, 0, 0.1, 1);
+        overflow: hidden;
+    }
+    
+    .slide-left-enter,
+    .slide-right-leave-active {
+        opacity: 0;
+        transform: translate(2em, 0);
+    }
+    
+    .slide-left-leave-active,
+    .slide-right-enter {
+        opacity: 0;
+        transform: translate(-2em, 0);
+    }
 </style>

@@ -8,7 +8,7 @@
       </v-card-title>
       <v-row v-if="!loading">
         <v-col cols="12" sm="4" v-for="(concept,i) in ranking.slice(offset, offset + itemsPerPage)" :key="concept.id">
-          <v-card class="mx-auto hoverable" max-width="100%" height="100%" elevation="4" :to="{ name: 'concepto', params: {nombre: concept.nombre, id: concept.id, grupo:concept.adm_grupos_id, subgrupo: concept.adm_subgrupos_id}}">
+          <v-card style="background:#FAFAFA;" class="mx-auto hoverable" max-width="100%" height="100%" elevation="4" :to="{ name: 'concepto', params: {nombre: concept.nombre, id: concept.id, grupo:concept.adm_grupos_id, subgrupo: concept.adm_subgrupos_id}}">
             <v-list-item three-line>
               <v-list-item-content>
                 <div class="overline mb-2"><span class="bold">{{apiConceptSalesAux[offset + i]}}</span> <br> unidades vendidas.</div>

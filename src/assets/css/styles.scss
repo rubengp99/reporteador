@@ -63,6 +63,11 @@
       background: #ECEFF1!important;
   }
 
+  .active{
+    border: thin solid rgba(0, 0, 0, 0.12)!important;
+    box-shadow: none;
+  }
+
   .bold{
     font-weight: bold!important;
   }

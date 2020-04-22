@@ -183,9 +183,8 @@ export default new Vuex.Store({
                 state.dashboardUpdatedAux[3] = true;
                 if(state.dashboardUpdatedAux[0] && state.dashboardUpdatedAux[1] && state.dashboardUpdatedAux[2] && state.dashboardUpdatedAux[3])
                     state.dashboardUpdated = true;
-            });
-            
-        }
+            }) 
+        },
     },
     actions: {
         setDrawer({commit},val){

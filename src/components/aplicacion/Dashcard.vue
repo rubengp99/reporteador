@@ -1,7 +1,7 @@
 <template>
     <v-col cols="12" :sm="col === '6' || last ? '12' : '6'" :md="col === '4' ? '4' : '6'" :lg="col === '4' ?  '4' : col === '3' ? '3' : '6'">
         <v-scale-transition v-if="!loading">
-            <v-card :class="cssClass" width="100%" :to="path" style="background:#fdfdfd;">
+            <v-card :class="cssClass" width="100%" :to="path" style="background:#fdfdfd;" active-class="active" >
                 <v-list-item three-line>
                     <v-list-item-content>
                     <div class="overline mb-1">{{'Hoy, '+ hoy}}</div>
@@ -68,10 +68,6 @@ export default {
             type:Boolean,
             default:false
         },
-        active:{
-            type:Boolean,
-            default:false
-        },
     },
     data (){
         return{
@@ -83,9 +79,7 @@ export default {
         title: function(val){
             val > 0 ? this.cssClass.replace('loading','') : NaN;
         },
-        active: function(val){
-            val ? this.cssClass+= 'active ' : this.cssClass.replace('active','');
-        },
+        
     },
     beforeMount(){
         this.$data.cssClass = (this.$props.hoverable) ? 'mx-auto fill hoverable ' : 'mx-auto fill ';

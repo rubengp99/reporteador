@@ -66,7 +66,14 @@ export default {
       { icon:  require("@/assets/home.png"), title: "Inicio", path: "/" },
       //{ icon: 'show_chart', text: 'Rentabilidad', path: '/Rentabilidad' },
       { icon: require("@/assets/box.svg"), title: "Inventario", path: "/Inventario" },
-      { icon: require("@/assets/payment.svg"), title: 'Ventas', path: '/Ventas' },
+      { icon: require("@/assets/payment.svg"), title: 'Ventas', path: '/Ventas', 
+          children: [
+              { icon: require("@/assets/ranking.svg"), text: 'Ranking' },
+              { icon: require("@/assets/routes.svg"), text: 'Rutas' },
+              { icon: require("@/assets/sellers.svg"), text: 'Vendedores' },
+              { icon: require("@/assets/buyers.svg"), text: 'Clientes' },
+          ],
+      },
       //{ icon: 'mdi-help-circle', text: 'Ayuda', path: '/Ayuda' },
     ]
   }),
