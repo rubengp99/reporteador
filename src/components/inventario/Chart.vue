@@ -39,7 +39,7 @@
             :series="options.series"
           />
           <v-divider></v-divider>
-          <p  class="caption" style="padding-bottom:15px;">
+          <p  class="caption" style="padding-bottom:15px;padding-top:5px;" >
             <!--Días de inventario-->
             <span  v-if="type === 'Agotamiento' && Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 > 0">Si la demanda de </span>
 

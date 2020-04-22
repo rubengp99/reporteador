@@ -1,4 +1,6 @@
-exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'], formatter = 'default') => {
+import accounting from 'accounting';
+
+const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'], formatter = 'default') => {
     return {
         series: data,
         chartOptions: {
@@ -31,6 +33,9 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                             },
                             value: {
                                 color: 'white',
+                                formatter: function (val) {
+                                    return (formatter !== 'default' && formatter !== 'volumen') ? accounting.formatMoney(val,{symbol:'$',thousand:'.',decimal:','}) : accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0] + ' uds';
+                                },
                             },
                             total: {
                                 label: labelTotal,
@@ -62,7 +67,7 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                                 }
                             }
                         },
-                        background: '#40514e',
+                        background: '#263238',
 
                     }
                 }
@@ -70,10 +75,6 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
             labels: labels,
             dataLabels:{
                 enabled:true,
-                formatter: function (val, opts) {
-                    let concat = (formatter !== 'default' && formatter !== 'volumen')?'$':'';
-                    return opts.w.config.series[opts.seriesIndex] + concat
-                },
                 background: {
                     enabled: true,
                     foreColor: '#40514e',
@@ -84,6 +85,16 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
                     borderColor: '#fff',
                 },
             },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return (formatter !== 'default' && formatter !== 'volumen') ? accounting.formatMoney(val,{symbol:'$',thousand:'.',decimal:','}) : accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0] + ' uds';
+                    },
+                  },
+                fillSeriesColor: false,
+                theme:'light'
+                
+              },
             legend: {
                 position: "bottom"
             },
@@ -93,7 +104,7 @@ exports.chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'
 };
 
 
-exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'], yAxis = true, mode = null) => {
+const chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'], yAxis = true, mode = null) => {
     return {
         series: [{
             name: (mode === null)?'Unidades vendidas':'Unidades restantes',
@@ -138,6 +149,7 @@ exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab',
                     borderColor: '#fff',
                 },
             },
+            colors: ['#005792'],
             stroke: {
                 curve: 'straight'
             },
@@ -163,7 +175,7 @@ exports.chart__area = (data, labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab',
     };
 };
 
-exports.chart__barRank = (data,category,today) => {
+const chart__barRank = (data,category,today) => {
     return {
         series: data,
         chartOptions: {
@@ -245,3 +257,5 @@ exports.chart__barRank = (data,category,today) => {
           },
     };
 };
+
+export default { chart__area, chart__barRank , chart__donut};

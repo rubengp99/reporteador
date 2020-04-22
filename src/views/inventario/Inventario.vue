@@ -366,6 +366,7 @@ export default {
         }else{
           item.icon.toggled = !item.icon.toggled;
           this.selectedItem = item;
+          this.selectedItem.sold = accounting.formatMoney(this.selectedItem.sold,{symbol:'',thousand:'.',decimal:','}).split(',')[0];
           this.dialog = true;
         }
       }
@@ -497,8 +498,8 @@ export default {
       let StockDatesAux = stock_dates.length > 1000 ? stock_dates.slice(Math.ceil(product.stock_end.length/50),product.stock_end.length-1) : stock_dates;
       
       product.stock_days = reports.chart__area(stockEndAux, StockDatesAux, false,  "stockdays" );
-      product.stock_costs = reports.chart__donut([+product.sale, +product.cost], "Beneficios del", ["Precio", "Costo"], null, "benefits");
-      product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"]);
+      product.stock_costs = reports.chart__donut([+product.sale, +product.cost], "Beneficios del", ["Precio", "Costo"], ["#15b7b9","#f73859"], "benefits");
+      product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"], ["#ffc93c","#15b7b9"]);
       
       //esto da formato de BSF + Precio (formato español -> Bs1.000,00)
       product.sale = accounting.formatMoney(+product.sale, { symbol   : "$", thousand : ".", decimal  : ",", });
@@ -533,7 +534,6 @@ export default {
       //procesamos los productos que apareceran en la página
       //aunado a ello, construimos nuestro propio objecto debido a que el modulo requiere una estructura diferente
       //a la planteada en la base de datos
-      console.log(apiConcepts);
       for(let concept of apiConcepts){
         aux.push(
           await this.configStockDays(
