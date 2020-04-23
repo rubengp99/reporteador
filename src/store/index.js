@@ -40,7 +40,7 @@ export default new Vuex.Store({
         vuexBuyers: null,
         initAux: [false,false,false,false,false,false,false],
         init: false,
-        inventoryUpdatedAux: [false,false,false,false,false,false],
+        inventoryUpdatedAux: [false,false,false,false,false],
         inventoryUpdated: false,
         dashboardUpdatedAux: [false,false,false,false],
         dashboardUpdated: false,
@@ -134,6 +134,8 @@ export default new Vuex.Store({
             state.inventoryUpdatedAux[4] = true;
             if(state.inventoryUpdatedAux.every(i => i))
                 state.inventoryUpdated = true;
+            
+                console.log(state.inventoryUpdated);
         },
         async SET_INIT_APLICACION(state){
             concept().get('?limit=1').then(reponse =>{
