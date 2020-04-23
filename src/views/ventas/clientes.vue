@@ -7,75 +7,82 @@
         <v-spacer></v-spacer>
       </v-card-title>
       <v-row v-if="!loading">
-       <v-col cols="12" sm="6" v-for="client in clientes" :key="client.id">
-            <v-card class="mx-auto hoverable" max-width="100%" height="100%" elevation="4" @click.native="seller.expand = !seller.expand">
-            <v-list-item three-line>
-              <v-list-item-content>
-                <div class="overline mb-2"><span class="bold">{{client.buys.split(",")[0]}}</span> <br> compras realizadas.</div>
-                <v-list-item-title class="subtitle-1 mb-1" style="line-height: 1.25rem;text-overflow:none;white-space:normal;word-wrap:nowrap;">
-                    <span class="bold">Nombre: </span>{{client.name}}
-                </v-list-item-title>
-                <v-list-item-title class="caption"> PUESTO {{i + 1}}</v-list-item-title>
-              </v-list-item-content>
-              <v-list-item-avatar tile size="100" color="none">
-                <v-img :src="require('@/assets/sellers.svg')"></v-img>
-              </v-list-item-avatar>
-            </v-list-item>
-            <v-divider></v-divider>
-            <v-card-actions>
-                <v-row style="text-align:center;" align="center">
-                    <v-col cols=12 style="padding:2.5px 0;"> 
-                      <v-list-item-title class="subtitle-1"> <span class="bold">Ganancias</span></v-list-item-title>
-                    </v-col>
-                    <v-col cols=12 style="padding:2.5px 0;">
-                      <v-row style="text-align:center;">
-                          <v-col cols=5 style="text-align:right;padding: 0;">
-                            <v-list-item-title class="subtitle-2"> <span class="bold">Bolivares </span></v-list-item-title>
-                          </v-col>
-                          <v-col cols=1 style="padding:0;">
-                            <v-icon>mdi-chevron-right</v-icon> 
-                          </v-col>
-                          <v-col cols=5 style="text-align:left;padding: 0;">
-                            <v-list-item-title class="subtitle-2"> {{client.buysBs}}</v-list-item-title>
-                          </v-col>
-                      </v-row>
-                    </v-col>
-                    <v-col cols=12 style="padding:2.5px 0;">
-                      <v-row style="text-align:center;">
-                          <v-col cols=5 style="text-align:right;padding:0;">
-                            <v-list-item-title class="subtitle-2"> <span class="bold">Dólares </span></v-list-item-title>
-                          </v-col>
-                          <v-col cols=1 style="padding:0;">
-                            <v-icon>mdi-chevron-right</v-icon> 
-                          </v-col>
-                          <v-col cols=5 style="text-align:left;padding:0;">
-                            <v-list-item-title class="subtitle-2"> {{client.buys$}}</v-list-item-title>
-                          </v-col>
-                      </v-row>
-                    </v-col>
-                </v-row>
-            </v-card-actions>
-            <v-expand-transition>
-               <v-col cols="12" v-show="seller.expand">
-                  <v-divider></v-divider>
-                  <p  class="body-1" style="line-height:normal;margin-top:15px;">
-                    Volumen de Ventas de  <span  style="color:#0D47A1"><br>{{ client.name }}</span>
-                  </p>
-                  <apexchart
-                    type="donut"
-                    height="298"
-                    :options="seller.percentSales.chartOptions"
-                    :series="seller.percentSales.series"
-                  />
-                  <v-divider></v-divider>
-                  <p class="caption" style="margin-top:10px;">El vendedor <span  style="color:#0D47A1">{{seller.name}}</span> 
-                      posee el {{ Math.round((seller.percentSales.series[0] / seller.percentSales.series[1] + Number.EPSILON) * 100) > 100 ? 100 + '%' : Math.round((seller.percentSales.series[0] / seller.percentSales.series[1] + Number.EPSILON) * 100) +'%'}}
-                      del total de las ventas realizadas por el negocio.
-                  </p>
-              </v-col>
-            </v-expand-transition>
-          </v-card>
-        </v-col>
+        <masonry :cols="cols" style="width:100%;">
+          <div v-for="(buyer, i) in compradores.slice(offset, offset + itemsPerPage)" :key="buyer.id" :style="'margin: 15px '+gutter/2+'px'">
+            <v-card style="background:#FAFAFA;" class="mx-auto hoverable" active-class="active" max-width="100%" :height=" buyer.expand ? '100%': 'auto'" elevation="4" @click.native="open(buyer)">
+              <v-list-item three-line>
+                <v-list-item-content>
+                  <div class="overline mb-2"><span class="bold">{{buyer.sales.split(",")[0]}}</span> <br> compras realizadas.</div>
+                  <v-list-item-title class="subtitle-1 mb-1" style="line-height: 1.25rem;text-overflow:none;white-space:normal;word-wrap:nowrap;">
+                      {{buyer.name}}
+                  </v-list-item-title>
+                  <v-list-item-title class="caption"> PUESTO {{offset + i + 1}}</v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-avatar tile size="100" >
+                  <v-img :src="require('@/assets/buyers.svg')"></v-img>
+                </v-list-item-avatar>
+              </v-list-item>
+              <v-divider></v-divider>
+              <v-card-actions>
+                  <v-row style="text-align:center;" align="center">
+                      <v-col cols=12 style="padding:2.5px 0;"> 
+                        <v-list-item-title class="subtitle-1"> <span class="bold">Aporte de Compra</span></v-list-item-title>
+                      </v-col>
+                      <v-col cols=12 style="padding:2.5px 0;">
+                        <v-row style="text-align:center;">
+                            <v-col cols=4 md=5 style="text-align:right;padding: 0;">
+                              <v-list-item-title class="subtitle-2"> <span class="bold">Bolivares </span></v-list-item-title>
+                            </v-col>
+                            <v-col cols=1 style="padding:0;">
+                              <v-icon>mdi-chevron-right</v-icon> 
+                            </v-col>
+                            <v-col cols=7 md=5 style="text-align:left;padding: 0;">
+                              <v-list-item-title class="subtitle-2"> {{buyer.buysBs}}</v-list-item-title>
+                            </v-col>
+                        </v-row>
+                      </v-col>
+                      <v-col cols=12 style="padding:2.5px 0;">
+                        <v-row style="text-align:center;">
+                            <v-col cols=4 md=5 style="text-align:right;padding:0;">
+                              <v-list-item-title class="subtitle-2"> <span class="bold">Dólares </span></v-list-item-title>
+                            </v-col>
+                            <v-col cols=1 style="padding:0;">
+                              <v-icon>mdi-chevron-right</v-icon> 
+                            </v-col>
+                            <v-col cols=7 md=5 style="text-align:left;padding:0;">
+                              <v-list-item-title class="subtitle-2"> {{buyer.buys$}}</v-list-item-title>
+                            </v-col>
+                        </v-row>
+                      </v-col>
+                  </v-row>
+              </v-card-actions>
+              <v-expand-transition>
+                <v-col cols="12" v-show="buyer.expand">
+                    <v-divider></v-divider>
+                    <p  class="body-1" style="line-height:normal;margin-top:15px;">
+                      Volumen de Compras de  <span  style="color:#0D47A1"><br>{{ buyer.name }}</span>
+                    </p>
+                    <apexchart
+                      type="donut"
+                      height="298"
+                      :options="buyer.percentBuys.chartOptions"
+                      :series="buyer.percentBuys.series"
+                    />
+                    <v-divider></v-divider>
+                    <p class="caption" style="margin-top:10px;">El comprador <span  style="color:#0D47A1">{{buyer.name}}</span> 
+                        posee el {{ Math.round((buyer.percentBuys.series[0] / buyer.percentBuys.series[1] + Number.EPSILON) * 100) > 100 ? 100 + '%' : Math.round((buyer.percentBuys.series[0] / buyer.percentBuys.series[1] + Number.EPSILON) * 100) +'%'}}
+                        del total de compras en el negocio.
+                    </p>
+                </v-col>
+              </v-expand-transition>
+            </v-card>
+          </div>
+        </masonry>
+        <v-pagination
+          v-model="page"
+          :length="Math.ceil(compradores.length / itemsPerPage)"
+          v-on:click.native="paginate(page)"
+        ></v-pagination>
       </v-row>
       <div v-else class="mx-auto" width="100%" outlined>
         <br />
@@ -88,45 +95,107 @@
 </template>
 
 <script>
-import buyers from "@/services/Clientes"
 import variables from "@/services/variables";
-//import reports from "@/plugins/reports"
-//import accounting from "accounting";
+import reports from "@/plugins/reports"
+import accounting from "accounting";
+import { mapState } from 'vuex';
 
 export default {
-   name: "ranking",
+   name: "compradores",
    components: {
   },
   data: () => {
     return {
       ...variables,
-      clientes: [],
+      apiBuyers: null,
+      compradores: [],
       loading: true,
+      promedioVentas: null,
+      cols: 0,
+      gutter: 0,
+      page:1,
+      page_old: 1,
+      offset: 0,
+      itemsPerPage: 12,
+      
     };
+  },
+  computed:{
+    ...mapState(['vuexBuyers','buyersUpdated']),
   },
   head: {
     title() {
       return {
-          inner: "Reporteador",
+          inner:'Reporteador',
           separator:'|',
-          complement:'Clientes'
+          complement:'Vendedores'
       };
     }
   },
   methods:{
-    async createSellers(){
-      let apiBuyers = await buyers().get("?limit=1");
-      let totalBuyers = apiBuyers.data.totalCount;
-      apiBuyers = await buyers().get("/mostBuyers/?limit="+totalBuyers);
+    open(openItem){
+      this.compradores.slice(this.offset, this.offset + this.itemsPerPage).forEach(buyer => buyer.expand = (openItem.id === buyer.id && !openItem.expand));
+    },
+    paginate(page){
+      if (page === 1) this.offset = 0;
+      else if (page > this.page_old)
+        this.offset += Math.abs(page - this.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.page_old) * this.itemsPerPage;
+      else if (page < this.page_old)
+        this.offset -= Math.abs(page - this.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.page_old) * this.itemsPerPage;
+      this.page_old = page;
+    },
+    async createBuyers(){
+      this.apiBuyers = this.vuexBuyers;
+      let totalBuys = this.apiBuyers.data.response.data.map(a => a.compras).reduce((a,b) => a+b);
+      this.apiBuyers.data.response.data.forEach(buyer => {
+        this.compradores.push({
+          id: buyer.id,
+          name: buyer.nombre,
+          sales: accounting.formatMoney(+Math.trunc(buyer.compras), { symbol   : "", thousand : ".", decimal  : ",", }),
+          buysBs: accounting.formatMoney(+buyer.total, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
+          buys$: accounting.formatMoney(+buyer.totalDolar, { symbol   : "$", thousand : ".", decimal  : ",", }),
+          percentBuys: reports.chart__donut([buyer.compras, totalBuys],"Volumen del",["Mis compras","Total de Compras"],["#FFC107", "#3f72af"],'volumen'),
+          expand: false,
+        });
+      });
       this.$data.loading = false;
+    },
+    onResize() {
+      if (window.innerWidth > 957){
+          this.cols = 3;
+          this.gutter = 20;
+      }else if (window.innerWidth < 957 && window.innerWidth > 500) {
+          this.cols = 2;
+          this.gutter = 10;
+      }else {
+          this.cols = 1;
+          this.gutter = 2;
+      }
+    },
+  },
+  watch:{
+    vuexBuyers(){
+      this.apiBuyers = this.vuexBuyers;
+    },
+    buyersUpdated(){
+      this.createBuyers();
     }
+  },
+  created(){
+    window.addEventListener('resize', this.onResize);
+    this.onResize();
   },
   async beforeMount(){
     try {
-      this.createSellers();
+      if(this.buyersUpdated){
+        this.createBuyers();
+      }
     } catch (error) {
-      this.$data.vendedores = [];
+      this.$data.compradores = [];
     }
-  }
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
+  },
 }
 </script>

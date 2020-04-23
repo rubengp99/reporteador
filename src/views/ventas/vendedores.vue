@@ -8,15 +8,15 @@
       </v-card-title>
       <v-row v-if="!loading">
         <masonry :cols="cols" style="width:100%;">
-          <div v-for="(seller, i) in vendedores" :key="i" :style="'margin:'+gutter/2+'px'">
-            <v-card class="mx-auto hoverable" max-width="100%" :height=" seller.expand ? '100%': 'auto'" elevation="4" @click.native="seller.expand = !seller.expand">
+          <div v-for="(seller, i) in vendedores.slice(offset, offset + itemsPerPage)" :key="seller.id" :style="'margin: 15px '+gutter/2+'px'">
+            <v-card style="background:#FAFAFA;" class="mx-auto hoverable" active-class="active" max-width="100%" :height=" seller.expand ? '100%': 'auto'" elevation="4" @click.native="open(seller)">
               <v-list-item three-line>
                 <v-list-item-content>
                   <div class="overline mb-2"><span class="bold">{{seller.sales.split(",")[0]}}</span> <br> ventas realizadas.</div>
                   <v-list-item-title class="subtitle-1 mb-1" style="line-height: 1.25rem;text-overflow:none;white-space:normal;word-wrap:nowrap;">
                       {{seller.name}}
                   </v-list-item-title>
-                  <v-list-item-title class="caption"> PUESTO {{i + 1}}</v-list-item-title>
+                  <v-list-item-title class="caption"> PUESTO {{offset + i + 1}}</v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-avatar tile size="100" >
                   <v-img :src="require('@/assets/sellers.svg')"></v-img>
@@ -26,7 +26,7 @@
               <v-card-actions>
                   <v-row style="text-align:center;" align="center">
                       <v-col cols=12 style="padding:2.5px 0;"> 
-                        <v-list-item-title class="subtitle-1"> <span class="bold">Ganancias</span></v-list-item-title>
+                        <v-list-item-title class="subtitle-1"> <span class="bold">Aporte de Venta</span></v-list-item-title>
                       </v-col>
                       <v-col cols=12 style="padding:2.5px 0;">
                         <v-row style="text-align:center;">
@@ -78,6 +78,11 @@
             </v-card>
           </div>
         </masonry>
+        <v-pagination
+          v-model="page"
+          :length="Math.ceil(vendedores.length / itemsPerPage)"
+          v-on:click.native="paginate(page)"
+        ></v-pagination>
       </v-row>
       <div v-else class="mx-auto" width="100%" outlined>
         <br />
@@ -96,7 +101,7 @@ import accounting from "accounting";
 import { mapState } from 'vuex';
 
 export default {
-   name: "ranking",
+   name: "vendedores",
    components: {
   },
   data: () => {
@@ -104,11 +109,14 @@ export default {
       ...variables,
       apiSellers: null,
       vendedores: [],
-      i: 0,
       loading: true,
       promedioVentas: null,
       cols: 0,
       gutter: 0,
+      page:1,
+      page_old: 1,
+      offset: 0,
+      itemsPerPage: 12,
     };
   },
   computed:{
@@ -124,9 +132,20 @@ export default {
     }
   },
   methods:{
+    open(openItem){
+      this.vendedores.slice(this.offset, this.offset + this.itemsPerPage).forEach(seller => seller.expand = (openItem.id === seller.id && !openItem.expand));
+    },
+    paginate(page){
+      if (page === 1) this.offset = 0;
+      else if (page > this.page_old)
+        this.offset += Math.abs(page - this.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.page_old) * this.itemsPerPage;
+      else if (page < this.page_old)
+        this.offset -= Math.abs(page - this.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.page_old) * this.itemsPerPage;
+      this.page_old = page;
+    },
     async createSellers(){
       this.apiSellers = this.vuexSellers;
-      let totalSellers = this.vuexSellers.data.totalCount;
+      let totalSales = this.apiSellers.data.data.map(a => a.ventas).reduce((a,b) => a+b);
       this.apiSellers.data.data.forEach(seller => {
         this.vendedores.push({
           id: seller.id,
@@ -134,10 +153,11 @@ export default {
           sales: accounting.formatMoney(+Math.trunc(seller.ventas), { symbol   : "", thousand : ".", decimal  : ",", }),
           gainsBs: accounting.formatMoney(+seller.venta_total, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
           gains$: accounting.formatMoney(+seller.venta_total_dolar, { symbol   : "$", thousand : ".", decimal  : ",", }),
-          percentSales: reports.chart__donut([seller.ventas, totalSellers],"Volumen del",["Ventas","Vendedores"],["#FFC107", "#3f72af"],'volumen'),
+          percentSales: reports.chart__donut([seller.ventas, totalSales],"Volumen del",["Mis ventas","Total de Ventas"],["#FFC107", "#3f72af"],'volumen'),
           expand: false,
         });
       });
+    
       this.$data.loading = false;
     },
     onResize() {
@@ -149,7 +169,7 @@ export default {
           this.gutter = 10;
       }else {
           this.cols = 1;
-          this.gutter = 0;
+          this.gutter = 2;
       }
     },
   },

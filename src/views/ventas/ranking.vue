@@ -75,7 +75,6 @@ export default {
     return {
       ...variables,
       ranking: [],
-      i: 0,
       loading: true,
       apiGroups: null,
       apiSubGroups: null,

@@ -48,6 +48,8 @@ export default new Vuex.Store({
         sellersUpdated: false,
         buyersUpdated: false,
         chosenRanked: 0,
+        totalClientes: 0,
+        totalVendedores: 0,
     },
     getters: {
         
@@ -96,7 +98,7 @@ export default new Vuex.Store({
                 state.vuexConcepts = reponse;
                 state.vuexConcepts.data.data.reverse();
                 state.inventoryUpdatedAux[0] = true;
-                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
+                if(state.inventoryUpdatedAux.every(i => i))
                     state.inventoryUpdated = true;
                 if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
                     state.rankingUpdated = true;
@@ -104,7 +106,7 @@ export default new Vuex.Store({
             concept().get('/mostSold/?limit='+state.vuexConcepts.data.totalCount).then(reponse =>{
                 state.vuexConceptSales = reponse;
                 state.inventoryUpdatedAux[1] = true;
-                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
+                if(state.inventoryUpdatedAux.every(i => i))
                     state.inventoryUpdated = true;
                 if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
                     state.rankingUpdated = true;
@@ -112,7 +114,7 @@ export default new Vuex.Store({
             groups().get('?limit='+state.vuexGroups.data.totalCount).then(reponse =>{
                 state.vuexGroups = reponse;
                 state.inventoryUpdatedAux[2] = true;
-                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
+                if(state.inventoryUpdatedAux.every(i => i))
                     state.inventoryUpdated = true;
                 if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
                     state.rankingUpdated = true;
@@ -120,7 +122,7 @@ export default new Vuex.Store({
             subGroups().get('?limit='+state.vuexSubGroups.data.totalCount).then(reponse =>{
                 state.vuexSubGroups = reponse;
                 state.inventoryUpdatedAux[3] = true;
-                if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
+                if(state.inventoryUpdatedAux.every(i => i))
                     state.inventoryUpdated = true;
                 if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
                     state.rankingUpdated = true;
@@ -130,10 +132,10 @@ export default new Vuex.Store({
                 weeklySales.push(await invoices().get('?limit='+state.vuexInvoices.data.totalCount+'&fecha_at='+moment(w.test).locale('es').subtract(i,'days').format('YYYY-MM-DD')));
             state.vuexWeeklySales = weeklySales;
             state.inventoryUpdatedAux[4] = true;
-            if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
+            if(state.inventoryUpdatedAux.every(i => i))
                 state.inventoryUpdated = true;
         },
-        SET_INIT_APLICACION(state){
+        async SET_INIT_APLICACION(state){
             concept().get('?limit=1').then(reponse =>{
                 state.vuexConcepts = reponse;
                 state.initAux[0] = true;
@@ -166,12 +168,14 @@ export default new Vuex.Store({
             });
             sellers().get('?limit=1').then(reponse =>{
                 state.vuexSellers = reponse;
+                state.totalVendedores = state.vuexSellers.data.totalCount;
                 state.initAux[5] = true;
                 if(state.initAux.every(i => i))
                     state.init = true;
             });
             buyers().get('?limit=1').then(reponse =>{
                 state.vuexBuyers = reponse;
+                state.totalClientes = state.vuexBuyers.data.totalCount;
                 state.initAux[6] = true;
                 if(state.initAux.every(i => i))
                     state.init = true;
@@ -182,34 +186,34 @@ export default new Vuex.Store({
             storages().get().then(response =>{
                 state.vuexStorages = response;
                 state.dashboardUpdatedAux[0] = true;
-                if(state.dashboardUpdatedAux[0] && state.dashboardUpdatedAux[1] && state.dashboardUpdatedAux[2] && state.dashboardUpdatedAux[3])
+                if(state.dashboardUpdatedAux.every(i => i))
                     state.dashboardUpdated = true;
             });
             groups().get('/mostSold/?limit='+state.vuexGroups.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD')).then(response =>{
                 state.vuexGroupSales = response;
                 state.dashboardUpdatedAux[1] = true;
-                if(state.dashboardUpdatedAux[0] && state.dashboardUpdatedAux[1] && state.dashboardUpdatedAux[2] && state.dashboardUpdatedAux[3])
+                if(state.dashboardUpdatedAux.every(i => i))
                     state.dashboardUpdated = true;
             });
             subGroups().get('/mostsold/?limit='+state.vuexSubGroups.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD')).then(response =>{
                 state.vuexSubGroupSales = response;
                 state.dashboardUpdatedAux[2] = true;
-                if(state.dashboardUpdatedAux[0] && state.dashboardUpdatedAux[1] && state.dashboardUpdatedAux[2] && state.dashboardUpdatedAux[3])
+                if(state.dashboardUpdatedAux.every(i => i))
                     state.dashboardUpdated = true;
             });
             invoices().get('?limit='+state.vuexInvoices.data.totalCount+'&fecha_at='+moment(w.test).format('YYYY-MM-DD')).then(reponse =>{
                 state.vuexTodayInvoices = reponse;
                 state.dashboardUpdatedAux[3] = true;
-                if(state.dashboardUpdatedAux[0] && state.dashboardUpdatedAux[1] && state.dashboardUpdatedAux[2] && state.dashboardUpdatedAux[3])
+                if(state.dashboardUpdatedAux.every(i => i))
                     state.dashboardUpdated = true;
             });
         },
-        SET_UPDATE_VENTAS(state){
-            sellers().get('/mostSellers/?limit='+state.vuexSellers.data.totalCount).then(reponse =>{
+        async SET_UPDATE_VENTAS(state){
+            sellers().get('/mostSellers/?limit='+state.totalVendedores).then(reponse =>{
                 state.vuexSellers = reponse;
                 state.sellersUpdated = true;
             });
-            buyers().get('/mostBuyers/?limit='+state.vuexSellers.data.totalCount).then(reponse =>{
+            buyers().get('/mostBuyers/?limit='+state.totalClientes).then(reponse =>{
                 state.vuexBuyers = reponse;
                 state.buyersUpdated = true;
             });
