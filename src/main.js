@@ -4,7 +4,6 @@ import vuetify from './plugins/vuetify';
 import store from './store'
 import router from './router'
 import ApexCharts from 'vue-apexcharts/src/ApexCharts.component'
-//import FusionChart from 'vue-fusioncharts/src/vue-fusioncharts-component';
 import VueFusionCharts from 'vue-fusioncharts';
 import FusionCharts from 'fusioncharts';
 import Maps from 'fusioncharts/fusioncharts.maps';
@@ -16,9 +15,9 @@ import loader from '@/components/aplicacion/loading.vue';
 import Auth from '@/services/auth';
 import croppa from 'vue-croppa';
 import './assets/css/styles.scss';
-
-let token = window.localStorage.getItem('token');
-// register VueFusionCharts component
+import VueMasonry from 'vue-masonry-css'
+ 
+Vue.use(VueMasonry);
 Vue.use(VueFusionCharts, FusionCharts, Maps, World, FusionTheme)
 Vue.use(vueheader);
 Vue.use(croppa);
@@ -26,6 +25,7 @@ Vue.use(Toasted);
 Vue.component('apexchart', ApexCharts);
 Vue.component('loader',loader);
 Vue.use(router);
+let token = window.localStorage.getItem('token');
 
 Vue.config.productionTip = false
 

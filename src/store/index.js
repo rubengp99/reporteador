@@ -1,5 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import buyers from "@/services/Clientes"
+import sellers from "@/services/Vendedores"
 import concept from "@/services/Conceptos";
 import invoices from "@/services/Factura";
 import groups from "@/services/Grupos"
@@ -34,13 +36,17 @@ export default new Vuex.Store({
         vuexGroupSales: null,
         vuexSubGroupSales: null,
         vuexTodayInvoices: null,
-        initAux: [false,false,false,false,false],
+        vuexSellers: null,
+        vuexBuyers: null,
+        initAux: [false,false,false,false,false,false,false],
         init: false,
         inventoryUpdatedAux: [false,false,false,false,false,false],
         inventoryUpdated: false,
         dashboardUpdatedAux: [false,false,false,false],
         dashboardUpdated: false,
         rankingUpdated: false,
+        sellersUpdated: false,
+        buyersUpdated: false,
         chosenRanked: 0,
     },
     getters: {
@@ -127,37 +133,50 @@ export default new Vuex.Store({
             if(state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3] && state.inventoryUpdatedAux[4])
                 state.inventoryUpdated = true;
         },
-        SET_INIT_INVENTARIO(state){
+        SET_INIT_APLICACION(state){
             concept().get('?limit=1').then(reponse =>{
                 state.vuexConcepts = reponse;
                 state.initAux[0] = true;
-                if(state.initAux[0] && state.initAux[1] && state.initAux[2] && state.initAux[3] && state.initAux[4])
+                if(state.initAux.every(i => i))
                     state.init = true;
             });
             concept().get('/mostSold/?limit=1').then(reponse =>{
                 state.vuexConceptSales = reponse;
                 state.initAux[1] = true;
-                if(state.initAux[0] && state.initAux[1] && state.initAux[2] && state.initAux[3] && state.initAux[4])
+                if(state.initAux.every(i => i))
                     state.init = true;
             });
             invoices().get('?limit=1').then(reponse =>{
                 state.vuexInvoices = reponse;
                 state.initAux[2] = true;
-                if(state.initAux[0] && state.initAux[1] && state.initAux[2] && state.initAux[3] && state.initAux[4])
+                if(state.initAux.every(i => i))
                     state.init = true;
             });
             groups().get('?limit=1').then(reponse =>{
                 state.vuexGroups = reponse;
                 state.initAux[3] = true;
-                if(state.initAux[0] && state.initAux[1] && state.initAux[2] && state.initAux[3] && state.initAux[4])
+                if(state.initAux.every(i => i))
                     state.init = true;
             });
             subGroups().get('?limit=1').then(reponse =>{
                 state.vuexSubGroups = reponse;
                 state.initAux[4] = true;
-                if(state.initAux[0] && state.initAux[1] && state.initAux[2] && state.initAux[3] && state.initAux[4])
+                if(state.initAux.every(i => i))
                     state.init = true;
             });
+            sellers().get('?limit=1').then(reponse =>{
+                state.vuexSellers = reponse;
+                state.initAux[5] = true;
+                if(state.initAux.every(i => i))
+                    state.init = true;
+            });
+            buyers().get('?limit=1').then(reponse =>{
+                state.vuexBuyers = reponse;
+                state.initAux[6] = true;
+                if(state.initAux.every(i => i))
+                    state.init = true;
+            }); 
+
         },
         async SET_UPDATE_DASHBOARD(state){
             storages().get().then(response =>{
@@ -183,7 +202,17 @@ export default new Vuex.Store({
                 state.dashboardUpdatedAux[3] = true;
                 if(state.dashboardUpdatedAux[0] && state.dashboardUpdatedAux[1] && state.dashboardUpdatedAux[2] && state.dashboardUpdatedAux[3])
                     state.dashboardUpdated = true;
-            }) 
+            });
+        },
+        SET_UPDATE_VENTAS(state){
+            sellers().get('/mostSellers/?limit='+state.vuexSellers.data.totalCount).then(reponse =>{
+                state.vuexSellers = reponse;
+                state.sellersUpdated = true;
+            });
+            buyers().get('/mostBuyers/?limit='+state.vuexSellers.data.totalCount).then(reponse =>{
+                state.vuexBuyers = reponse;
+                state.buyersUpdated = true;
+            });
         },
     },
     actions: {
@@ -214,14 +243,17 @@ export default new Vuex.Store({
         setUpdateInventario({commit},val){
             commit('SET_UPDATE_INVENTARIO',val);
         },
-        setInitInventario({commit},val){
-            commit('SET_INIT_INVENTARIO',val);
+        setInitAplicacion({commit},val){
+            commit('SET_INIT_APLICACION',val);
         },
         setUpdateDashboard({commit},val){
             commit('SET_UPDATE_DASHBOARD',val);
         },
         setChosenRanked({commit},val){
             commit('SET_CHOSENRANKED',val);
+        },
+        setUpdateVentas({commit},val){
+            commit('SET_UPDATE_VENTAS',val);
         },
     }
 });

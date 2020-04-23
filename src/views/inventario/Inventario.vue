@@ -198,7 +198,7 @@
               <v-list-item-avatar tile size="150" color="grey lighten-1"><img :src="typeof selectedItem.image === 'undefined'  || selectedItem.image === 'default.png' ? require('@/assets/box.svg') : '' "></v-list-item-avatar>
               <v-list-item-content>
                 <div class="overline mb-4">PESTAÑA DETALLADA</div>
-                <v-list-item-title class="title mb-1" style="white-space: normal;line-height:1.3rem;font-size:1.1rem;">{{ selectedItem === null ? null : selectedItem.name}}</v-list-item-title>
+                <v-list-item-title class="title mb-1" style="white-space: normal;word-wrap:nowrap;text-overflow:none;line-height:1.3rem;font-size:1.1rem;">{{ selectedItem === null ? null : selectedItem.name}}</v-list-item-title>
                 <v-list-item-subtitle style="padding-top:15px;">
                   <div class="caption mb-1" style="color:black;">DESCRIPCIÓN</div>
                   <p class="overline" style="color:#424242">{{ selectedItem === null ? null : selectedItem.description}}</p>

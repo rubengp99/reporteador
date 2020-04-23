@@ -29,21 +29,23 @@
    },
     methods:{
       ...transitions,
-      ...mapActions(['setInitInventario','setUpdateInventario','setUpdateDashboard']),
+      ...mapActions(['setInitAplicacion','setUpdateInventario','setUpdateDashboard','setUpdateVentas']),
     },
     watch:{
       init: async function(){
         this.setUpdateInventario(null);
         this.setUpdateDashboard(null);
+        this.setUpdateVentas(null);
         setInterval(async ()=>{
           this.setUpdateInventario(null);
           this.setUpdateDashboard(null);
+          this.setUpdateVentas(null);
         },300000)
       }
     },
     created() {
       this.animate(this.transitionName);
-      this.setInitInventario(null);
+      this.setInitAplicacion(null);
     },
   }
 </script>
