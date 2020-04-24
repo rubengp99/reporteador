@@ -4,6 +4,8 @@
     <transition :name="transitionName" mode="out-in" @beforeLeave="beforeLeave" @enter="enter" @afterEnter="afterEnter">
         <router-view/>
     </transition>
+
+    <Snackbar v-if="!mensaje === ''" :mensaje="mensaje" :icon="icon" :color="color" />
   </v-app>
 </template>
 
@@ -11,29 +13,34 @@
   import navigation from './components/aplicacion/Navigation'
   import transitions from './plugins/transitions'
   import {mapState, mapActions} from 'vuex';
+  import Snackbar from '@/components/aplicacion/Snackbar';
 
   const DEFAULT_TRANSITION = 'fade';
   export default {
     name: 'app',
     components: {
-      navigation: navigation
+      navigation: navigation,
+      Snackbar
     },
     data() {
      return {
+        mensaje:'Actualizando información...',
+        color:'#388E3C',
+        icon:'done',
         prevHeight: 0,
         transitionName: DEFAULT_TRANSITION,
         dataCache:[],
      };
    },
    computed:{
-     ...mapState(['init']),
+     ...mapState(['init','snackBar','logged']),
    },
     methods:{
       ...transitions,
       ...mapActions(['setInitAplicacion','setUpdateInventario','setUpdateDashboard',
           'setUpdateVentas','setConcepts','setInvoices','setConceptSales','setGroups','setSubgroups',
           'setGroupSales','setSubgroupSales','setWeeklySales','setStorages','setSellers',
-          'setBuyers','setTotalClientes','setTotalVendedores', 'restoreFromCache'
+          'setBuyers','setTotalClientes','setTotalVendedores','setTodayInvoices', 'restoreFromCache', 'setSnackbar'
         ]),
       checkCache(){
         this.dataCache = [
@@ -49,12 +56,14 @@
           JSON.parse(window.localStorage.getItem('Sellers')),
           JSON.parse(window.localStorage.getItem('Buyers')),
           JSON.parse(window.localStorage.getItem('totalVendedores')),
-          JSON.parse(window.localStorage.getItem('totalClientes'))
+          JSON.parse(window.localStorage.getItem('totalClientes')),
+          JSON.parse(window.localStorage.getItem('TodayInvoices'))
         ];
       },
       cacheApp(){
         this.setConcepts(JSON.parse(window.localStorage.getItem('Concepts')));
         this.setInvoices(JSON.parse(window.localStorage.getItem('Invoices')));
+        this.setTodayInvoices(JSON.parse(window.localStorage.getItem('TodayInvoices')));
         this.setConceptSales(JSON.parse(window.localStorage.getItem('ConceptSales')));
         this.setGroups(JSON.parse(window.localStorage.getItem('Groups')));
         this.setSubgroups(JSON.parse(window.localStorage.getItem('SubGroups')));
@@ -71,10 +80,12 @@
     },
     watch:{
       init: async function(){
+        this.setSnackbar(true);
         this.setUpdateInventario(null);
         this.setUpdateDashboard(null);
         this.setUpdateVentas(null);
         setInterval(async ()=>{
+          this.setSnackbar(true);
           this.setUpdateInventario(null);
           this.setUpdateDashboard(null);
           this.setUpdateVentas(null);

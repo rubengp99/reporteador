@@ -361,6 +361,9 @@ export default new Vuex.Store({
         setInvoices({commit},val){
             commit('SET_INVOICES',val);
         },
+        setTodayInvoices({commit},val){
+            commit('SET_TODAY_INVOICES',val);
+        },
         setSubgroups({commit},val){
             commit('SET_SUBGROUPS',val);
         },

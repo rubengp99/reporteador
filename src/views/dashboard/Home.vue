@@ -199,31 +199,31 @@ export default {
   },
   watch:{
     vuexConcepts(){
-      this.$data.apiConcepts = this.vuexConcepts;
+      this.apiConcepts = this.vuexConcepts;
     },
     vuexInvoices(){
-      this.$data.apiInvoices = this.vuexInvoices;
+      this.apiInvoices = this.vuexInvoices;
     },
     vuexGroups(){
-      this.$data.apiGroups = this.vuexGroups;
-      this.$data.apiGroups =  this.apiGroups.data.data;
+      this.apiGroups = this.vuexGroups;
+      this.apiGroups =  this.apiGroups.data.data;
     },
     vuexSubGroups(){
-      this.$data.apiSubGroups = this.vuexSubGroups;
-      this.$data.apiSubGroups = this.apiSubGroups.data.data;
+      this.apiSubGroups = this.vuexSubGroups;
+      this.apiSubGroups = this.apiSubGroups.data.data;
     },
     vuexSubGroupSales(){
-      this.$data.sVentas = this.vuexSubGroupSales;
-      this.$data.sVentas = this.$data.sVentas.data.data;
+      this.sVentas = this.vuexSubGroupSales;
+      this.sVentas = this.$data.sVentas.data.data;
     },
     vuexGroupSales(){
-      this.$data.groupSales = this.vuexGroupSales;
+      this.groupSales = this.vuexGroupSales;
     },
     vuexStorages(){
-      this.$data.apiStorages = this.vuexStorages;
+      this.apiStorages = this.vuexStorages;
     },
     vuexTodayInvoices(){
-      this.$data.apiInvoices = this.vuexTodayInvoices;
+      this.apiInvoices = this.vuexTodayInvoices;
     },
     dashboardUpdated(){
       this.createBasics();
