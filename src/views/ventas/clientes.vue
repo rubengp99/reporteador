@@ -57,7 +57,7 @@
                   </v-row>
               </v-card-actions>
               <v-expand-transition>
-                <v-col cols="12" v-show="buyer.expand">
+                <v-col cols="12" v-show="buyer.expand" @click.stop.prevent>
                     <v-divider></v-divider>
                     <p  class="body-1" style="line-height:normal;margin-top:15px;">
                       Volumen de Compras de  <span  style="color:#0D47A1"><br>{{ buyer.name }}</span>
@@ -70,7 +70,7 @@
                     />
                     <v-divider></v-divider>
                     <p class="caption" style="margin-top:10px;">El comprador <span  style="color:#0D47A1">{{buyer.name}}</span> 
-                        posee el {{ Math.round((buyer.percentBuys.series[0] / buyer.percentBuys.series[1] + Number.EPSILON) * 100) > 100 ? 100 + '%' : Math.round((buyer.percentBuys.series[0] / buyer.percentBuys.series[1] + Number.EPSILON) * 100) +'%'}}
+                        posee el <span style="color:#0D47A1">{{ Math.round((buyer.percentBuys.series[0] / buyer.percentBuys.series[1] + Number.EPSILON) * 100) > 100 ? 100 + '%' : Math.round((buyer.percentBuys.series[0] / buyer.percentBuys.series[1] + Number.EPSILON) * 100) +'%'}}</span>
                         del total de compras en el negocio.
                     </p>
                 </v-col>
@@ -158,6 +158,7 @@ export default {
           expand: false,
         });
       });
+      console.log(this.compradores);
       this.$data.loading = false;
     },
     onResize() {

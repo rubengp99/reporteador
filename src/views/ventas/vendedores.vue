@@ -57,7 +57,7 @@
                   </v-row>
               </v-card-actions>
               <v-expand-transition>
-                <v-col cols="12" v-show="seller.expand">
+                <v-col cols="12" v-show="seller.expand" @click.stop.prevent>
                     <v-divider></v-divider>
                     <p  class="body-1" style="line-height:normal;margin-top:15px;">
                       Volumen de Ventas de  <span  style="color:#0D47A1"><br>{{ seller.name }}</span>
