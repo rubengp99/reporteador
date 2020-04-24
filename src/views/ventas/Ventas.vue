@@ -7,7 +7,22 @@
             <dCard col="3" icon img="routes" title="Rutas" hoverable path="/ventas/rutas" />
             <dCard col="3" icon img="ranking" title="Más vendidos" hoverable path="/ventas/ranking" />
         </v-row>
-
+        <v-row>
+         <v-col cols="12">
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="title" style="text-align:center"><p style="margin:0">Objetivos de Venta</p></v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-list>
+                    <v-list-item-group>
+                      <goal :id="1" responsable="Empresa" meta="40000" fecha="27 de febrero 2020" :progreso="(20000/40000)" tipo="ventas" />
+                    </v-list-item-group>
+                  </v-list>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+         </v-col>
+        </v-row>
         <v-row>
             <transition  :name="transitionName" mode="out-in" @beforeLeave="beforeLeave" @enter="enter" @afterEnter="afterEnter">
                 <router-view></router-view>
@@ -20,6 +35,7 @@
 <script>
 import dCard from "@/components/aplicacion/Dashcard";
 import transitions from '@/plugins/transitions'
+import goal from '@/components/ventas/objetivo'
 //import loader from "../components/aplicacion/loading"
 
 const DEFAULT_TRANSITION = 'slide';
@@ -28,7 +44,7 @@ export default {
   name: "Ventas",
   components: {
     dCard: dCard,
-    //loader: loader,    
+    goal: goal   
   },
   data(){
     return{
@@ -81,4 +97,7 @@ export default {
         opacity: 0;
         transform: translate(-2em, 0);
     }
+
+      
+
 </style>

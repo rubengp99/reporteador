@@ -76,12 +76,6 @@
         this.setUpdateInventario(null);
         this.setUpdateDashboard(null);
         this.setUpdateVentas(null);
-        this.$toasted.success("Se actualizó la información.", { 
-            theme: "bubble", 
-            position: "bottom-right", 
-            duration : 2000,
-            icon : 'done_all'
-        });
         setInterval(async ()=>{
           this.setUpdateInventario(null);
           this.setUpdateDashboard(null);
