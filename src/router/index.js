@@ -132,7 +132,7 @@ const routes = [
 const router = new VueRouter({
     routes,
     mode: "history",
-    base: '/reporteador/',
+    base: '/',
     linkActiveClass: 'router-link-active',
     linkExactActiveClass: 'router-link-exact-active',
     scrollBehavior(to, from, savedPosition) {
