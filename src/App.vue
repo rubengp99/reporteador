@@ -4,43 +4,36 @@
     <transition :name="transitionName" mode="out-in" @beforeLeave="beforeLeave" @enter="enter" @afterEnter="afterEnter">
         <router-view/>
     </transition>
-
-    <Snackbar v-if="!mensaje === ''" :mensaje="mensaje" :icon="icon" :color="color" />
-  </v-app>
+ </v-app>
 </template>
 
 <script>
   import navigation from './components/aplicacion/Navigation'
   import transitions from './plugins/transitions'
   import {mapState, mapActions} from 'vuex';
-  import Snackbar from '@/components/aplicacion/Snackbar';
-
   const DEFAULT_TRANSITION = 'fade';
+
   export default {
     name: 'app',
     components: {
       navigation: navigation,
-      Snackbar
     },
     data() {
      return {
-        mensaje:'Actualizando información...',
-        color:'#388E3C',
-        icon:'done',
         prevHeight: 0,
         transitionName: DEFAULT_TRANSITION,
         dataCache:[],
      };
    },
    computed:{
-     ...mapState(['init','snackBar','logged']),
+     ...mapState(['init','logged']),
    },
     methods:{
       ...transitions,
       ...mapActions(['setInitAplicacion','setUpdateInventario','setUpdateDashboard',
           'setUpdateVentas','setConcepts','setInvoices','setConceptSales','setGroups','setSubgroups',
           'setGroupSales','setSubgroupSales','setWeeklySales','setStorages','setSellers',
-          'setBuyers','setTotalClientes','setTotalVendedores','setTodayInvoices', 'restoreFromCache', 'setSnackbar'
+          'setBuyers','setTotalClientes','setTotalVendedores','setTodayInvoices', 'restoreFromCache',
         ]),
       checkCache(){
         this.dataCache = [
@@ -80,16 +73,26 @@
     },
     watch:{
       init: async function(){
-        this.setSnackbar(true);
         this.setUpdateInventario(null);
         this.setUpdateDashboard(null);
         this.setUpdateVentas(null);
+        this.$toasted.success("Se actualizó la información.", { 
+            theme: "bubble", 
+            position: "bottom-right", 
+            duration : 2000,
+            icon : 'done_all'
+        });
         setInterval(async ()=>{
-          this.setSnackbar(true);
           this.setUpdateInventario(null);
           this.setUpdateDashboard(null);
           this.setUpdateVentas(null);
-        },180000)
+          this.$toasted.success("Se actualizó la información.", { 
+              theme: "bubble", 
+              position: "bottom-right", 
+              duration : 2000,
+              icon : 'done_all'
+          });
+        },50000)
       }
     },
     created() {

@@ -60,13 +60,12 @@ export default {
     ...mapState(['user','fotoChanged','foto']),
   },
   methods: {
-    ...mapActions(["setSnackbar", "logout","setFotoChanged","setFoto"]),
+    ...mapActions(["logout","setFotoChanged","setFoto"]),
     transition() {
       return "slide-y-transition";
     },
     logOut() {
       this.logout();
-      this.setSnackbar(false);
       router.push("/login");
     }
   }

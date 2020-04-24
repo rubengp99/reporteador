@@ -16,7 +16,9 @@ import Auth from '@/services/auth';
 import croppa from 'vue-croppa';
 import './assets/css/styles.scss';
 import VueMasonry from 'vue-masonry-css'
- 
+
+let options = {progressBar: true};
+
 Vue.use(VueMasonry);
 Vue.use(VueFusionCharts, FusionCharts, Maps, World, FusionTheme)
 Vue.use(vueheader);
@@ -25,6 +27,8 @@ Vue.use(Toasted);
 Vue.component('apexchart', ApexCharts);
 Vue.component('loader',loader);
 Vue.use(router);
+Vue.use(options);
+
 let token = window.localStorage.getItem('token');
 
 Vue.config.productionTip = false

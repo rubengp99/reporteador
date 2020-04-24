@@ -130,7 +130,6 @@
             </v-col>
         </v-row>
 
-        <Snackbar v-if="!mensaje === ''" :mensaje="mensaje" :icon="icon" :color="color" />
     </v-card>
 </template>
 
@@ -138,7 +137,6 @@
 import {mapState,mapActions} from 'vuex';
 import Usuario from '@/services/Usuario';
 import Auth from '@/services/auth';
-import Snackbar from '@/components/aplicacion/Snackbar';
 import transitions from '@/plugins/transitions'
 import Images from '@/services/Imagenes';
 import _ from 'lodash';
@@ -147,19 +145,12 @@ import _ from 'lodash';
 
     export default {
         components:{
-            Snackbar
         },
         data() {
             return {
-                mensaje:'',
-                color:'',
-                icon:'',
                 loading:false,
                 change:false,
                 passwordC:'',
-                //imageName: '',
-                //imageUrl: '',
-                //imageFile: '',
                 data:{},
                 telefono:null,
                 password:'',
@@ -178,7 +169,7 @@ import _ from 'lodash';
             }
         },
         computed:{
-            ...mapState(['user','fotoChanged','foto','fotoFile','snackBar']),
+            ...mapState(['user','fotoChanged','foto','fotoFile']),
         },
         watch: {
             fotoChanged: function(){
@@ -197,15 +188,8 @@ import _ from 'lodash';
             
         },
        methods:{
-            ...mapActions(['setSnackbar','setFoto','setFotoChanged','setFotoFile']),
+            ...mapActions(['setFoto','setFotoChanged','setFotoFile']),
             ...transitions,
-            mensajeSnackbar(color,icon,mensaje){
-                this.color = color;
-                this.icon = icon;
-                this.mensaje = mensaje;
-                this.setSnackbar(true);
-                this.loading = false;
-            },
             async updateUsuario(id){
                 let newUserData = {};
                 this.loading = true;
@@ -226,10 +210,22 @@ import _ from 'lodash';
                         let updatedUser = await Usuario().get('/'+id);
                         this.user.data = {...updatedUser.data.data};
                         this.change = false;
-                        this.mensajeSnackbar('#388E3C','done','Actualizado exitosamente.');
+                        this.$toasted.info("Información Actualizada", { 
+                            theme: "bubble", 
+                            position: "bottom-right", 
+                            duration : 2000,
+                            icon : 'done_all'
+                        });
+                        this.loading = false;
                     }).catch(e => {
                         console.log(e);
-                        this.mensajeSnackbar('#D32F2F','error','Opsss, Error al intentar actualizar.');
+                        this.$toasted.error("Ha ocurrido un error inesperado.", { 
+                            theme: "bubble", 
+                            position: "bottom-right", 
+                            duration : 2000,
+                            icon : 'error_outline'
+                        });
+                        this.loading = false;
                     });
                 }
             },

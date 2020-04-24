@@ -61,25 +61,17 @@
             </v-col>
         </v-row>
 
-        <Snackbar :color="color" :mensaje="mensaje" :icon="icon" />
     </div>
 </template>
 
 <script>
 import validations from '@/validations/validations';
-import Snackbar from '@/components/aplicacion/Snackbar';
 import Auth from '@/services/auth';
-import {mapActions} from 'vuex';
 import router from '@/router';
     export default {    
-        components:{
-            Snackbar
-        },
+
         data() {
             return {
-                mensaje:'',
-                icon:'',
-                color:'',
                 valid:false,
                 loading:false,
                 send:false,
@@ -89,36 +81,49 @@ import router from '@/router';
             }
         },
         methods: {
-            ...mapActions(['setSnackbar']),
             push(){ router.push('/login') },
             push2(){ router.push('/reset') },
-            mensajeSnackbar(color,mensaje,icon){
-                this.color = color;
-                this.mensaje = mensaje;
-                this.icon = icon;
-                this.setSnackbar(true);
-                this.loading = false;
-            },
+            
             sendMail(){
                 this.loading = true;
                 Auth().post("/sendmail",{data:{mail:this.correo}}).then((response) => {
                     console.log(response);
-                    this.mensajeSnackbar("#388E3C","Codigo enviado exitosamente.","done");
+                    this.$toasted.success("Código enviado exitosamente.", { 
+                        theme: "bubble", 
+                        position: "bottom-right", 
+                        duration : 2000,
+                        icon : 'done_all'
+                    });
                     this.send = true;
                 }).catch(e => {
                     console.log(e);
-                    this.mensajeSnackbar("#D32F2F","Ooops, Error al intentar enviar el codigo.","error");
+                    this.$toasted.error("Error al envía el código.", { 
+                        theme: "bubble", 
+                        position: "bottom-right", 
+                        duration : 2000,
+                        icon : 'error_outline'
+                    });
                 });
             },
             validCode(){
                 this.loading = true;
                 Auth().post("/validcode",{data:{mail:this.correo,hash:this.codigo}}).then((response) => {
                     console.log(response);
-                    this.mensajeSnackbar("#388E3C","Codigo validado exitosamente.","done");
+                    this.$toasted.success("Su código fue verificado con éxito.", { 
+                        theme: "bubble", 
+                        position: "bottom-right", 
+                        duration : 2000,
+                        icon : 'done_all'
+                    });
                     this.push2();
                 }).catch(e => {
                     console.log(e);
-                    this.mensajeSnackbar("#D32F2F","Ooops, Error al validar el codigo.","error");
+                    this.$toasted.error("Ha ocurrido un problema al verificar su código.", { 
+                        theme: "bubble", 
+                        position: "bottom-right", 
+                        duration : 2000,
+                        icon : 'error_outline'
+                    });
                 });
             },
         },

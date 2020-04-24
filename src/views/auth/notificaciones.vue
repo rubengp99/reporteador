@@ -23,37 +23,19 @@
             </div>
         </v-row>
 
-        <Snackbar v-if="!mensaje === ''" :mensaje="mensaje" :icon="icon" :color="color" />
     </v-card>
 </template>
 
 <script>
-import {mapState,mapActions} from 'vuex';
-import Usuario from '@/services/Usuario';
-import Snackbar from '@/components/aplicacion/Snackbar';
+import {mapState} from 'vuex';
 import transitions from '@/plugins/transitions'
   const DEFAULT_TRANSITION = 'slide';
 
     export default {
         components:{
-            Snackbar
         },
         data() {
             return {
-                mensaje:'',
-                color:'',
-                icon:'',
-                loading:false,
-                change:false,
-                passwordC:'',
-                //imageName: '',
-                //imageUrl: '',
-                //imageFile: '',
-                data:{},
-                telefono:null,
-                password:'',
-                reader:null,
-                date: new Date().toISOString().substr(0, 10),
                 transitionName: DEFAULT_TRANSITION,
             }
         },
@@ -67,71 +49,11 @@ import transitions from '@/plugins/transitions'
             }
         },
         computed:{
-            ...mapState(['user','fotoChanged','foto','fotoFile']),
+            ...mapState(['user']),
         },
-        watch: {
-            fotoFile:function(){
-                console.log(this.fotoFile);
-            },
-            fotoChanged: function(){
-                this.change = this.fotoChanged;
-            },
-            data:{
-                handler(){
-                    if(!this.fotoChanged && this.data.nombre === this.user.data.nombre && this.data.apellido === this.user.data.apellido && this.data.email === this.user.data.email && this.data.login === this.user.data.login){
-                        this.change = false;
-                    }else{
-                        this.change = true;
-                    }
-                },
-                deep:true
-            },
-            
-        },
+
        methods:{
-            ...mapActions(['setSnackbar','setFoto','setFotoChanged']),
             ...transitions,
-            mensajeSnackbar(color,icon,mensaje){
-                this.color = color;
-                this.icon = icon;
-                this.mensaje = mensaje;
-                this.setSnackbar(true);
-                this.loading = false;
-            },
-            updateUsuario(id){
-                this.loading = true;
-                this.data.
-                this.data.fecha_nac = this.date;
-                Usuario().post(`/${id}`,{data:this.data}).then(() => {
-                    this.mensajeSnackbar('#388E3C','done','Actualizado exitosamente.');
-                    this.user.data = this.data;
-                    this.change = false;
-                }).catch(e => {
-                    console.log(e);
-                    this.mensajeSnackbar('#D32F2F','error','Opsss, Error al intentar actualizar.');
-                });
-            },
-            /*fotoUpload(e){
-                const files = e.target.files
-                if(files[0] !== undefined) {
-                    this.imageName = files[0].name
-                    const fr = new FileReader ();
-                    fr.readAsDataURL(files[0])
-                    fr.addEventListener('load', () => {
-                        this.imageUrl = fr.result
-                        this.imageFile = files[0] // this is an image file that can be sent to server...
-                        this.setFotoChanged(true);
-                        this.setFoto(this.imageUrl);
-                    })
-                } else {
-                    this.imageName = ''
-                    this.imageFile = ''
-                    this.imageUrl = ''
-                    this.setFotoChanged(false);
-                    this.setFoto(this.user.data.fotografia);
-                }
-                
-            }*/
         },
         created() {
             this.animate(this.transitionName);

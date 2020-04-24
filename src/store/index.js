@@ -21,8 +21,6 @@ export default new Vuex.Store({
         },
         //banderas
         drawer:false,
-        snackbar:false,
-        modalsesion:false,
         foto: '',
         fotoChanged:false,
         fotoFile: null,
@@ -47,7 +45,6 @@ export default new Vuex.Store({
         rankingUpdated: false,
         sellersUpdated: false,
         buyersUpdated: false,
-        chosenRanked: 0,
         totalClientes: 0,
         totalVendedores: 0,
         restoredFromCache: false,
@@ -59,15 +56,6 @@ export default new Vuex.Store({
         //banderas
         SET_DRAWER(state,val){
             val ? state.drawer = true:state.drawer = false;
-        },
-        SET_MODAL_SESION(state,val){
-            val ? state.modalsesion = true:state.modalsesion = false;
-        },
-        SET_MODAL_CARRITO(state,val){
-            val ? state.modalcarrito = true:state.modalcarrito = false;
-        },
-        SET_SNACKBAR(state,val){
-            val ? state.snackbar = true:state.snackbar = false;
         },
         //autenticacion
         SET_LOGGED(state,val){//logea al usuario
@@ -315,9 +303,6 @@ export default new Vuex.Store({
         },
         setModalSesion({commit},val){
             commit('SET_MODAL_SESION',val);
-        },
-        setSnackbar({commit},val){
-            commit('SET_SNACKBAR',val);
         },
         logged({commit},val){
             commit('SET_LOGGED',val);

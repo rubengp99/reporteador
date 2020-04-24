@@ -41,7 +41,6 @@
                 </v-btn>
             </v-hover>
 
-            <Snackbar :icon="icon" :color="color" :mensaje="mensaje"/>
         </v-form>
     </div>
     
@@ -50,13 +49,9 @@
 <script>
 import Auth from '@/services/auth';
 import validations from '@/validations/validations';
-import Snackbar from '@/components/aplicacion/Snackbar';
 import {mapActions} from 'vuex';
 import router from '@/router';
     export default {
-        components:{
-            Snackbar
-        },
         data(){
             return {
                 data: {
@@ -66,30 +61,30 @@ import router from '@/router';
                 valid:false,
                 ...validations,
                 showPassword:false,
-                mensaje:"",
-                icon:"",
-                color:"",
                 loading:false,
             }
         },
         methods: {
-            ...mapActions(['setSnackbar','logged','setModalSesion']),
+            ...mapActions(['logged']),
             error(){
-                this.color="#D32F2F"
-                this.icon = "error";
-                this.mensaje = "Usuario y/o contraseña incorrecta."
-                this.setSnackbar(true);
+                this.$toasted.error("Las credenciales son incorrectas.", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'error_outline'
+                });
                 this.loading = false;
             },
             success(nombre,apellido){
-                this.color="#388E3C"
-                this.icon = "done";
-                this.mensaje = "Bienvenido "+nombre+" "+apellido+".";
-                this.setSnackbar(true);
+                this.$toasted.success("Bienvenido "+nombre+" "+apellido+".", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'done_all'
+                });
                 this.loading = false;
                 setTimeout(() =>{ 
                     router.push('/');
-                    this.setModalSesion(false);
                 },1000);
             },
             login(){
