@@ -78,7 +78,7 @@
           this.setUpdateInventario(null);
           this.setUpdateDashboard(null);
           this.setUpdateVentas(null);
-        },300000)
+        },180000)
       }
     },
     created() {
