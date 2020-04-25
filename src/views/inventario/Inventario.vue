@@ -224,10 +224,6 @@ export default {
   data() {
     return {
       isExpanded: false,
-      stock: false,
-      abc: false,
-      sales: false,
-      price: false,
       apiConcepts: null,
       apiConceptsAux: null,
       apiInvoices: null,
@@ -251,8 +247,6 @@ export default {
       subgrupo: "",
       search: "",
       goSearch: false,
-      grupoChanged: false,
-      subgrupoChanged: false,
       transitioned: [],
       closeTimeouts: {},
       singleExpand: false,
