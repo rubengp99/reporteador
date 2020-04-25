@@ -85,7 +85,7 @@ export default {
             type: [ Number, String],
             default: 0,
         },
-        progreso:{
+        progresoMeta:{
             type: Number,
             default: 0,
         },
@@ -118,9 +118,10 @@ export default {
             }
         }
     },
-    created(){
-        this.progreso *=100;
-        this.progreso = Math.trunc(this.progreso);
+    computed:{
+      progreso(){
+        return Math.trunc(this.progresoMeta * 100);
+      }
     },
     beforeMount(){
         if(this.progreso >= 47){
@@ -145,9 +146,6 @@ export default {
                     break;
                 case '53':
                     this.percent = 90;
-                    break;
-                case '54':
-                    this.percent = 110;
                     break;
                 default:
                     this.percent = 110;
