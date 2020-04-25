@@ -1,13 +1,17 @@
 <template>
   <v-list-item style="padding: 0 10px 0 0;" class="border-b">
     <v-list-item-icon
+      class="d-none d-sm-none d-md-flex"
       style="margin: auto 10px!important;padding: 10px!important;border-right: thin solid rgba(0, 0, 0, 0.12)!important;"
     >
       <v-img :src="require('@/assets/goal.svg')" width="55px"></v-img>
     </v-list-item-icon>
     <v-list-item-content>
       <v-row>
-        <v-col cols="4" class="border-l">
+        <v-col cols=12 style="text-align:center;">
+          <v-img :src="require('@/assets/goal.svg')" class="d-flex d-md-none" width="75px" style="margin:auto;"></v-img>
+        </v-col>
+        <v-col cols=12 md="4" class="border-l">
           <v-list-item-title class="subtitle-1">
             <span class="bold">Completado</span>
           </v-list-item-title>
@@ -17,7 +21,7 @@
                  </template>
           </v-progress-linear>
         </v-col>
-        <v-col cols="2" class="border-l">
+        <v-col cols=12 md="2" class="border-l">
           <v-list-item-title class="subtitle-1">
             <span class="bold">Fecha límite</span>
           </v-list-item-title>
@@ -25,7 +29,7 @@
             <span>{{ fecha }}</span>
           </v-list-item-title>
         </v-col>
-        <v-col cols="2" class="border-l">
+        <v-col cols=6 md="2" class="border-l">
           <v-list-item-title class="subtitle-1">
             <span class="bold">Asignado a</span>
           </v-list-item-title>
@@ -33,7 +37,7 @@
             <span>{{ responsable }}</span>
           </v-list-item-title>
         </v-col>
-        <v-col cols="2" class="border-l">
+        <v-col cols=6 md="2" class="border-l">
           <v-list-item-title class="subtitle-1">
             <span class="bold">Meta</span>
           </v-list-item-title>
@@ -41,18 +45,18 @@
             <span>{{ format(meta) }} {{tipo}}.</span>
           </v-list-item-title>
         </v-col>
-        <v-col cols="2" class="border-l">
+        <v-col cols="12" md="2" class="border-l">
           <v-list-item-title class="subtitle-1">
             <span class="bold">Acciones</span>
           </v-list-item-title>
           <v-row class="mt-2">
-            <v-col cols="6" style="padding:0 5px;">
-              <v-btn small outlined dense color="green" style="width:80%">
+            <v-col md="6" style="padding:0 10px;">
+              <v-btn small outlined dense color="green" style="width:80%;min-width:45px;">
                 <v-icon>done_all</v-icon>
               </v-btn>
             </v-col>
-            <v-col cols="6" style="padding:0 5px">
-              <v-btn small outlined dense color="red" style="width:80%">
+            <v-col md="6" style="padding:0 10px">
+              <v-btn small outlined dense color="red" style="width:80%;min-width:45px;">
                 <v-icon>close</v-icon>
               </v-btn>
             </v-col>
@@ -163,12 +167,18 @@ export default {
   border-color: rgba(0, 0, 0, 0.12) !important;
   border: solid;
   border-width: 0 thin 0 0;
+  @media only screen and (max-width:600px){
+     border-width: 0 thin thin 0;
+  }
 }
 
 .border-b:not(:last-child) {
   border-color: rgba(0, 0, 0, 0.12) !important;
   border: solid;
   border-width: 0 0 thin 0;
+  @media only screen and (max-width:600px){
+     border-width: 0;
+  }
 }
 
 .mask{

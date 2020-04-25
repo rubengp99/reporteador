@@ -16,6 +16,7 @@
                   <v-list>
                     <v-list-item-group>
                       <goal :id="1" responsable="Empresa" meta="40000" fecha="27 de febrero 2020" :progreso="(20000/40000)" tipo="ventas" />
+                      <goal :id="1" responsable="Empresa" meta="40000" fecha="27 de febrero 2020" :progreso="(20000/40000)" tipo="ventas" />
                     </v-list-item-group>
                   </v-list>
                 </v-expansion-panel-content>
