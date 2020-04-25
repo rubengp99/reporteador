@@ -9,7 +9,7 @@
         </v-row>
         <v-row>
          <v-col cols="12">
-            <v-expansion-panels>
+            <v-expansion-panels :value="opened">
               <v-expansion-panel>
                 <v-expansion-panel-header class="title" style="text-align:center"><p style="margin:0">Objetivos de Venta</p></v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -51,6 +51,7 @@ export default {
     return{
       active: [false,false,false,false],
       transitionName: DEFAULT_TRANSITION,
+      opened:0,
     }
   },
   head: {
@@ -72,6 +73,10 @@ export default {
   },
   created(){
     this.animate(this.transitionName);
+    this.opened = (this.$route.name === 'ventas') ? 0 : 1;
+  },
+  beforeUpdate(){
+    this.opened = (this.$route.name === 'ventas') ? 0 : 1;
   }
 };
 </script>

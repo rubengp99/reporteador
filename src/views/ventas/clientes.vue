@@ -158,7 +158,6 @@ export default {
           expand: false,
         });
       });
-      console.log(this.compradores);
       this.$data.loading = false;
     },
     onResize() {
