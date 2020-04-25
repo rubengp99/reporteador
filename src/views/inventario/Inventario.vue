@@ -202,6 +202,7 @@
 import chart from "@/components/inventario/Chart"
 import conceptDialog from '@/components/inventario/Concepto'
 import accounting from 'accounting';
+import _ from 'lodash';
 import expandibles from '@/plugins/inventario/expandibles';
 import inventario from '@/plugins/inventario/inventario';
 import watchers from '@/plugins/inventario/watchers';
@@ -289,8 +290,83 @@ export default {
     ...mapState(['vuexConcepts','vuexConceptSales','vuexInvoices','vuexGroups','vuexSubGroups','vuexWeeklySales','inventoryUpdated']),
   },
   methods: {
+     //VISTA LA CARPETA @/PLUGINS/INVENTARIO
     ...expandibles,
     ...inventario,
+    //EXTRAEMOS 8 CONCEPTOS ANALIZADOS PARA MOSTRAR EN LA TABLA
+    getConcept: _.debounce(async function(search = false, input = "", pConcept = null) {
+      let aux = [];
+      //este metodo solo procesa el limite por pagina, por eso se corta el arreglo segun lo calculado en paginate()
+      let apiConcepts = (pConcept.length > this.table.itemsPerPage) ? 
+        pConcept.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage) : pConcept;
+      //si se ha habilitado alguna busqueda por nombre entonces  
+      if (search && typeof this.$route.params.id === 'undefined'){
+        //se filtran los resultados del arreglo general si no hay grupos acti vos, sino, se filtran desde el arreglo previamente filtrado
+        this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
+          .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase()));
+        apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
+        this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
+          .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).length;
+      }else if(typeof this.$route.params.id !== 'undefined'){
+        this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
+          .filter(concept => concept.id === this.$route.params.id);
+        apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
+        this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
+          .filter(concept => concept.adm_grupos_id === this.$route.params.grupo && concept.adm_subgrupos_id === this.$route.params.subgrupo && concept.nombre === this.$route.params.nombre).length;
+      }
+      this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
+      //procesamos los productos que apareceran en la página
+      //aunado a ello, construimos nuestro propio objecto debido a que el modulo requiere una estructura diferente
+      //a la planteada en la base de datos
+      for(let concept of apiConcepts){
+        aux.push(
+          await this.configData(
+            {
+              image: concept.imagen,
+              icon: {
+                img: '/images/box.svg',
+                toggled: false,
+              },
+              reference: concept.referencia,
+              id: concept.id,
+              codigo: concept.codigo,
+              name: concept.nombre,
+              stock: Array.isArray(concept.existencias) ? concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : 0 : concept.existencias ,
+              sold: 0,
+              stockMin: concept.existencia_minima,
+              stockMax: concept.existencia_maxima,
+              description: concept.descripcion,
+              returned: 0,
+              sale: +concept.precio_dolar,
+              cost: +concept.costo_dolar,
+              category: {
+                id: (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
+                      this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).id:0,
+                name: (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
+                        this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).nombre:'-',
+              },
+              subCategory: {
+                id: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
+                      typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].id : 0 : 0,
+                name: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
+                        typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' :'-'
+              },
+              stock_daily_sells: [0,0,0,0,0,0],
+              stock_end: [],
+              stock_lastDay: "",
+              stock_rotation: null,
+              stock_demand: null,
+              stock_devolution: null,
+              stock_claims: null,
+              stock_days: null,
+              stock_costs: null,
+            }
+          )
+        );
+      }
+      this.table.products = aux.sort((a, b) => a.id + b.id);   
+      this.loading = false;
+    },555),
     //-------------------------------------------------
     // este metodo solo abre la caja al lado de los products
     // @param concepto
@@ -365,6 +441,7 @@ export default {
   },
 
   watch: {
+    //VISTA LA CARPETA @/PLUGINS/INVENTARIO
     ...watchers,
 
     vuexConcepts(){
