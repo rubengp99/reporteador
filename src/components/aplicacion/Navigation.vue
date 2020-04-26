@@ -21,7 +21,9 @@
                   </v-list-item-avatar>
 
                   <v-list-item-content>
-                      <v-list-item-title>{{ item.title }}</v-list-item-title>
+                      <v-list-item-title>
+                         {{ item.title }}
+                      </v-list-item-title>
                   </v-list-item-content>
               </v-list-item>
           </v-list>
@@ -63,18 +65,11 @@ export default {
     dialog: false,
     drawer: false,
     items: [
-      { icon:  require("@/assets/home.png"), title: "Inicio", path: "/" },
-      //{ icon: 'show_chart', text: 'Rentabilidad', path: '/Rentabilidad' },
+      { icon: require("@/assets/home.png"), title: "Inicio", path: "/" },
+      { icon: require("@/assets/value.svg"), title: "Rentabilidad", path: "/rentabilidad" },
       { icon: require("@/assets/box.svg"), title: "Inventario", path: "/Inventario" },
-      { icon: require("@/assets/payment.svg"), title: 'Ventas', path: '/Ventas', 
-          children: [
-              { icon: require("@/assets/ranking.svg"), text: 'Ranking' },
-              { icon: require("@/assets/routes.svg"), text: 'Rutas' },
-              { icon: require("@/assets/sellers.svg"), text: 'Vendedores' },
-              { icon: require("@/assets/buyers.svg"), text: 'Clientes' },
-          ],
-      },
-      //{ icon: 'mdi-help-circle', text: 'Ayuda', path: '/Ayuda' },
+      { icon: require("@/assets/payment.svg"), title: 'Ventas', path: '/ventas', },
+      { icon: require("@/assets/help.svg"), title: 'Ayuda', path: '/cuenta/ayuda' },
     ]
   }),
   computed: {
