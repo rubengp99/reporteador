@@ -1,70 +1,70 @@
 <template>
-  <v-list-item style="padding: 0 10px 0 0;" class="border-b">
-    <v-list-item-icon
-      class="d-none d-sm-none d-md-flex"
-      style="margin: auto 10px!important;padding: 10px!important;border-right: thin solid rgba(0, 0, 0, 0.12)!important;"
-    >
-      <v-img :src="require('@/assets/goal.svg')" width="55px"></v-img>
-    </v-list-item-icon>
-    <v-list-item-content>
-      <v-row>
-        <v-col cols=12 style="text-align:center;">
-          <v-img :src="require('@/assets/goal.svg')" class="d-flex d-md-none" width="75px" style="margin:auto;"></v-img>
-        </v-col>
-        <v-col cols=12 md="4" class="border-l">
-          <v-list-item-title class="subtitle-1">
-            <span class="bold">Completado</span>
-          </v-list-item-title>
-          <v-progress-linear stream color="#01579b" :buffer-value="meta" height="20" :value="progreso" class="mt-2 subtitle-2 bold" reactive>
-                <template v-slot="{ value }">
-                    <span class="mask" :style="'background:'+'linear-gradient(to right, #F5F5F5 ' +percent+'%, #0D0D0D '+ percent+'%);'">{{value +'%'}}</span>
-                 </template>
-          </v-progress-linear>
-        </v-col>
-        <v-col cols=12 md="2" class="border-l">
-          <v-list-item-title class="subtitle-1">
-            <span class="bold">Fecha límite</span>
-          </v-list-item-title>
-          <v-list-item-title class="body-2 mt-2">
-            <span>{{ fecha }}</span>
-          </v-list-item-title>
-        </v-col>
-        <v-col cols=6 md="2" class="border-l">
-          <v-list-item-title class="subtitle-1">
-            <span class="bold">Asignado a</span>
-          </v-list-item-title>
-          <v-list-item-title class="body-2 mt-2">
-            <span>{{ responsable }}</span>
-          </v-list-item-title>
-        </v-col>
-        <v-col cols=6 md="2" class="border-l">
-          <v-list-item-title class="subtitle-1">
-            <span class="bold">Meta</span>
-          </v-list-item-title>
-          <v-list-item-title class="body-2 mt-2">
-            <span>{{ format(meta) }} {{tipo}}.</span>
-          </v-list-item-title>
-        </v-col>
-        <v-col cols="12" md="2" class="border-l">
-          <v-list-item-title class="subtitle-1">
-            <span class="bold">Acciones</span>
-          </v-list-item-title>
-          <v-row class="mt-2">
-            <v-col md="6" style="padding:0 10px;">
-              <v-btn small outlined dense color="green" style="width:80%;min-width:45px;">
-                <v-icon>done_all</v-icon>
-              </v-btn>
-            </v-col>
-            <v-col md="6" style="padding:0 10px">
-              <v-btn small outlined dense color="red" style="width:80%;min-width:45px;">
-                <v-icon>close</v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-    </v-list-item-content>
-  </v-list-item>
+    <v-list-item style="padding: 0 10px 0 0;" class="border-b">
+        <v-list-item-icon
+            class="d-none d-sm-none d-md-flex"
+            style="margin: auto 10px!important;padding: 10px!important;border-right: thin solid rgba(0, 0, 0, 0.12)!important;"
+        >
+            <v-img :src="require('@/assets/goal.svg')" width="55px"></v-img>
+        </v-list-item-icon>
+        <v-list-item-content>
+            <v-row>
+                <v-col cols=12 style="text-align:center;">
+                    <v-img :src="require('@/assets/goal.svg')" class="d-flex d-md-none" width="75px" style="margin:auto;"></v-img>
+                </v-col>
+                <v-col cols=12 md="4" class="border-l">
+                    <v-list-item-title class="subtitle-1">
+                        <span class="bold">Completado</span>
+                    </v-list-item-title>
+                    <v-progress-linear stream color="#01579b" :buffer-value="meta" height="20" :value="progreso" class="mt-2 subtitle-2 bold" reactive>
+                        <template v-slot="{ value }">
+                            <span class="mask" :style="'background:'+'linear-gradient(to right, #F5F5F5 ' +percent+'%, #0D0D0D '+ percent+'%);'">{{value +'%'}}</span>
+                        </template>
+                    </v-progress-linear>
+                </v-col>
+                <v-col cols=12 md="2" class="border-l">
+                    <v-list-item-title class="subtitle-1">
+                        <span class="bold">Fecha límite</span>
+                    </v-list-item-title>
+                    <v-list-item-title class="body-2 mt-2">
+                        <span>{{ fecha }}</span>
+                    </v-list-item-title>
+                </v-col>
+                <v-col cols=6 md="2" class="border-l">
+                    <v-list-item-title class="subtitle-1">
+                        <span class="bold">Asignado a</span>
+                    </v-list-item-title>
+                    <v-list-item-title class="body-2 mt-2">
+                        <span>{{ responsable }}</span>
+                    </v-list-item-title>
+                </v-col>
+                <v-col cols=6 md="2" class="border-l">
+                    <v-list-item-title class="subtitle-1">
+                        <span class="bold">Meta</span>
+                    </v-list-item-title>
+                    <v-list-item-title class="body-2 mt-2">
+                        <span>{{ format(meta) }} {{tipo}}.</span>
+                    </v-list-item-title>
+                </v-col>
+                <v-col cols="12" md="2" class="border-l">
+                    <v-list-item-title class="subtitle-1">
+                        <span class="bold">Acciones</span>
+                    </v-list-item-title>
+                    <v-row class="mt-2">
+                        <v-col md="6" style="padding:0 10px;">
+                            <v-btn small outlined dense color="green" style="width:80%;min-width:45px;">
+                                <v-icon>done_all</v-icon>
+                            </v-btn>
+                        </v-col>
+                        <v-col md="6" style="padding:0 10px">
+                            <v-btn small outlined dense color="red" style="width:80%;min-width:45px;">
+                                <v-icon>close</v-icon>
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </v-col>
+            </v-row>
+        </v-list-item-content>
+    </v-list-item>
 </template>
 
 <script>
