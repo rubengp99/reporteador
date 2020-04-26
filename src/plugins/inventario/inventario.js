@@ -6,14 +6,14 @@ import concept from "@/services/Conceptos";
 
 //Crea los analisis respectivos de cada concepto
 const configData = async function(product){
-  product = await this.configSales(product);
-  product = await this.configWeeklyDemand(product);
-  product = await this.configStockDays(product);
-  product = await this.configStockRotation(product);
-  product = await this.configClaims(product);
-  product = await this.configCostRelation(product);
-  product = await this.configDevolutions(product);
-  return product;
+    product = await this.configSales(product);
+    product = await this.configWeeklyDemand(product);
+    product = await this.configStockDays(product);
+    product = await this.configStockRotation(product);
+    product = await this.configClaims(product);
+    product = await this.configCostRelation(product);
+    product = await this.configDevolutions(product);
+    return product;
 };
   /* ----------------------------
       Diseñado para configurar:
@@ -28,27 +28,27 @@ const configStockDays = async function(product) {
     //si la ventas totales de la semana son mayores a 0 se calculan la decadencia del inventario según esta demanda
     if(product.stock_daily_sells.reduce((a, b) => a + b) > 0){
         do{
-          //se resta la demanda al inventario por cada dia transcurrido
-          stock_aux -= (Math.round((product.stock_daily_sells.reduce((a, b) => a + b) / 7) * 100 ) / 100);
-          product.stock_end.push(Math.trunc(stock_aux));
-          if (stock_aux < 0) break;
+            //se resta la demanda al inventario por cada dia transcurrido
+            stock_aux -= (Math.round((product.stock_daily_sells.reduce((a, b) => a + b) / 7) * 100 ) / 100);
+            product.stock_end.push(Math.trunc(stock_aux));
+            if (stock_aux < 0) break;
         }while (stock_aux > 0)  
         //se asignan los dias transcurridos en formato ej: "Feb 13 2020"
-      for (let i = 0; i < product.stock_end.length; i++) {
-        stock_dates.push(
-          moment(w.test).locale("es").add(i, "days").format("MMM Do").charAt(0).toUpperCase() + moment(w.test).locale("es").add(i, "days").format("MMM Do").slice(1)
-        );
-      }
-      //este es el día que representa el final de las existencias de un producto
-      product.stock_lastDay = moment(w.test).locale("ES").add(stock_dates.length - 1, "days").format("LL");
+        for (let i = 0; i < product.stock_end.length; i++) {
+            stock_dates.push(
+                moment(w.test).locale("es").add(i, "days").format("MMM Do").charAt(0).toUpperCase() + moment(w.test).locale("es").add(i, "days").format("MMM Do").slice(1)
+            );
+        }
+        //este es el día que representa el final de las existencias de un producto
+        product.stock_lastDay = moment(w.test).locale("ES").add(stock_dates.length - 1, "days").format("LL");
     }else{
-      //si no hay demanda, se crea un arreglo auxiliar donde no existen movimientos, el valor se repite 7 veces
-      //esto con fines visuales en el reporte.
-      for (let i = 0; i < 7; i++) {
-        product.stock_end.push(stock_aux);
-        stock_dates.push(moment(w.test).locale("es").add(i, "days").format("MMM Do").charAt(0).toUpperCase() + moment(w.test).locale("es").add(i, "days").format("MMM Do").slice(1));
-      }
-      product.stock_lastDay = '';
+        //si no hay demanda, se crea un arreglo auxiliar donde no existen movimientos, el valor se repite 7 veces
+        //esto con fines visuales en el reporte.
+        for (let i = 0; i < 7; i++) {
+            product.stock_end.push(stock_aux);
+            stock_dates.push(moment(w.test).locale("es").add(i, "days").format("MMM Do").charAt(0).toUpperCase() + moment(w.test).locale("es").add(i, "days").format("MMM Do").slice(1));
+        }
+        product.stock_lastDay = '';
     }
 
     //Graficar un arreglo muy grande representa un problema para el rendimiento visual de la APP, por se toma una porcion del arreglo
@@ -58,53 +58,53 @@ const configStockDays = async function(product) {
     product.stock_days = reports.chart__area(stockEndAux, StockDatesAux, false,  "stockdays" );
 
     return product;
-  };
+};
 
    /* ----------------------------
       Diseñado para configurar:
         -- Rentabilidad
     */
 
-  const configCostRelation = async function(product){
+const configCostRelation = async function(product){
     product.stock_costs = reports.chart__donut([+product.sale, +product.cost], "Beneficios del", ["Precio", "Costo"], ["#15b7b9","#f73859"], "benefits");
     //esto da formato de BSF + Precio (formato español -> Bs1.000,00)
     product.sale = accounting.formatMoney(+product.sale, { symbol   : "$", thousand : ".", decimal  : ",", });
     
     return product;
-  }
+}
 
    /* ----------------------------
       Diseñado para configurar:
         -- Rotacion de Inventario
     */
 
-  const configStockRotation = async function(product){
+const configStockRotation = async function(product){
     product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"], ["#ffc93c","#15b7b9"]);
 
     return product;
-  }
+}
 
   /* ----------------------------
       Diseñado para configurar:
         -- Ventas a partir del arreglo retornado por concepts/mostSold
   */
 
-  const configWeeklyDemand = async function(product){
+const configWeeklyDemand = async function(product){
     let sales = [0,0,0,0,0,0,0];
     //WeekylySales es un arreglo de 7 posiciones que almacena las facturas de 1 semana, por dias.
     for(let j = 6; j > -1; j--){
-      //La puede API arrojar "empty entity", es decir, .data === string, por lo que se debe checkear su typeof
-      if (typeof this.weeklySales[j].data === 'object'){
-        //si pasa la prueba, entonces se debe filtrar cada factura donde aparezca un detalle en específico
-        //luego se mapea solo la cantidad vendida de ese detalle en específico, y como resulado tenemos un arreglo
-        //de cadenas así ["1.000", "2.000", "4.000"]
-        let aux = [].concat(...this.weeklySales[j].data.data
-                    .filter(i => i.detalles.some(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)))
-                    .map(i => +i.detalles.filter(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)[0].cantidad);
-        //si al filtrar arriba se consiguieron ventas de ese detalle en un día, entonces se trunca el valor para eliminar imperfecciones en los datos
-        //y se transforma a numero.
-        sales[j] = aux.length > 0 ? aux.reduce((a,b) => a+= +Math.trunc(+b)) : 0;
-      }
+        //La puede API arrojar "empty entity", es decir, .data === string, por lo que se debe checkear su typeof
+        if (typeof this.weeklySales[j].data === 'object'){
+            //si pasa la prueba, entonces se debe filtrar cada factura donde aparezca un detalle en específico
+            //luego se mapea solo la cantidad vendida de ese detalle en específico, y como resulado tenemos un arreglo
+            //de cadenas así ["1.000", "2.000", "4.000"]
+            let aux = [].concat(...this.weeklySales[j].data.data
+                        .filter(i => i.detalles.some(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)))
+                        .map(i => +i.detalles.filter(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)[0].cantidad);
+            //si al filtrar arriba se consiguieron ventas de ese detalle en un día, entonces se trunca el valor para eliminar imperfecciones en los datos
+            //y se transforma a numero.
+            sales[j] = aux.length > 0 ? aux.reduce((a,b) => a+= +Math.trunc(+b)) : 0;
+        }
     }
     product.stock_daily_sells = sales;
 
@@ -115,7 +115,7 @@ const configStockDays = async function(product) {
     product.stock_demand = reports.chart__area(product.stock_daily_sells,fechas);
 
     return product;
-  }
+}
 
   /* ----------------------------
       Diseñado para configurar:
@@ -155,12 +155,12 @@ const configDevolutions = async function(product){
 }
 
 export default {
-  configData,
-  configStockDays, 
-  configSales, 
-  configClaims, 
-  configCostRelation, 
-  configStockRotation, 
-  configWeeklyDemand, 
-  configDevolutions
+    configData,
+    configStockDays, 
+    configSales, 
+    configClaims, 
+    configCostRelation, 
+    configStockRotation, 
+    configWeeklyDemand, 
+    configDevolutions
 };
