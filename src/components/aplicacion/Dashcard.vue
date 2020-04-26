@@ -4,9 +4,9 @@
             <v-card :class="cssClass" width="100%" :to="path" style="background:#fdfdfd;" active-class="active" >
                 <v-list-item three-line>
                     <v-list-item-content>
-                    <div class="overline mb-1">{{'Hoy, '+ hoy}}</div>
-                    <v-list-item-title class="headline mb-1" style="white-space: normal;">{{title}}</v-list-item-title>
-                    <v-list-item-subtitle class="subtitle-1" style="line-height: 1.15rem;">{{text}}</v-list-item-subtitle>
+                        <div class="overline mb-1">{{'Hoy, '+ hoy}}</div>
+                        <v-list-item-title class="headline mb-1" style="white-space: normal;">{{title}}</v-list-item-title>
+                        <v-list-item-subtitle class="subtitle-1" style="line-height: 1.15rem;">{{text}}</v-list-item-subtitle>
                     </v-list-item-content>
 
                     <v-list-item-avatar v-if="icon" tile size="80" color="none">

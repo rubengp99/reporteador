@@ -19,20 +19,20 @@
 
 <script>
 export default {
-  name: "loader",
-  data(){
-    return {
-    }
-  },
+    name: "loader",
+    data(){
+        return {
+        }
+    },
 };
 </script>
 
 
 <style lang="scss">
 .styledSvg{
-  width: 150px;
-  height: 150px;
-  margin: auto;
-  display: block;
+    width: 150px;
+    height: 150px;
+    margin: auto;
+    display: block;
 }
 </style>
