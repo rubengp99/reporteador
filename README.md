@@ -25,6 +25,7 @@ ___
 
 ![1](capturas/login.png)
 
+
 ### Password Recover / Recuperar contraseña
 
 ***(English)*** In the event that the user has forgotten their password and thinks that the system is inaccessible, then they do not have to worry, the password can be recovered, since the account has a linked email for these cases.
@@ -35,6 +36,28 @@ ___
 
 ![2](capturas/recover.png)
 
+
+### User Profile / Perfil de Usuario
+
+***(English)*** As in any system, you can customize your user profile. It is recommended, and mandatory, to personalize the user's name to the name of your company. Since this directly influences the way in which the SOMOS SISTEMAS C.A customer service center will be able to identify and assist you.
+
+___
+
+***(Español)*** Como en cualquier sistema, puedes personalizar tu perfil de usuario. Es recomendado, y de manera obligatoría, personalizar el nombre del usuario al nombre de tu compañía. Ya que esto influye directamente en la manera en la que el centro de atención al cliente de SOMOS SISTEMAS C.A podrá identificarte y atenderte.
+
+![2](capturas/profile.png)
+
+
+### Client assist / Perfil de Usuario
+
+***(English)*** The system has an integrated CHAT, to communicate from **Reporteador*** to **Reporteador***, from your user profile to a customer service account at the hands of SOMOS SISTEMAS A.C, where you can express the problem that it ails you and they give a pertinent solution to it as soon as possible.
+
+___
+
+***(Español)*** El sistema cuenta con un CHAT integrado, para realizar comunicación de **Reporteador** a **Reporteador**, desde tu perfil de usuario a una cuenta de atención al cliente a manos de SOMOS SISTEMAS C.A, por donde podrás manifestar el problema que te aqueja y ellos dar una pertinente solución al mismo en la brevedad posible.
+
+
+![2](capturas/support.png)
 
 ## Dashboard.
 
@@ -114,5 +137,52 @@ ___
 
 ![7](capturas/chart4.png)
 
-Coded with :heart: by [Rubén García](https://rubengarcia.herokuapp.com/)
 
+## Sales / Ventas.
+
+***(English)*** Every company needs to know what happens to their sales and income, in the same way, set sales objectives to determine how profitable the business is being.
+
+___
+
+***(Español)*** Toda empresa necesita saber que sucede con su ventas e ingresos, de la misma manera, plantear objetivos de venta para determinar que tan rentable está siendo el negocio.
+
+![8](capturas/ventas1.png)
+
+
+### Concepts ranking by sales / Ranking de conceptos por venta.
+
+***(English)*** In this view you can see a sales ranking for the products offered by your company, in this way you can keep track of what you want to continue selling, and what you don't.
+
+___
+
+***(Español)*** En esta vista puedes observar un ranking de ventas para los productos ofrecidos por tu empresa, de esta manera puedes llevar un control de lo que quieres seguir vendiendo, y lo que no.
+
+![9](capturas/ranking.png)
+
+
+### Sellers of your company / Vendedores de tu compañía.
+
+***(English)*** You will be able to see a list of the sellers registered by your company, and observe the sales volume in which this influences the business. From this, you can determine which salespeople do their job more efficiently.
+
+___
+
+***(Español)*** Podrás ver un listado de los vendedores registrado por tu compañía, y observar el volumen de ventas en las que este influye en el negocio. A partir de ello, puedes determinar que vendedores cumplen con su trabajo de manera más eficiente.
+
+![10](capturas/sellers1.png)
+
+![11](capturas/sellers2.png)
+
+
+### Clients of your company / Clientes de tu compañía.
+
+***(English)*** You will be able to keep a record of clients who have a business relationship with your company, from a client counted for daily care, to companies to which the business provides goods and supplies.
+
+___
+
+***(Español)*** Podrás llevar un registro de clientes que tienen contacto en relación de negocios con tu compañía, desde un cliente contado para la atención diaria, hasta compañías a las que el negocio provee bienes e insumos.
+
+![11](capturas/clients1.png)
+
+![12](capturas/clients2.png)
+
+Coded with :heart: by [Rubén García](https://rubengarcia.herokuapp.com/)
