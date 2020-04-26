@@ -83,12 +83,7 @@
                 ></v-text-field>
             </v-col>
             <v-col cols="12" md="6" sm="12">
-                <v-menu
-                    :close-on-content-click="false"
-                    transition="scale-transition"
-                    max-width="100%"
-                    offset-overflow
-                >
+                <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
                     <template v-slot:activator="{ on }">
                         <v-text-field
                             dense
@@ -101,29 +96,17 @@
                             v-on="on"
                         ></v-text-field>
                     </template>
-                    <v-date-picker 
-                        v-model="date"
-                        landscape
-                        show-current
-                        header-color="#005598"
-                        color="#005598"
-                        locale="es"
-                    />
+
+                    <v-date-picker v-model="date" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
                 </v-menu>
             </v-col>    
             <v-col cols="12" md="12" sm="12">
                 <transition name="fade">
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                                <v-btn 
-                                    color="#005598" dark
-                                    :loading="loading" @click="updateUsuario(user.data.id)"
-                                    class="text-capitalize body-2 fixPos" 
-                                    :disabled="!change" 
-                                >
-                                    Actualizar datos
-                                </v-btn>
-                        
+                        <v-btn color="#005598" dark :loading="loading" @click="updateUsuario(user.data.id)" class="text-capitalize body-2 fixPos" :disabled="!change">
+                             Actualizar datos
+                        </v-btn>
                         <v-spacer></v-spacer>
                     </v-card-actions>
                  </transition>
