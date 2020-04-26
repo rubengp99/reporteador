@@ -17,7 +17,9 @@ import croppa from 'vue-croppa';
 import './assets/css/styles.scss';
 import VueMasonry from 'vue-masonry-css'
 
-let options = {progressBar: true};
+let options = {
+    progressBar: true
+};
 
 Vue.use(VueMasonry);
 Vue.use(VueFusionCharts, FusionCharts, Maps, World, FusionTheme)
@@ -25,30 +27,42 @@ Vue.use(vueheader);
 Vue.use(croppa);
 Vue.use(Toasted);
 Vue.component('apexchart', ApexCharts);
-Vue.component('loader',loader);
+Vue.component('loader', loader);
 Vue.use(router);
 Vue.use(options);
 
-let token = window.localStorage.getItem('token');
+Vue.config.productionTip = true;
+let token = null;
+token = window.localStorage.getItem('token');
 
-Vue.config.productionTip = false
+if (token) {
+    Auth().post("/sesion", {
+        token: token
+    }).then((response) => {
+        store.state.user.data = response.data.data;
+        store.state.user.loggedIn = true;
+        store.state.user.token = token;
 
-Auth().post("/sesion",{token:token}).then((response) => {
-    store.state.user.data = response.data.data;
-    store.state.user.loggedIn = true;
-    store.state.user.token = token;
+        new Vue({
+            store,
+            router,
+            vuetify,
+            render: h => h(App)
+        }).$mount("#app");
+
+    }).catch(() => {
+        new Vue({
+            store,
+            router,
+            vuetify,
+            render: h => h(App)
+        }).$mount("#app");
+    });
+} else {
     new Vue({
-        vuetify,
         store,
         router,
-        render: h => h(App)
-    }).$mount('#app')
-
-}).catch(() => {
-    new Vue({
         vuetify,
-        store,
-        router,
         render: h => h(App)
-    }).$mount('#app')
-});
+    }).$mount("#app");
+}
