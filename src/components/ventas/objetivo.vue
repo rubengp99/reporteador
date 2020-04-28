@@ -1,74 +1,67 @@
 <template>
-    <v-list-item style="padding: 0 10px 0 0;" class="border-b">
-        <v-list-item-icon
-            class="d-none d-sm-none d-md-flex"
-            style="margin: auto 10px!important;padding: 10px!important;border-right: thin solid rgba(0, 0, 0, 0.12)!important;"
-        >
-            <v-img :src="require('@/assets/goal.svg')" width="55px"></v-img>
-        </v-list-item-icon>
-        <v-list-item-content>
-            <v-row>
-                <v-col cols=12 style="text-align:center;">
-                    <v-img :src="require('@/assets/goal.svg')" class="d-flex d-md-none" width="75px" style="margin:auto;"></v-img>
-                </v-col>
-                <v-col cols=12 md="4" class="border-l">
-                    <v-list-item-title class="subtitle-1">
-                        <span class="bold">Completado</span>
-                    </v-list-item-title>
-                    <v-progress-linear stream color="#01579b" :buffer-value="meta" height="20" :value="progreso" class="mt-2 subtitle-2 bold" reactive>
-                        <template v-slot="{ value }">
-                            <span class="mask" :style="'background:'+'linear-gradient(to right, #F5F5F5 ' +percent+'%, #0D0D0D '+ percent+'%);'">{{value +'%'}}</span>
-                        </template>
-                    </v-progress-linear>
-                </v-col>
-                <v-col cols=12 md="2" class="border-l">
-                    <v-list-item-title class="subtitle-1">
-                        <span class="bold">Fecha límite</span>
-                    </v-list-item-title>
-                    <v-list-item-title class="body-2 mt-2">
-                        <span>{{ fecha }}</span>
-                    </v-list-item-title>
-                </v-col>
-                <v-col cols=6 md="2" class="border-l">
-                    <v-list-item-title class="subtitle-1">
-                        <span class="bold">Asignado a</span>
-                    </v-list-item-title>
-                    <v-list-item-title class="body-2 mt-2">
-                        <span>{{ responsable }}</span>
-                    </v-list-item-title>
-                </v-col>
-                <v-col cols=6 md="2" class="border-l">
-                    <v-list-item-title class="subtitle-1">
-                        <span class="bold">Meta</span>
-                    </v-list-item-title>
-                    <v-list-item-title class="body-2 mt-2">
-                        <span>{{ format(meta) }} {{tipo}}.</span>
-                    </v-list-item-title>
-                </v-col>
-                <v-col cols="12" md="2" class="border-l">
-                    <v-list-item-title class="subtitle-1">
-                        <span class="bold">Acciones</span>
-                    </v-list-item-title>
-                    <v-row class="mt-2">
-                        <v-col md="6" style="padding:0 10px;">
-                            <v-btn small outlined dense color="green" style="width:80%;min-width:45px;">
-                                <v-icon>done_all</v-icon>
-                            </v-btn>
-                        </v-col>
-                        <v-col md="6" style="padding:0 10px">
-                            <v-btn small outlined dense color="red" style="width:80%;min-width:45px;">
-                                <v-icon>close</v-icon>
-                            </v-btn>
-                        </v-col>
-                    </v-row>
-                </v-col>
-            </v-row>
-        </v-list-item-content>
-    </v-list-item>
+    <v-scroll-y-transition mode="out-in">
+        <v-list-item style="padding: 0 10px 0 0;" class="border-b">
+            <v-list-item-icon
+                class="d-none d-sm-none d-md-flex"
+                style="margin: auto 10px!important;padding: 10px!important;border-right: thin solid rgba(0, 0, 0, 0.12)!important;"
+            >
+                <v-img :src="require('@/assets/goal.svg')" width="55px"></v-img>
+            </v-list-item-icon>
+            <v-list-item-content>
+                <v-row>
+                    <v-col cols=12 style="text-align:center;">
+                        <v-img :src="require('@/assets/goal.svg')" class="d-flex d-md-none" width="75px" style="margin:auto;"></v-img>
+                    </v-col>
+                    <v-col cols=12 md="4" class="border-l">
+                        <v-list-item-title class="subtitle-1">
+                            <span class="bold">Completado</span>
+                        </v-list-item-title>
+                        <v-progress-linear color="#01579b" :buffer-value="meta" height="20" :value="progreso" class="mt-2 subtitle-2 bold" reactive>
+                            <template v-slot="{ value }">
+                                <span class="mask" :style="'background:'+'linear-gradient(to right, #F5F5F5 ' +percent+'%, #0D0D0D '+ percent+'%);'">{{value +'%'}}</span>
+                            </template>
+                        </v-progress-linear>
+                    </v-col>
+                    <v-col cols=12 md="2" class="border-l">
+                        <v-list-item-title class="subtitle-1">
+                            <span class="bold">Fecha límite</span>
+                        </v-list-item-title>
+                        <v-list-item-title class="body-2 mt-2">
+                            <span class="text-capitalize">{{ limiteMoment }}</span>
+                        </v-list-item-title>
+                    </v-col>
+                    <v-col cols=6 md="2" class="border-l">
+                        <v-list-item-title class="subtitle-1">
+                            <span class="bold">Asignado a</span>
+                        </v-list-item-title>
+                        <v-list-item-title class="body-2 mt-2">
+                            <span>{{ responsable === 0 ? 'Empresa' : vuexSellers.data.data.find(i => i.id === responsable).nombre }}</span>
+                        </v-list-item-title>
+                    </v-col>
+                    <v-col cols=6 md="2" class="border-l">
+                        <v-list-item-title class="subtitle-1">
+                            <span class="bold">Meta</span>
+                        </v-list-item-title>
+                        <v-list-item-title class="body-2 mt-2">
+                            <span>{{ format(meta) }} {{ tipo.toLowerCase() }}.</span>
+                        </v-list-item-title>
+                    </v-col>
+                    <v-col cols="12" md="2" class="border-l">
+                        <v-list-item-title class="subtitle-1">
+                            <span class="bold">Acciones</span>
+                        </v-list-item-title>
+                        <slot name="actions"></slot>
+                    </v-col>
+                </v-row>
+            </v-list-item-content>
+        </v-list-item>
+    </v-scroll-y-transition>
 </template>
 
 <script>
 import accounting from "accounting";
+import moment from 'moment';
+import { mapState } from 'vuex';
 
 export default {
     name:'goal',
@@ -78,11 +71,11 @@ export default {
             default: 0
         },
         responsable:{
-            type: String,
+            type: [Number, String],
             default: '',
         },
         meta:{
-            type: [ Number, String],
+            type: [Number, String],
             default: 0,
         },
         progresoMeta:{
@@ -119,9 +112,15 @@ export default {
         }
     },
     computed:{
-      progreso(){
-        return Math.trunc(this.progresoMeta * 100);
-      }
+        ...mapState(['vuexSellers']),
+        progreso(){
+            return Math.trunc(this.progresoMeta * 100);
+        },
+        limiteMoment(){
+            return moment(this.fecha).locale('es').format("MMM Do YYYY") !== moment().locale('es').format("MMM Do YYYY") ? 
+                moment(this.fecha).locale('es').format("MMM Do YYYY") :
+                moment(this.fecha).locale('es').calendar(); 
+        }
     },
     beforeMount(){
         if(this.progreso >= 47){
@@ -162,27 +161,39 @@ export default {
 
 <style lang="scss">
 .border-l {
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  border: solid;
-  border-width: 0 thin 0 0;
-  @media only screen and (max-width:600px){
-     border-width: 0 thin thin 0;
-  }
+    border-color: rgba(0, 0, 0, 0.12) !important;
+    border: solid;
+    border-width: 0 thin 0 0;
+    @media only screen and (max-width:600px){
+        border-width: 0 thin thin 0;
+    }
 }
 
 .border-b:not(:last-child) {
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  border: solid;
-  border-width: 0 0 thin 0;
-  @media only screen and (max-width:600px){
-     border-width: 0;
-  }
+    border-color: rgba(0, 0, 0, 0.12) !important;
+    border: solid;
+    border-width: 0 0 thin 0;
+    @media only screen and (max-width:600px){
+        border-width: 0;
+    }
 }
 
 .mask{
-   -webkit-background-clip: text!important;  
-   background-clip: text!important;
-   color: transparent!important;
+    -webkit-background-clip: text!important;
+    -moz--background-clip: text!important;
+    -o-background-clip: text!important;      
+    background-clip: text!important;
+    color: transparent!important;
 }
 
+.v-progress-linear__buffer {
+    height: inherit;
+    left: 0;
+    position: absolute;
+    top: 0;
+    -webkit-transition: inherit;
+    transition: inherit;
+    width: 100%!important;
+    z-index: 1;
+}
 </style>

@@ -86,7 +86,7 @@ export default {
                     duration : 2000,
                     icon : 'done_all'
                 });
-            },50000)
+            },240000)
         }
     },
     created() {

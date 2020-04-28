@@ -11,12 +11,34 @@
                 <v-col cols="12">
                     <v-expansion-panels :value="opened">
                         <v-expansion-panel>
-                            <v-expansion-panel-header class="title" style="text-align:center"><p style="margin:0">Objetivos de Venta</p></v-expansion-panel-header>
+                            <v-expansion-panel-header class="title" style="text-align:center">
+                                <v-btn color="#01579b" class="bold" small  :max-width="innerWidth > 375 ? '125px' : '25px'" style="color:White;" @click.stop.prevent="dialog = !dialog">
+                                    <v-icon class="bold" :left="innerWidth > 375">mdi-plus</v-icon> <span v-if="innerWidth > 375">Nuevo</span>
+                                </v-btn>
+                                <v-spacer></v-spacer>
+                                <p style="margin:0">Objetivos de Venta</p>
+                                <v-spacer></v-spacer>
+                            </v-expansion-panel-header>
                             <v-expansion-panel-content>
                             <v-list>
                                 <v-list-item-group>
-                                    <goal :id="1" responsable="Empresa" meta="40000" fecha="27 de febrero 2020" :progreso-meta="(20000/40000)" tipo="ventas" />
-                                    <goal :id="1" responsable="Empresa" meta="40000" fecha="27 de febrero 2020" :progreso-meta="(20000/40000)" tipo="ventas" />
+                                    <v-scroll-y-transition mode="out-in">
+                                        <div>
+                                            <p v-show="objetivos.length === 0" class="body-2 bold" style="margin:0">No se han establecido objetivos de venta aún...</p>
+                                            <v-img v-show="objetivos.length === 0" :src="require('@/assets/nogoals.svg')" max-width="400px" style="margin: 15px auto;"></v-img>
+                                        </div>
+                                    </v-scroll-y-transition>
+                                    <goal v-for="obj in objetivos" :key="obj.id" :id="obj.id" :responsable="obj.responsable" :meta="obj.meta" :fecha="obj.limite" :progreso-meta="obj.progreso/obj.meta" :tipo="obj.tipo" :moneda="obj.moneda">
+                                        <template v-slot:actions>
+                                            <v-row class="mt-2">
+                                                <v-col md="12" style="padding:0 10px">
+                                                    <v-btn small outlined dense color="red" style="width:80%;min-width:45px;" @click="remove(obj.id)">
+                                                        <v-icon>close</v-icon>
+                                                    </v-btn>
+                                                </v-col>
+                                            </v-row>
+                                        </template>
+                                    </goal>
                                 </v-list-item-group>
                             </v-list>
                             </v-expansion-panel-content>
@@ -29,6 +51,13 @@
                     <router-view></router-view>
                 </transition>
             </v-row>
+
+            <newObjetivo v-if="dialog" :dialog="dialog" :innerWidth="innerWidth" ref="crearObj">
+                <template v-slot:actions>
+                    <v-btn color="error darken-1" class="bold" @click="close()">Cancelar</v-btn>
+                    <v-btn color="#005598" class="bold" style="color:white;" @click="crear()">Crear</v-btn>
+                </template>
+            </newObjetivo>
         </v-container>
     </div>
 </template>
@@ -37,7 +66,8 @@
 import dCard from "@/components/aplicacion/Dashcard";
 import transitions from '@/plugins/transitions'
 import goal from '@/components/ventas/objetivo'
-//import loader from "../components/aplicacion/loading"
+import newObjetivo from "@/components/ventas/crearObjetivo"
+import { mapState, mapActions } from 'vuex';
 
 const DEFAULT_TRANSITION = 'slide';
 
@@ -45,14 +75,21 @@ export default {
     name: "Ventas",
     components: {
         dCard: dCard,
-        goal: goal   
+        goal: goal,
+        newObjetivo : newObjetivo   
     },
     data(){
         return{
             active: [false,false,false,false],
             transitionName: DEFAULT_TRANSITION,
             opened:0,
+            objetivos:[],
+            innerWidth: 0,
+            dialog:false,
         }
+    },
+    computed:{
+        ...mapState(['objetivo']),
     },
     head: {
         title() {
@@ -64,20 +101,41 @@ export default {
         }
     },
     methods:{
+        ...mapActions(['resetNewGoal']),
         ...transitions,
         activate(pos){
             for (let i = 1; i < this.active.length+1; i++) {
                 this.active[i-1] = (i === pos);
             }
+        },
+        onResize() {
+            this.innerWidth = window.innerWidth;
+        },
+        close(){
+            this.resetNewGoal();
+            this.dialog = false;
+        },
+        crear(){
+            this.objetivos.push(this.objetivo);
+            this.resetNewGoal();
+            this.dialog = false;
+        },
+        remove(id){
+            this.objetivos = this.objetivos.filter(i => i.id !== id);
         }
     },
     created(){
         this.animate(this.transitionName);
         this.opened = (this.$route.name === 'ventas') ? 0 : 1;
+        window.addEventListener('resize', this.onResize);
+        this.onResize();
     },
     beforeUpdate(){
         this.opened = (this.$route.name === 'ventas') ? 0 : 1;
-    }
+    },
+    beforeDestroy() {
+        window.removeEventListener('resize', this.onResize)
+    },
 };
 </script>
 

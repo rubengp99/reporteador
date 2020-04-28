@@ -2,9 +2,9 @@
     <div>
         <v-row style="padding:0 10px;">
             <v-col cols="12" md=3>
-                <v-card class="bg" :min-height="clicked ? '572.5px' : '150px'" @click="expand()">
+                <v-card class="bg" :min-height="clicked ? '572.5px' : '150px'">
                     <v-list dense nav style="margin-top: 64px;background: none;">
-                        <v-list-item two-line>
+                        <v-list-item two-line @click.self.stop.prevent="expand()">
                             
                             <v-list-item-avatar size="115" v-if="!$route.name === 'Perfil'">
                                 <v-img :src="user.data.fotografia === 'default.png' && !fotoChanged? fotoChanged ? foto  : require('@/assets/user.jpg') :  fotoChanged ? foto : image+user.data.fotografia"></v-img>
@@ -27,7 +27,7 @@
                                 >
                                 </croppa>
                             </v-list-item-avatar>
-                            <v-avatar  @click.prevent ="!fotoChanged ? uploadFoto() : restoreFoto() " v-if="$route.name === 'Perfil'" class="abs_center" size="35" style="z-index:2;" color="#F5F5F5">
+                            <v-avatar  @click.stop.prevent ="!fotoChanged ? uploadFoto() : restoreFoto() " v-if="$route.name === 'Perfil'" class="abs_center" size="35" style="z-index:2;" color="#F5F5F5">
                                 <v-icon style="font-size:21px;">{{ !fotoChanged ? 'mdi-camera' : 'close' }}</v-icon>
                             </v-avatar>
                             <v-list-item-content class="white--text font-weight-bold">

@@ -179,7 +179,15 @@ import _ from 'lodash';
                 typeof this.date !== 'undefined' && this.date !== '' ? newUserData.fecha_nac = this.date : NaN;
                 this.data.nombre !== this.user.data.nombre ? newUserData.nombre = this.data.nombre : NaN;
                 this.data.apellido !== this.user.data.apellido ? newUserData.apellido = this.data.apellido : NaN;
-                this.password === "" ? NaN : this.password === this. passwordC ? Auth().post('/resetpassword',{data:{user:this.user.data.login,password: this.password}}) : this.mensajeSnackbar('#D32F2F','error','Las contraseñas no coinciden, vuelva a intentarlo.');
+                this.password === "" ? NaN 
+                : this.password === this. passwordC ?
+                    Auth().post('/resetpassword',{data:{user:this.user.data.login,password: this.password}}) 
+                    : this.$toasted.error("Las contraseñas no coinciden.", { 
+                            theme: "bubble", 
+                            position: "bottom-right", 
+                            duration : 2000,
+                            icon : 'error_outline'
+                        });
                 
                 if(this.fotoFile !== null){
                     let formdata = new FormData();

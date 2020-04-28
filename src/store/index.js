@@ -19,6 +19,15 @@ export default new Vuex.Store({
             data: {},
             loggedIn: false
         },
+        objetivo: {//variable para crear objetivos
+            id: null,
+            tipo: null,
+            responsable: null,
+            meta: null,
+            progreso: 0,
+            moneda: null,
+            limite: null,
+        },
         //banderas
         drawer: false,
         foto: '',
@@ -123,6 +132,21 @@ export default new Vuex.Store({
         },
         SET_TOTAL_CLIENTES(state, val) {
             state.totalClientes = val;
+        },
+        SET_NEW_GOAL(state,val){
+            state.objetivo = val;
+        },
+        RESET_NEW_GOAL(state){
+            state.objetivo = Object.assign({}, {
+                id: null,
+                tipo: null,
+                responsable: null,
+                meta: null,
+                progreso: 0,
+                moneda: '',
+                limite: null,
+            });
+            console.log(state.objetivo);
         },
         async SET_UPDATE_INVENTARIO(state) {
             concept().get('?limit=' + state.vuexConcepts.data.totalCount + '&fields=existencias&orderField=id&order=DESC').then(response => {
@@ -298,140 +322,92 @@ export default new Vuex.Store({
         }
     },
     actions: {
-        setDrawer({
-            commit
-        }, val) {
+        setDrawer({ commit }, val) {
             commit('SET_DRAWER', val);
         },
-        setModalSesion({
-            commit
-        }, val) {
+        setModalSesion({ commit }, val) {
             commit('SET_MODAL_SESION', val);
         },
-        logged({
-            commit
-        }, val) {
+        logged({ commit }, val) {
             commit('SET_LOGGED', val);
         },
-        logout({
-            commit
-        }) {
+        logout({ commit }) {
             commit('LOGOUT');
         },
-        setFoto({
-            commit
-        }, val) {
+        setFoto({ commit }, val) {
             commit('SET_FOTO', val);
         },
-        setFotoChanged({
-            commit
-        }, val) {
+        setFotoChanged({ commit }, val) {
             commit('SET_CHANGEFOTO', val);
         },
-        setFotoFile({
-            commit
-        }, val) {
+        setFotoFile({ commit }, val) {
             commit('SET_FOTOFILE', val);
         },
-        setUpdateInventario({
-            commit
-        }, val) {
+        setUpdateInventario({ commit }, val) {
             commit('SET_UPDATE_INVENTARIO', val);
         },
-        setInitAplicacion({
-            commit
-        }, val) {
+        setInitAplicacion({ commit }, val) {
             commit('SET_INIT_APLICACION', val);
         },
-        setUpdateDashboard({
-            commit
-        }, val) {
+        setUpdateDashboard({ commit }, val) {
             commit('SET_UPDATE_DASHBOARD', val);
         },
-        setChosenRanked({
-            commit
-        }, val) {
+        setChosenRanked({ commit }, val) {
             commit('SET_CHOSENRANKED', val);
         },
-        setUpdateVentas({
-            commit
-        }, val) {
+        setUpdateVentas({ commit }, val) {
             commit('SET_UPDATE_VENTAS', val);
         },
-        setConcepts({
-            commit
-        }, val) {
+        setConcepts({ commit }, val) {
             commit('SET_CONCEPTS', val);
         },
-        setConceptSales({
-            commit
-        }, val) {
+        setConceptSales({ commit }, val) {
             commit('SET_CONCEPT_SALES', val);
         },
-        setGroups({
-            commit
-        }, val) {
+        setGroups({ commit }, val) {
             commit('SET_GROUPS', val);
         },
-        setInvoices({
-            commit
-        }, val) {
+        setInvoices({ commit }, val) {
             commit('SET_INVOICES', val);
         },
-        setTodayInvoices({
-            commit
-        }, val) {
+        setTodayInvoices({ commit }, val) {
             commit('SET_TODAY_INVOICES', val);
         },
-        setSubgroups({
-            commit
-        }, val) {
+        setSubgroups({ commit }, val) {
             commit('SET_SUBGROUPS', val);
         },
-        setGroupSales({
-            commit
-        }, val) {
+        setGroupSales({ commit }, val) {
             commit('SET_GROUP_SALES', val);
         },
-        setSubgroupSales({
-            commit
-        }, val) {
+        setSubgroupSales({ commit }, val) {
             commit('SET_SUBGROUP_SALES', val);
         },
-        setWeeklySales({
-            commit
-        }, val) {
+        setWeeklySales({ commit }, val) {
             commit('SET_WEEKLY_SALES', val);
         },
-        setStorages({
-            commit
-        }, val) {
+        setStorages({ commit }, val) {
             commit('SET_STORAGES', val);
         },
-        setSellers({
-            commit
-        }, val) {
+        setSellers({ commit }, val) {
             commit('SET_SELLERS', val);
         },
-        setBuyers({
-            commit
-        }, val) {
+        setBuyers({ commit }, val) {
             commit('SET_BUYERS', val);
         },
-        setTotalClientes({
-            commit
-        }, val) {
+        setTotalClientes({ commit }, val) {
             commit('SET_TOTAL_CLIENTES', val);
         },
-        setTotalVendedores({
-            commit
-        }, val) {
+        setTotalVendedores({ commit }, val) {
             commit('SET_TOTAL_VENDEDORES', val);
         },
-        restoreFromCache({
-            commit
-        }) {
+        restoreFromCache({ commit }) {
             commit('RESTORE_FROM_CACHE');
         },
+        setNewGoal({ commit }, val){
+            commit('SET_NEW_GOAL',val);
+        },
+        resetNewGoal({ commit }){
+            commit('RESET_NEW_GOAL');
+        }
     }
 });
