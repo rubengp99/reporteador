@@ -35,6 +35,7 @@ export default new Vuex.Store({
         fotoFile: null,
         vuexConcepts: null,
         vuexConceptSales: null,
+        vuexConceptReturns: null,
         vuexInvoices: null,
         vuexGroups: null,
         vuexSubGroups: null,
@@ -45,9 +46,9 @@ export default new Vuex.Store({
         vuexTodayInvoices: null,
         vuexSellers: null,
         vuexBuyers: null,
-        initAux: [false, false, false, false, false, false, false],
+        initAux: [false, false, false, false, false, false, false, false],
         init: false,
-        inventoryUpdatedAux: [false, false, false, false, false],
+        inventoryUpdatedAux: [false, false, false, false, false, false],
         inventoryUpdated: false,
         dashboardUpdatedAux: [false, false, false, false],
         dashboardUpdated: false,
@@ -136,6 +137,9 @@ export default new Vuex.Store({
         SET_NEW_GOAL(state,val){
             state.objetivo = val;
         },
+        SET_CONCEPT_RETURNS(state,val){
+            state.vuexConceptReturns = val;
+        },
         RESET_NEW_GOAL(state){
             state.objetivo = Object.assign({}, {
                 id: null,
@@ -184,11 +188,22 @@ export default new Vuex.Store({
                 if (state.inventoryUpdatedAux.slice(0,3).every(i => i))
                     state.rankingUpdated = true;
             });
+            concept().get('/mostreturned/?fields=devoluciones&limit=' + state.vuexConcepts.data.totalCount).then(response => {
+                if (!state.restoredFromCache) {
+                    state.vuexConceptReturns = response;
+                    window.localStorage.setItem('ConceptReturns', JSON.stringify(response));
+                    state.initAux[4] = true;
+                    if (state.initAux.every(i => i))
+                        state.init = true;
+                } else {
+                    state.init = true;
+                }
+            });
             let weeklySales = [];
             for (let i = 6; i > -1; i--)
                 weeklySales.push(await invoices().get('?limit=' + state.vuexInvoices.data.totalCount + '&fields=id&fecha_at=' + moment(w.test).locale('es').subtract(i, 'days').format('YYYY-MM-DD')));
             state.vuexWeeklySales = weeklySales;
-            state.inventoryUpdatedAux[4] = true;
+            state.inventoryUpdatedAux[5] = true;
             if (state.inventoryUpdatedAux.every(i => i))
                 state.inventoryUpdated = true;
             window.localStorage.setItem('WeeklySales', JSON.stringify(weeklySales));
@@ -261,6 +276,17 @@ export default new Vuex.Store({
                     state.totalClientes = state.vuexBuyers.data.totalCount;
                     window.localStorage.setItem('totalClientes', state.totalClientes);
                     state.initAux[6] = true;
+                    if (state.initAux.every(i => i))
+                        state.init = true;
+                } else {
+                    state.init = true;
+                }
+            });
+            concept().get('/mostreturned/?fields=id&limit=1').then(response => {
+                if (!state.restoredFromCache) {
+                    state.vuexConceptReturns = response;
+                    console.log(state.conce);
+                    state.initAux[7] = true;
                     if (state.initAux.every(i => i))
                         state.init = true;
                 } else {
@@ -407,6 +433,9 @@ export default new Vuex.Store({
         },
         resetNewGoal({ commit }){
             commit('RESET_NEW_GOAL');
-        }
+        },
+        setConceptReturns({ commit },val ) {
+            commit('SET_CONCEPT_RETURNS',val);
+        },
     }
 });

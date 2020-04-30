@@ -2,7 +2,6 @@ import w from '@/services/variables'
 import reports from '@/plugins/reports';
 import accounting from 'accounting';
 import moment from "moment";
-import concept from "@/services/Conceptos";
 
 //Crea los analisis respectivos de cada concepto
 const configData = async function(product){
@@ -103,7 +102,7 @@ const configWeeklyDemand = async function(product){
                         .map(i => +i.detalles.filter(d => d.adm_conceptos_id === product.id || d.conceptos_id === product.id)[0].cantidad);
             //si al filtrar arriba se consiguieron ventas de ese detalle en un día, entonces se trunca el valor para eliminar imperfecciones en los datos
             //y se transforma a numero.
-            sales[j] = aux.length > 0 ? aux.reduce((a,b) => a+= +Math.trunc(+b)) : 0;
+            sales[j] = aux.length > 0 ? Math.trunc(aux.reduce((a, b) => a += +Math.trunc(+b)) * 100) / 100 : 0;
         }
     }
     product.stock_daily_sells = sales;
@@ -146,9 +145,9 @@ const configClaims = async function  (product) {
 
 const configDevolutions = async function(product){
   //pedimos las devoluciones
-  let devolutions = await concept().get(product.id+'/devolutions/?limit='+this.apiInvoices.data.totalCount);
+  let devolutions = this.apiConceptReturns.data.data.find(i => i.id === product.id)
   //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
-  product.returned = typeof devolutions.data === 'object' ? !isNaN(+devolutions.data.devoluciones) ? +devolutions.data.devoluciones : 0 : 0;
+  product.returned = typeof devolutions !== 'undefined' ? !isNaN(+devolutions.devueltos) ? Math.trunc(+devolutions.devueltos * 100) / 100 : 0 : 0;
   
   product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#E91E63", "#3f72af"]);
   return product;

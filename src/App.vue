@@ -32,7 +32,7 @@ export default {
         ...transitions,
         ...mapActions(['setInitAplicacion','setUpdateInventario','setUpdateDashboard',
             'setUpdateVentas','setConcepts','setInvoices','setConceptSales','setGroups','setSubgroups',
-            'setGroupSales','setSubgroupSales','setWeeklySales','setStorages','setSellers',
+            'setGroupSales','setSubgroupSales','setWeeklySales','setStorages','setSellers','setConceptReturns',
             'setBuyers','setTotalClientes','setTotalVendedores','setTodayInvoices', 'restoreFromCache',
         ]),
         checkCache(){
@@ -50,7 +50,8 @@ export default {
             JSON.parse(window.localStorage.getItem('Buyers')),
             JSON.parse(window.localStorage.getItem('totalVendedores')),
             JSON.parse(window.localStorage.getItem('totalClientes')),
-            JSON.parse(window.localStorage.getItem('TodayInvoices'))
+            JSON.parse(window.localStorage.getItem('TodayInvoices')),
+            JSON.parse(window.localStorage.getItem('ConceptReturns'))
             ];
         },
         cacheApp(){
@@ -68,6 +69,7 @@ export default {
             this.setTotalClientes(JSON.parse(window.localStorage.getItem('totalClientes')));
             this.setSellers(JSON.parse(window.localStorage.getItem('Sellers')));
             this.setBuyers(JSON.parse(window.localStorage.getItem('Buyers')));
+            this.setConceptReturns(JSON.parse(window.localStorage.getItem('ConceptReturns')));
             this.restoreFromCache();
         }
     },

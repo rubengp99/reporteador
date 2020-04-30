@@ -207,6 +207,7 @@ export default {
             isExpanded: false,
             apiConcepts: null,
             apiConceptsAux: null,
+            apiConceptReturns: null,
             apiInvoices: null,
             apiConceptSales: null,
             weeklySales: [],
@@ -262,7 +263,7 @@ export default {
         };
     },
     computed:{
-        ...mapState(['vuexConcepts','vuexConceptSales','vuexInvoices','vuexGroups','vuexSubGroups','vuexWeeklySales','inventoryUpdated']),
+        ...mapState(['vuexConceptReturns','vuexConcepts','vuexConceptSales','vuexInvoices','vuexGroups','vuexSubGroups','vuexWeeklySales','inventoryUpdated']),
     },
     methods: {
         //VISTA LA CARPETA @/PLUGINS/INVENTARIO
@@ -388,6 +389,7 @@ export default {
         async createInventory(){
         //se piden las facturas de hoy, y de 6 dias anteriores a este para poder calcular las ventas de X producto en la seman
             this.weeklySales = this.vuexWeeklySales;
+            this.apiConceptReturns = this.vuexConceptReturns;
             this.apiConcepts = this.vuexConcepts;
             this.apiConceptSales = this.vuexConceptSales;
             this.apiInvoices = this.vuexInvoices;
@@ -421,6 +423,9 @@ export default {
 
         vuexConcepts(){
             this.apiConcepts = this.vuexConcepts;
+        },
+        vuexConceptReturns(){
+            this.apiConceptReturns = this.vuexConceptReturns;
         },
         vuexConceptSales(){
             this.apiConceptSales = this.vuexConceptSales;
