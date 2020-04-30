@@ -192,8 +192,12 @@ import _ from 'lodash';
                 if(this.fotoFile !== null){
                     let formdata = new FormData();
                     formdata.append('image',this.fotoFile);
-                    Images().post(`/main/usuarios/${this.user.data.id}/`,formdata).then(()=> this.setFotoFile(null));
-                    newUserData.fotografia = this.foto;
+                    let fotoLocal = await Images().post(`/usuario/${this.user.data.id}/`,formdata);
+                    newUserData.fotografia = fotoLocal.data.filename;
+                    this.data.fotografia =  fotoLocal.data.filename;
+                    this.setFotoFile(null);
+                    this.setFoto(this.user.data.fotografia);
+                    this.setFotoChanged(false);
                 }
 
                 if(!_.isEqual(this.data,this.user.data) || this.telefono !== "" || typeof this.date !== 'undefined'){
@@ -226,8 +230,7 @@ import _ from 'lodash';
         },
          mounted() {
             this.data = Object.assign({},this.user.data);
-            this.date = this.data.fecha_nac;
-            
+            this.date = this.data.fecha_nac;            
         },
     }
 </script>

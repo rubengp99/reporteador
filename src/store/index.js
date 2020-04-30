@@ -146,7 +146,6 @@ export default new Vuex.Store({
                 moneda: '',
                 limite: null,
             });
-            console.log(state.objetivo);
         },
         async SET_UPDATE_INVENTARIO(state) {
             concept().get('?limit=' + state.vuexConcepts.data.totalCount + '&fields=existencias&orderField=id&order=DESC').then(response => {
@@ -155,7 +154,7 @@ export default new Vuex.Store({
                 state.inventoryUpdatedAux[0] = true;
                 if (state.inventoryUpdatedAux.every(i => i))
                     state.inventoryUpdated = true;
-                if (state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
+                if (state.inventoryUpdatedAux.slice(0,3).every(i => i))
                     state.rankingUpdated = true;
             });
             concept().get('/mostSold/?limit=' + state.vuexConcepts.data.totalCount).then(response => {
@@ -164,7 +163,7 @@ export default new Vuex.Store({
                 state.inventoryUpdatedAux[1] = true;
                 if (state.inventoryUpdatedAux.every(i => i))
                     state.inventoryUpdated = true;
-                if (state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
+                if (state.inventoryUpdatedAux.slice(0,3).every(i => i))
                     state.rankingUpdated = true;
             });
             groups().get('?limit=' + state.vuexGroups.data.totalCount).then(response => {
@@ -173,7 +172,7 @@ export default new Vuex.Store({
                 state.inventoryUpdatedAux[2] = true;
                 if (state.inventoryUpdatedAux.every(i => i))
                     state.inventoryUpdated = true;
-                if (state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
+                if (state.inventoryUpdatedAux.slice(0,3).every(i => i))
                     state.rankingUpdated = true;
             });
             subGroups().get('?limit=' + state.vuexSubGroups.data.totalCount).then(response => {
@@ -182,7 +181,7 @@ export default new Vuex.Store({
                 state.inventoryUpdatedAux[3] = true;
                 if (state.inventoryUpdatedAux.every(i => i))
                     state.inventoryUpdated = true;
-                if (state.inventoryUpdatedAux[0] && state.inventoryUpdatedAux[1] && state.inventoryUpdatedAux[2] && state.inventoryUpdatedAux[3])
+                if (state.inventoryUpdatedAux.slice(0,3).every(i => i))
                     state.rankingUpdated = true;
             });
             let weeklySales = [];

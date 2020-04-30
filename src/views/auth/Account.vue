@@ -120,6 +120,11 @@ import transitions from '@/plugins/transitions'
                 this.clickable ? this.clicked = !this.clicked : NaN
             }
         },
+        watch:{
+            fotoChanged(){
+                !this.fotoChanged ? this.fotoAux.remove() : NaN;
+            }
+        },
         computed:{
             ...mapState(['user','fotoChanged','foto']),
         },
