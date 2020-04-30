@@ -30,11 +30,13 @@
 import variables from "@/services/variables";
 import reports from "@/plugins/reports"
 import accounting from "accounting";
+import seller from "@/components/ventas/seller"
 import { mapState } from 'vuex';
 
 export default {
     name: "vendedores",
     components: {
+        seller,
     },
     data: () => {
         return {

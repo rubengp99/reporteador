@@ -57,13 +57,12 @@ const DEFAULT_TRANSITION = 'slide';
         },
         mounted() {
             let inbox;
-
             Talk.ready.then(async () => {
                 this.me = new Talk.User({
                     id: this.user.data.id !== 5 ? this.user.data.id : 5,
                     name: this.user.data.id !== 5 ? this.user.data.nombre + " " + this.user.data.apellido: "Soporte SOMOS SISTEMAS C.A",
                     email: this.user.data.id !== 5 ? this.user.data.email !== "" ? this.user.data.email : null : null, 
-                    photoUrl: this.user.data.id !== 5 ? this.user.data.fotografia === 'default.png' ? require('@/assets/user.jpg') : this.imagen+this.user.data.fotografia : require('@/assets/AFTIM.png'),
+                    photoUrl: this.user.data.id !== 5 ? this.user.data.fotografia === 'default.png' ? require('@/assets/user.jpg') : this.image+this.user.data.fotografia : require('@/assets/AFTIM.png'),
                     welcomeMessage: this.user.data.id !== 5 ?  null : "En Somos Sistemas C.A, estamos encantados de ayudarte a solventar tus problemas. Déjanos un mensaje!",
                     role: 'Customer',
                     locale: 'es-ES'
