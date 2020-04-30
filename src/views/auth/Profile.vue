@@ -198,6 +198,12 @@ import _ from 'lodash';
                     this.setFotoFile(null);
                     this.setFoto(this.user.data.fotografia);
                     this.setFotoChanged(false);
+                    this.$toasted.info("Foto de perfil actualizada.", { 
+                        theme: "bubble", 
+                        position: "bottom-right", 
+                        duration : 2000,
+                        icon : 'done_all'
+                    });
                 }
 
                 if(!_.isEqual(this.data,this.user.data) || this.telefono !== "" || typeof this.date !== 'undefined'){
