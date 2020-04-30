@@ -188,7 +188,7 @@ export default new Vuex.Store({
                 if (state.inventoryUpdatedAux.slice(0,3).every(i => i))
                     state.rankingUpdated = true;
             });
-            concept().get('/mostreturned/?fields=devoluciones&limit=' + state.vuexConcepts.data.totalCount).then(response => {
+            concept().get('/mostreturned/?fields=devueltos,id&limit=' + state.vuexConcepts.data.totalCount).then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexConceptReturns = response;
                     window.localStorage.setItem('ConceptReturns', JSON.stringify(response));

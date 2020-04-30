@@ -82,7 +82,7 @@ export default {
                 this.setUpdateInventario(null);
                 this.setUpdateDashboard(null);
                 this.setUpdateVentas(null);
-                this.$toasted.success("Se actualizó la información.", { 
+                this.$toasted.info("Se actualizó la información.", { 
                     theme: "bubble", 
                     position: "bottom-right", 
                     duration : 2000,
