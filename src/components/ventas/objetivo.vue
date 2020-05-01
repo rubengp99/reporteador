@@ -16,7 +16,7 @@
                         <v-list-item-title class="subtitle-1">
                             <span class="bold">Completado</span>
                         </v-list-item-title>
-                        <v-progress-linear color="#01579b" :buffer-value="meta" height="20" :value="progreso" class="mt-2 subtitle-2 bold" reactive>
+                        <v-progress-linear color="#01579b" :stream="stream" :buffer-value="meta" height="20" :value="progreso" class="mt-2 subtitle-2 bold" reactive>
                             <template v-slot="{ value }">
                                 <span class="mask" :style="'background:'+'linear-gradient(to right, #F5F5F5 ' +percent+'%, #0D0D0D '+ percent+'%);'">{{value +'%'}}</span>
                             </template>
@@ -27,7 +27,7 @@
                             <span class="bold">Fecha límite</span>
                         </v-list-item-title>
                         <v-list-item-title class="body-2 mt-2">
-                            <span class="text-capitalize">{{ limiteMoment }}</span>
+                            <span class="text-capitalize">{{ limiteFormatted() }}</span>
                         </v-list-item-title>
                     </v-col>
                     <v-col cols=6 md="2" class="border-l">
@@ -61,7 +61,8 @@
 <script>
 import accounting from "accounting";
 import moment from 'moment';
-import { mapState } from 'vuex';
+import Objetivo from '@/services/Objetivos';
+import { mapState, mapActions } from 'vuex';
 
 export default {
     name:'goal',
@@ -93,15 +94,22 @@ export default {
         moneda:{
             type:String,
             default:'$',
+        },
+        stream:{
+            type:Boolean,
+            default:false,
         }
     },
     data(){
         return{
             cssClass:'',
             percent:100,
+            progreso: 0,
+            limiteMoment: '',
         }
     },
     methods:{
+        ...mapActions(['setGoals']),
         format(val){
             switch (this.tipo.toLowerCase()) {
                 case 'ingresos':
@@ -109,20 +117,27 @@ export default {
                 default:
                     return accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0];
             }
-        }
-    },
-    computed:{
-        ...mapState(['vuexSellers']),
-        progreso(){
-            return Math.trunc(this.progresoMeta * 100);
         },
-        limiteMoment(){
+        limiteFormatted(){
             return moment(this.fecha).locale('es').format("MMM Do YYYY") !== moment().locale('es').format("MMM Do YYYY") ? 
                 moment(this.fecha).locale('es').format("MMM Do YYYY") :
                 moment(this.fecha).locale('es').calendar(); 
         }
     },
+    computed:{
+        ...mapState(['vuexSellers','vuexGoals']),
+    },
+    watch:{
+        progresoMeta(){
+            this.progreso = Math.trunc((this.progresoMeta / this.meta) * 100);
+        },
+        limite(){
+            this.limiteMoment =  this.limiteFormatted();
+        }
+    },
     beforeMount(){
+        this.progreso = Math.trunc((this.progresoMeta / this.meta) * 100);
+        this.limiteMoment = this.limiteFormatted();
         if(this.progreso >= 47){
             switch (this.progreso.toString()) {
                 case '47':
@@ -154,6 +169,11 @@ export default {
             this.percent = 0;
         }
         
+        if(this.progreso >= 100){
+            this.setGoals(this.vuexGoals.data.data.filter(i => i.id !== this.id));
+            Objetivo().delete('/'+this.id);
+        }
+
     }
 
 };

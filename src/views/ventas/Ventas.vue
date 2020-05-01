@@ -21,14 +21,14 @@
                             </v-expansion-panel-header>
                             <v-expansion-panel-content>
                             <v-list>
-                                <v-list-item-group v-if="!loading">
+                                <v-list-item-group>
                                     <v-scroll-y-transition mode="out-in">
                                         <div>
                                             <p v-show="objetivos.length === 0" class="body-2 bold" style="margin:0">No se han establecido objetivos de venta aún...</p>
                                             <v-img v-show="objetivos.length === 0" :src="require('@/assets/nogoals.svg')" max-width="400px" style="margin: 15px auto;"></v-img>
                                         </div>
                                     </v-scroll-y-transition>
-                                    <goal v-for="obj in objetivos" :key="obj.id" :id="obj.id" :responsable="obj.responsable" :meta="obj.meta" :fecha="obj.limite" :progreso-meta="obj.progreso/obj.meta" :tipo="obj.tipo" :moneda="obj.moneda">
+                                    <goal v-for="obj in objetivos" :key="obj.id" :id="obj.id" :responsable="obj.responsable" :meta="obj.meta" :fecha="obj.limite" :progreso-meta="obj.progreso" :tipo="obj.tipo" :moneda="obj.moneda" :stream="loading">
                                         <template v-slot:actions>
                                             <v-row class="mt-2">
                                                 <v-col md="6" style="padding:0 10px">
@@ -45,11 +45,7 @@
                                         </template>
                                     </goal>
                                 </v-list-item-group>
-                                <div v-else>
-                                    <v-spacer></v-spacer>
-                                    <loader />
-                                    <v-spacer></v-spacer>
-                                </div>
+                                
                             </v-list>
                             </v-expansion-panel-content>
                         </v-expansion-panel>
@@ -74,10 +70,11 @@
 
 <script>
 import dCard from "@/components/aplicacion/Dashcard";
-import transitions from '@/plugins/transitions'
-import goal from '@/components/ventas/objetivo'
-import newObjetivo from "@/components/ventas/crearObjetivo"
+import transitions from '@/plugins/transitions';
+import goal from '@/components/ventas/objetivo';
+import newObjetivo from "@/components/ventas/crearObjetivo";
 import Objetivo from "@/services/Objetivos";
+import Sellers from "@/services/Vendedores";
 import moment from 'moment';
 import { mapState, mapActions } from 'vuex';
 
@@ -133,7 +130,6 @@ export default {
         crear(){
             let newObjetivo = this.objetivo;
             delete newObjetivo.progreso;
-            console.log(newObjetivo);
             Objetivo().post('/',{data:{...newObjetivo}}).then(async () => {
                 this.$toasted.info("Se ha creado un nuevo Objetivo de Ventas.", { 
                     theme: "bubble", 
@@ -142,6 +138,7 @@ export default {
                     icon : 'done_all'
                 });
                 this.updateRecords();
+                this.crearObjetivos();
             }).catch((e)=>{
                 console.log(e);
                 this.$toasted.error("Ha ocurrido un error al crear el Objetivo.", { 
@@ -163,6 +160,7 @@ export default {
                     icon : 'done_all'
                 });
                 this.updateRecords();
+                this.crearObjetivos();
             }).catch((e)=>{
                 console.log(e);
                 this.$toasted.error("Ha ocurrido un error al eliminar el Objetivo.", { 
@@ -194,6 +192,9 @@ export default {
                 });
                 this.updateRecords();
                 this.editId = 0;
+                this.resetNewGoal();
+                this.dialog = false;
+                this.crearObjetivos();
             }).catch((e)=>{
                 console.log(e);
                 this.$toasted.error("Ha ocurrido un error al Actualizar el Objetivo.", { 
@@ -203,19 +204,42 @@ export default {
                     icon : 'done_all'
                 });
             });
-            this.resetNewGoal();
-            this.dialog = false;
         },
-        crearObjetivos(){
+        async crearObjetivos(){
             try {
-                this.vuexGoals.data.data.forEach(i => i.progreso = 0);
-                this.objetivos = this.vuexGoals.data.data;
+                let aux = typeof this.vuexGoals.data.data !== 'undefined' ? this.vuexGoals.data.data : [];
+                
+                for (const goal of aux) {
+                    let limites = 'after-fecha_at=' +moment('2019-10-23').locale('es').format('YYYY-MM-DD') +'&before-fecha_at='+moment(goal.limite).locale('es').format('YYYY-MM-DD');
+                    let progreso = await Sellers().get('/mostSellers/?'+limites+'&limit='+JSON.parse(window.localStorage.getItem('totalVendedores')));
+                    if(goal.tipo.toLowerCase() === 'ingresos'){
+                        if(goal.responsable === 0){
+                            if (goal.moneda === 'Bs')
+                                goal.progreso = +progreso.data.data.map(i => i.venta_total).reduce((a,b) => +a+b);
+                            else
+                                goal.progreso = +progreso.data.data.map(i => i.venta_total_dolar).reduce((a,b) => +a+b);
+                        }else{
+                            if (goal.moneda === 'Bs')
+                                goal.progreso = +progreso.data.data.filter(i => i.id === goal.responsable)[0].venta_total;
+                            else
+                                goal.progreso = +progreso.data.data.filter(i => i.id === goal.responsable)[0].venta_total_dolar;
+                       }
+                    }else if(goal.tipo.toLowerCase() === 'ventas'){
+                        if(goal.responsable === 0){
+                            goal.progreso = +progreso.data.data.map(i => i.ventas).reduce((a,b) => +a+b);
+                        }else{
+                            goal.progreso = +progreso.data.data.find(i => i.id === goal.responsable).ventas;
+                        }
+                    }
+                }       
+                this.objetivos = aux;
+                this.$forceUpdate();
             } catch (e) {
                 console.log(e);
                 this.objetivos = [];
             }
 
-            this.loading = false;
+            //this.loading = false;
         },
         async updateRecords(){
             let aux;
@@ -223,18 +247,21 @@ export default {
             window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof aux.data.totalCount !== 'undefined' ? aux.data.totalCount : 0));
             aux = await Objetivo().get('?limit='+JSON.parse(window.localStorage.getItem('totalObjetivos')));
             this.setGoals(aux);
-            console.log(aux);
             window.localStorage.setItem('Goals', JSON.stringify(aux));
-            this.crearObjetivos();
+            try {
+                this.objetivos = this.vuexGoals.data.data;
+            } catch (e) {
+                this.objetivos = [];
+            }
         }
     },
     watch:{
-        vuexGoals(){
-            this.crearObjetivos();
+        async vuexGoals(){
+            await this.crearObjetivos();
         },
-        goalsUpdated(){
-            this.crearObjetivos();
-        }
+        async goalsUpdated(){
+            await this.crearObjetivos();
+        },
     },
     created(){
         if(this.goalsUpdated)

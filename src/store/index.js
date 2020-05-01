@@ -21,11 +21,11 @@ export default new Vuex.Store({
             loggedIn: false
         },
         objetivo: {//variable para crear objetivos
-            tipo: null,
-            responsable: null,
-            meta: null,
-            moneda: null,
-            limite: null,
+            tipo: '',
+            responsable: 0,
+            meta: 0,
+            moneda: '',
+            limite: '',
         },
         //banderas
         drawer: false,
@@ -150,11 +150,11 @@ export default new Vuex.Store({
         },
         RESET_NEW_GOAL(state){
             state.objetivo = Object.assign({}, {
-                tipo: null,
-                responsable: null,
-                meta: null,
+                tipo: '',
+                responsable: 0,
+                meta: 0,
                 moneda: '',
-                limite: null,
+                limite: '',
             });
         },
         async SET_UPDATE_INVENTARIO(state) {
@@ -354,7 +354,7 @@ export default new Vuex.Store({
                 window.localStorage.setItem('Buyers', JSON.stringify(response));
                 state.buyersUpdated = true;
             });
-            goals().get('?limit=' + state.totalObjetivos).then(response => {
+            goals().get('?orderField=fecha_at&order=ASC&limit=' + state.totalObjetivos).then(response => {
                 state.vuexBuyers = response;
                 window.localStorage.setItem('Goals', JSON.stringify(response));
                 window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));

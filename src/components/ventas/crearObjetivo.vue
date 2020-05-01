@@ -66,7 +66,7 @@
                                     </v-col>
                                 </v-scroll-y-transition>
                                 <v-col cols="12" sm="6" style="height:64px;">
-                                    <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
+                                    <v-menu transition="scale-transition" max-width="100%" offset-overflow>
                                         <template v-slot:activator="{ on }">
                                             <v-text-field
                                                 dense
@@ -98,6 +98,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import moment from 'moment';
 
 export default {
     props:{
@@ -142,6 +143,7 @@ export default {
     },
     beforeMount(){
         this.model = Object.assign({},this.objetivo);
+        this.model.limite = moment(this.model.limite).locale('es').format('YYYY-MM-DD');
         this.vuexSellers.data.data.forEach(seller => this.responsables.push({text: seller.nombre, value: seller.id}));
     }
 }
