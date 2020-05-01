@@ -21,7 +21,7 @@
                             </v-expansion-panel-header>
                             <v-expansion-panel-content>
                             <v-list>
-                                <v-list-item-group>
+                                <v-list-item-group v-if="!loading">
                                     <v-scroll-y-transition mode="out-in">
                                         <div>
                                             <p v-show="objetivos.length === 0" class="body-2 bold" style="margin:0">No se han establecido objetivos de venta aún...</p>
@@ -31,7 +31,12 @@
                                     <goal v-for="obj in objetivos" :key="obj.id" :id="obj.id" :responsable="obj.responsable" :meta="obj.meta" :fecha="obj.limite" :progreso-meta="obj.progreso/obj.meta" :tipo="obj.tipo" :moneda="obj.moneda">
                                         <template v-slot:actions>
                                             <v-row class="mt-2">
-                                                <v-col md="12" style="padding:0 10px">
+                                                <v-col md="6" style="padding:0 10px">
+                                                    <v-btn small outlined dense color="indigo" style="width:80%;min-width:45px;" @click="edit(obj.id)">
+                                                        <v-icon>edit</v-icon>
+                                                    </v-btn>
+                                                </v-col>
+                                                 <v-col md="6" style="padding:0 10px">
                                                     <v-btn small outlined dense color="red" style="width:80%;min-width:45px;" @click="remove(obj.id)">
                                                         <v-icon>close</v-icon>
                                                     </v-btn>
@@ -40,6 +45,11 @@
                                         </template>
                                     </goal>
                                 </v-list-item-group>
+                                <div v-else>
+                                    <v-spacer></v-spacer>
+                                    <loader />
+                                    <v-spacer></v-spacer>
+                                </div>
                             </v-list>
                             </v-expansion-panel-content>
                         </v-expansion-panel>
@@ -55,7 +65,7 @@
             <newObjetivo v-if="dialog" :dialog="dialog" :innerWidth="innerWidth" ref="crearObj">
                 <template v-slot:actions>
                     <v-btn color="error darken-1" class="bold" @click="close()">Cancelar</v-btn>
-                    <v-btn color="#005598" class="bold" style="color:white;" @click="crear()">Crear</v-btn>
+                    <v-btn color="#005598" class="bold" style="color:white;" @click="!editMode ? crear() : actualizar()">{{ !editMode ? 'Crear' : 'Actualizar'}}</v-btn>
                 </template>
             </newObjetivo>
         </v-container>
@@ -67,6 +77,8 @@ import dCard from "@/components/aplicacion/Dashcard";
 import transitions from '@/plugins/transitions'
 import goal from '@/components/ventas/objetivo'
 import newObjetivo from "@/components/ventas/crearObjetivo"
+import Objetivo from "@/services/Objetivos";
+import moment from 'moment';
 import { mapState, mapActions } from 'vuex';
 
 const DEFAULT_TRANSITION = 'slide';
@@ -86,10 +98,13 @@ export default {
             objetivos:[],
             innerWidth: 0,
             dialog:false,
+            editMode: false,
+            loading:true,
+            editId: 0,
         }
     },
     computed:{
-        ...mapState(['objetivo']),
+        ...mapState(['objetivo','vuexGoals','goalsUpdated']),
     },
     head: {
         title() {
@@ -101,7 +116,7 @@ export default {
         }
     },
     methods:{
-        ...mapActions(['resetNewGoal']),
+        ...mapActions(['resetNewGoal','setNewGoal','setGoals']),
         ...transitions,
         activate(pos){
             for (let i = 1; i < this.active.length+1; i++) {
@@ -116,15 +131,114 @@ export default {
             this.dialog = false;
         },
         crear(){
-            this.objetivos.push(this.objetivo);
+            let newObjetivo = this.objetivo;
+            delete newObjetivo.progreso;
+            console.log(newObjetivo);
+            Objetivo().post('/',{data:{...newObjetivo}}).then(async () => {
+                this.$toasted.info("Se ha creado un nuevo Objetivo de Ventas.", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'done_all'
+                });
+                this.updateRecords();
+            }).catch((e)=>{
+                console.log(e);
+                this.$toasted.error("Ha ocurrido un error al crear el Objetivo.", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'done_all'
+                });
+            });
             this.resetNewGoal();
             this.dialog = false;
         },
         remove(id){
-            this.objetivos = this.objetivos.filter(i => i.id !== id);
+            Objetivo().delete('/'+id).then(() => {
+                this.$toasted.info("Se ha eliminado un Objetivo de Ventas.", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'done_all'
+                });
+                this.updateRecords();
+            }).catch((e)=>{
+                console.log(e);
+                this.$toasted.error("Ha ocurrido un error al eliminar el Objetivo.", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'done_all'
+                });
+            });
+        },
+        edit(id){
+            this.setNewGoal(this.objetivos.find(i => i.id === id));
+            this.editMode = true;
+            this.editId = id;
+            this.dialog = true;
+        },
+        actualizar(){
+            let newObjetivo = this.objetivo;
+            delete newObjetivo.progreso;
+            delete newObjetivo.fecha_at;
+            delete newObjetivo.id
+            newObjetivo.limite = moment(newObjetivo.limite).locale('es').format('YYYY-MM-DD');
+            Objetivo().post('/'+this.editId,{data:{...newObjetivo}}).then(async () => {
+                this.$toasted.info("Se ha Actualizado un Objetivo de Ventas.", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'done_all'
+                });
+                this.updateRecords();
+                this.editId = 0;
+            }).catch((e)=>{
+                console.log(e);
+                this.$toasted.error("Ha ocurrido un error al Actualizar el Objetivo.", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'done_all'
+                });
+            });
+            this.resetNewGoal();
+            this.dialog = false;
+        },
+        crearObjetivos(){
+            try {
+                this.vuexGoals.data.data.forEach(i => i.progreso = 0);
+                this.objetivos = this.vuexGoals.data.data;
+            } catch (e) {
+                console.log(e);
+                this.objetivos = [];
+            }
+
+            this.loading = false;
+        },
+        async updateRecords(){
+            let aux;
+            aux = await Objetivo().get('?limit=1');
+            window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof aux.data.totalCount !== 'undefined' ? aux.data.totalCount : 0));
+            aux = await Objetivo().get('?limit='+JSON.parse(window.localStorage.getItem('totalObjetivos')));
+            this.setGoals(aux);
+            console.log(aux);
+            window.localStorage.setItem('Goals', JSON.stringify(aux));
+            this.crearObjetivos();
+        }
+    },
+    watch:{
+        vuexGoals(){
+            this.crearObjetivos();
+        },
+        goalsUpdated(){
+            this.crearObjetivos();
         }
     },
     created(){
+        if(this.goalsUpdated)
+            this.crearObjetivos();
         this.animate(this.transitionName);
         this.opened = (this.$route.name === 'ventas') ? 0 : 1;
         window.addEventListener('resize', this.onResize);

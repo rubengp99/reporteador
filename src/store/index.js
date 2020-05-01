@@ -7,6 +7,7 @@ import invoices from "@/services/Factura";
 import groups from "@/services/Grupos"
 import subGroups from '@/services/SubGrupos'
 import storages from '@/services/Depositos';
+import goals from "@/services/Objetivos";
 import w from '@/services/variables'
 import moment from "moment";
 
@@ -20,11 +21,9 @@ export default new Vuex.Store({
             loggedIn: false
         },
         objetivo: {//variable para crear objetivos
-            id: null,
             tipo: null,
             responsable: null,
             meta: null,
-            progreso: 0,
             moneda: null,
             limite: null,
         },
@@ -45,8 +44,9 @@ export default new Vuex.Store({
         vuexSubGroupSales: null,
         vuexTodayInvoices: null,
         vuexSellers: null,
+        vuexGoals: null,
         vuexBuyers: null,
-        initAux: [false, false, false, false, false, false, false, false],
+        initAux: [false, false, false, false, false, false, false, false, false],
         init: false,
         inventoryUpdatedAux: [false, false, false, false, false, false],
         inventoryUpdated: false,
@@ -55,8 +55,10 @@ export default new Vuex.Store({
         rankingUpdated: false,
         sellersUpdated: false,
         buyersUpdated: false,
+        goalsUpdated: false,
         totalClientes: 0,
         totalVendedores: 0,
+        totalObjetivos:0,
         restoredFromCache: false,
     },
     getters: {
@@ -140,13 +142,17 @@ export default new Vuex.Store({
         SET_CONCEPT_RETURNS(state,val){
             state.vuexConceptReturns = val;
         },
+        SET_GOALS(state, val) {
+            state.vuexGoals = val;
+        },
+        SET_TOTAL_GOALS(state, val) {
+            state.totalObjetivos = val;
+        },
         RESET_NEW_GOAL(state){
             state.objetivo = Object.assign({}, {
-                id: null,
                 tipo: null,
                 responsable: null,
                 meta: null,
-                progreso: 0,
                 moneda: '',
                 limite: null,
             });
@@ -285,7 +291,6 @@ export default new Vuex.Store({
             concept().get('/mostreturned/?fields=id&limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexConceptReturns = response;
-                    console.log(state.conce);
                     state.initAux[7] = true;
                     if (state.initAux.every(i => i))
                         state.init = true;
@@ -293,7 +298,20 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
-
+            goals().get('?limit=1').then(response => {
+                if (!state.restoredFromCache) {
+                    state.vuexGoals = response;
+                    typeof response.data.totalCount !== 'undefined' ?
+                        state.totalObjetivos = response.data.totalCount :
+                        state.totalObjetivos = 0;
+                    window.localStorage.setItem('totalObjetivos', state.totalObjetivos);
+                    state.initAux[8] = true;
+                    if (state.initAux.every(i => i))
+                        state.init = true;
+                } else {
+                    state.init = true;
+                }
+            });
         },
         async SET_UPDATE_DASHBOARD(state) {
             storages().get().then(response => {
@@ -336,6 +354,12 @@ export default new Vuex.Store({
                 window.localStorage.setItem('Buyers', JSON.stringify(response));
                 state.buyersUpdated = true;
             });
+            goals().get('?limit=' + state.totalObjetivos).then(response => {
+                state.vuexBuyers = response;
+                window.localStorage.setItem('Goals', JSON.stringify(response));
+                window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
+                state.goalsUpdated = true;
+            });
         },
         RESTORE_FROM_CACHE(state) {
             state.restoredFromCache = true;
@@ -344,6 +368,7 @@ export default new Vuex.Store({
             state.rankingUpdated = true;
             state.buyersUpdated = true;
             state.sellersUpdated = true;
+            state.goalsUpdated = true;
         }
     },
     actions: {
@@ -436,6 +461,12 @@ export default new Vuex.Store({
         },
         setConceptReturns({ commit },val ) {
             commit('SET_CONCEPT_RETURNS',val);
+        },
+        setGoals({ commit },val ) {
+            commit('SET_GOALS',val);
+        },
+        setTotalObjetivos({ commit },val ) {
+            commit('SET_TOTAL_GOALS',val);
         },
     }
 });

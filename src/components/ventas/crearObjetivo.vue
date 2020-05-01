@@ -141,7 +141,6 @@ export default {
         },
     },
     beforeMount(){
-        this.resetNewGoal();
         this.model = Object.assign({},this.objetivo);
         this.vuexSellers.data.data.forEach(seller => this.responsables.push({text: seller.nombre, value: seller.id}));
     }

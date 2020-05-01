@@ -30,10 +30,11 @@ export default {
    },
     methods:{
         ...transitions,
-        ...mapActions(['setInitAplicacion','setUpdateInventario','setUpdateDashboard',
+        ...mapActions(['setInitAplicacion','setUpdateInventario','setUpdateDashboard','setGoals',
             'setUpdateVentas','setConcepts','setInvoices','setConceptSales','setGroups','setSubgroups',
             'setGroupSales','setSubgroupSales','setWeeklySales','setStorages','setSellers','setConceptReturns',
-            'setBuyers','setTotalClientes','setTotalVendedores','setTodayInvoices', 'restoreFromCache',
+            'setBuyers','setTotalClientes','setTotalVendedores','setTodayInvoices', 'setTotalObjetivos',
+             'restoreFromCache',
         ]),
         checkCache(){
             this.dataCache = [
@@ -50,8 +51,10 @@ export default {
             JSON.parse(window.localStorage.getItem('Buyers')),
             JSON.parse(window.localStorage.getItem('totalVendedores')),
             JSON.parse(window.localStorage.getItem('totalClientes')),
+            JSON.parse(window.localStorage.getItem('totalObjetivos')),
             JSON.parse(window.localStorage.getItem('TodayInvoices')),
-            JSON.parse(window.localStorage.getItem('ConceptReturns'))
+            JSON.parse(window.localStorage.getItem('ConceptReturns')),
+            JSON.parse(window.localStorage.getItem('Goals'))
             ];
         },
         cacheApp(){
@@ -67,9 +70,11 @@ export default {
             this.setStorages(JSON.parse(window.localStorage.getItem('Storages')));
             this.setTotalVendedores(JSON.parse(window.localStorage.getItem('totalVendedores')));
             this.setTotalClientes(JSON.parse(window.localStorage.getItem('totalClientes')));
+            this.setTotalObjetivos(JSON.parse(window.localStorage.getItem('totalObjetivos')));
             this.setSellers(JSON.parse(window.localStorage.getItem('Sellers')));
             this.setBuyers(JSON.parse(window.localStorage.getItem('Buyers')));
             this.setConceptReturns(JSON.parse(window.localStorage.getItem('ConceptReturns')));
+            this.setGoals(JSON.parse(window.localStorage.getItem('Goals')));
             this.restoreFromCache();
         }
     },

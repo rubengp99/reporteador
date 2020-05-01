@@ -196,4 +196,9 @@ export default {
     width: 100%!important;
     z-index: 1;
 }
+
+.v-progress-linear__background{
+    width: 100%!important;
+}
+
 </style>
