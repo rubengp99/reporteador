@@ -21,7 +21,7 @@
                             </v-expansion-panel-header>
                             <v-expansion-panel-content>
                             <v-list>
-                                <v-list-item-group>
+                                <v-list-item-group v-if="!loading">
                                     <v-scroll-y-transition mode="out-in">
                                         <div>
                                             <p v-show="objetivos.length === 0" class="body-2 bold" style="margin:0">No se han establecido objetivos de venta aún...</p>
@@ -45,7 +45,11 @@
                                         </template>
                                     </goal>
                                 </v-list-item-group>
-                                
+                                <div v-else>
+                                    <v-spacer></v-spacer>
+                                    <loader />
+                                    <v-spacer></v-spacer>
+                                </div>
                             </v-list>
                             </v-expansion-panel-content>
                         </v-expansion-panel>
@@ -76,6 +80,7 @@ import newObjetivo from "@/components/ventas/crearObjetivo";
 import Objetivo from "@/services/Objetivos";
 import Sellers from "@/services/Vendedores";
 import moment from 'moment';
+import w from "@/services/variables";
 import { mapState, mapActions } from 'vuex';
 
 const DEFAULT_TRANSITION = 'slide';
@@ -210,7 +215,8 @@ export default {
                 let aux = typeof this.vuexGoals.data.data !== 'undefined' ? this.vuexGoals.data.data : [];
                 
                 for (const goal of aux) {
-                    let limites = 'after-fecha_at=' +moment('2019-10-23').locale('es').format('YYYY-MM-DD') +'&before-fecha_at='+moment(goal.limite).locale('es').format('YYYY-MM-DD');
+                    let fecha_in = w.test !== '' ? w.test : goal.fecha_at;
+                    let limites = 'after-fecha_at=' +moment(fecha_in).locale('es').format('YYYY-MM-DD') +'&before-fecha_at='+moment(goal.limite).locale('es').format('YYYY-MM-DD');
                     let progreso = await Sellers().get('/mostSellers/?'+limites+'&limit='+JSON.parse(window.localStorage.getItem('totalVendedores')));
                     if(goal.tipo.toLowerCase() === 'ingresos'){
                         if(goal.responsable === 0){
@@ -239,7 +245,7 @@ export default {
                 this.objetivos = [];
             }
 
-            //this.loading = false;
+            this.loading = false;
         },
         async updateRecords(){
             let aux;
