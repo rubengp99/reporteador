@@ -1,0 +1,131 @@
+<template>
+    <v-col cols="12">
+        <v-card class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
+        <v-card-title class="title" style="padding:5px;">
+            <v-spacer></v-spacer>
+            Vendedores de tu Empresa
+            <v-spacer></v-spacer>
+        </v-card-title>
+        <v-row v-if="!loading">
+            <masonry :cols="cols" style="width:100%;">
+                <route v-for="(route, i) in vendedores.slice(offset, offset + itemsPerPage)" :key="route.id" :style="'margin: 15px '+gutter/2+'px'" :i="i" :route="route"  @click.native="open(route)"></route>
+            </masonry>
+            <v-pagination
+                v-model="page"
+                :length="Math.ceil(vendedores.length / itemsPerPage)"
+                v-on:click.native="paginate(page)"
+            ></v-pagination>
+        </v-row>
+        <div v-else class="mx-auto" width="100%" outlined>
+            <br />
+            <loader />
+            <br />
+            <div class="snake"></div>
+        </div>
+        </v-card>
+    </v-col>
+</template>
+
+<script>
+import variables from "@/services/variables";
+import reports from "@/plugins/reports"
+import accounting from "accounting";
+import route from "@/components/ventas/route"
+import { mapState } from 'vuex';
+
+export default {
+    name: "vendedores",
+    components: {
+        route,
+    },
+    data: () => {
+        return {
+            ...variables,
+            apiRoutes: null,
+            vendedores: [],
+            loading: true,
+            promedioVentas: null,
+            cols: 0,
+            gutter: 0,
+            page:1,
+            page_old: 1,
+            offset: 0,
+            itemsPerPage: 12,
+        };
+    },
+    computed:{
+        ...mapState(['vuexRoutes','routesUpdated']),
+    },
+    head: {
+        title() {
+            return {
+                inner:'Reporteador',
+                separator:'|',
+                complement:'Vendedores'
+            };
+        }
+    },
+    methods:{
+        open(openItem){
+            this.vendedores.slice(this.offset, this.offset + this.itemsPerPage).forEach(route => route.expand = (openItem.id === route.id && !openItem.expand));
+        },
+        paginate(page){
+            if (page === 1) this.offset = 0;
+            else if (page > this.page_old)
+                this.offset += Math.abs(page - this.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.page_old) * this.itemsPerPage;
+            else if (page < this.page_old)
+                this.offset -= Math.abs(page - this.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.page_old) * this.itemsPerPage;
+            this.page_old = page;
+        },
+        async createRoutes(){
+            this.apiRoutes = this.vuexRoutes;
+            let totalSales = this.apiRoutes.data.data.map(a => a.ventas).reduce((a,b) => a+b);
+            this.apiRoutes.data.data.forEach(route => {
+                this.vendedores.push({
+                    id: route.id,
+                    name: route.descripcion,
+                    value: accounting.formatMoney(+Math.trunc(route.tarifa), { symbol   : "Bs", thousand : ".", decimal  : ",", }),
+                });
+            });
+            
+            this.$data.loading = false;
+        },
+        onResize() {
+            if (window.innerWidth > 957){
+                this.cols = 3;
+                this.gutter = 20;
+            }else if (window.innerWidth < 957 && window.innerWidth > 500) {
+                this.cols = 2;
+                this.gutter = 10;
+            }else {
+                this.cols = 1;
+                this.gutter = 2;
+            }
+        },
+    },
+    watch:{
+        vuexRoutes(){
+            this.apiRoutes = this.vuexRoutes;
+        },
+        routesUpdated(){
+            this.createRoutes();
+        }
+    },
+    created(){
+        window.addEventListener('resize', this.onResize);
+        this.onResize();
+    },
+    async beforeMount(){
+        try {
+            if(this.routesUpdated){
+                this.createRoutes();
+            }
+        } catch (error) {
+            this.$data.vendedores = [];
+        }
+    },
+    beforeDestroy() {
+        window.removeEventListener('resize', this.onResize)
+    },
+}
+</script>
