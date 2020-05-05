@@ -8,6 +8,7 @@ import groups from "@/services/Grupos"
 import subGroups from '@/services/SubGrupos'
 import storages from '@/services/Depositos';
 import goals from "@/services/Objetivos";
+import routes from "@/services/Rutas";
 import w from '@/services/variables'
 import moment from "moment";
 
@@ -383,7 +384,7 @@ export default new Vuex.Store({
                 window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
                 state.goalsUpdated = true;
             });
-            routes().get('?limit=1').then(response => {
+            routes().get('?limit='+state.totalRutas).then(response => {
                 state.vuexRoutes = response;
                 window.localStorage.setItem('Routes', JSON.stringify(response));
                 window.localStorage.setItem('totalRutas', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
@@ -501,7 +502,7 @@ export default new Vuex.Store({
             commit('SET_ROUTES',val);
         },
         setTotalRutas({ commit },val ) {
-            commit('SET_TOTAL_ROUTES',val);
+            commit('SET_TOTAL_RUTAS',val);
         },
     }
 });

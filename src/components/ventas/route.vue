@@ -3,7 +3,7 @@
         <v-card style="background:#FAFAFA;" class="mx-auto hoverable" active-class="active" max-width="100%" :height=" route.expand ? '100%': 'auto'" elevation="4">
             <v-list-item three-line>
                 <v-list-item-content>
-                    <div class="overline mb-2"><span class="bold">{{route.sales.split(",")[0]}}</span> <br> ventas realizadas.</div>
+                    <div class="overline mb-2">Servicio para</div>
                         <v-list-item-title class="subtitle-1 mb-1" style="line-height: 1.25rem;text-overflow:none;white-space:normal;word-wrap:nowrap;">
                             {{route.name}}
                         </v-list-item-title>

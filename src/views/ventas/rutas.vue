@@ -8,11 +8,11 @@
         </v-card-title>
         <v-row v-if="!loading">
             <masonry :cols="cols" style="width:100%;">
-                <route v-for="(route) in vendedores.slice(offset, offset + itemsPerPage)" :key="route.id" :style="'margin: 15px '+gutter/2+'px'" :route="route"></route>
+                <route v-for="(route) in rutas.slice(offset, offset + itemsPerPage)" :key="route.id" :style="'margin: 15px '+gutter/2+'px'" :route="route"></route>
             </masonry>
             <v-pagination
                 v-model="page"
-                :length="Math.ceil(vendedores.length / itemsPerPage)"
+                :length="Math.ceil(rutas.length / itemsPerPage)"
                 v-on:click.native="paginate(page)"
             ></v-pagination>
         </v-row>
@@ -28,13 +28,12 @@
 
 <script>
 import variables from "@/services/variables";
-import reports from "@/plugins/reports"
 import accounting from "accounting";
 import route from "@/components/ventas/route"
 import { mapState } from 'vuex';
 
 export default {
-    name: "vendedores",
+    name: "rutas",
     components: {
         route,
     },
@@ -42,7 +41,7 @@ export default {
         return {
             ...variables,
             apiRoutes: null,
-            vendedores: [],
+            rutas: [],
             loading: true,
             promedioVentas: null,
             cols: 0,
@@ -77,12 +76,11 @@ export default {
         async createRoutes(){
             this.$data.loading = true;
             this.apiRoutes = this.vuexRoutes;
-            let totalSales = this.apiRoutes.data.data.map(a => a.ventas).reduce((a,b) => a+b);
             this.apiRoutes.data.data.forEach(route => {
-                this.vendedores.push({
+                this.rutas.push({
                     id: route.id,
                     name: route.descripcion,
-                    value: accounting.formatMoney(+Math.trunc(route.tarifa), { symbol   : "Bs", thousand : ".", decimal  : ",", }),
+                    value: accounting.formatMoney(route.tarifa, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
                 });
             });
             
@@ -104,6 +102,7 @@ export default {
     watch:{
         vuexRoutes(){
             this.apiRoutes = this.vuexRoutes;
+            this.rutas = [];
             this.createRoutes();
         },
         routesUpdated(){
@@ -120,7 +119,7 @@ export default {
                 this.createRoutes();
             }
         } catch (error) {
-            this.$data.vendedores = [];
+            this.$data.rutas = [];
         }
     },
     beforeDestroy() {
