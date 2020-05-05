@@ -75,6 +75,15 @@ const routes = [
                     auth:true,
                     transitionName: 'slide'
                 },
+            },
+            {
+                path: "rutas",
+                name: "rutas",
+                component: () => import('../views/ventas/rutas.vue'),
+                meta: {
+                    auth: true,
+                    transitionName: 'slide'
+                },
             }
         ]
     },

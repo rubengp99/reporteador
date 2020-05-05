@@ -47,7 +47,7 @@ export default new Vuex.Store({
         vuexRoutes: null,
         vuexGoals: null,
         vuexBuyers: null,
-        initAux: [false, false, false, false, false, false, false, false, false],
+        initAux: [false, false, false, false, false, false, false, false, false, false],
         init: false,
         inventoryUpdatedAux: [false, false, false, false, false, false],
         inventoryUpdated: false,
@@ -321,6 +321,20 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+            routes().get('?limit=1').then(response => {
+                if (!state.restoredFromCache) {
+                    state.vuexRoutes = response;
+                    typeof response.data.totalCount !== 'undefined' ?
+                        state.totalRutas = response.data.totalCount :
+                        state.totalRutas = 0;
+                    window.localStorage.setItem('totalRutas', state.totalRutas);
+                    state.initAux[9] = true;
+                    if (state.initAux.every(i => i))
+                        state.init = true;
+                } else {
+                    state.init = true;
+                }
+            });
         },
         async SET_UPDATE_DASHBOARD(state) {
             storages().get().then(response => {
@@ -368,6 +382,12 @@ export default new Vuex.Store({
                 window.localStorage.setItem('Goals', JSON.stringify(response));
                 window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
                 state.goalsUpdated = true;
+            });
+            routes().get('?limit=1').then(response => {
+                state.vuexRoutes = response;
+                window.localStorage.setItem('Routes', JSON.stringify(response));
+                window.localStorage.setItem('totalRutas', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
+                state.routesUpdated = true;
             });
         },
         RESTORE_FROM_CACHE(state) {
@@ -476,6 +496,12 @@ export default new Vuex.Store({
         },
         setTotalObjetivos({ commit },val ) {
             commit('SET_TOTAL_GOALS',val);
+        },
+        setRoutes({ commit },val ) {
+            commit('SET_ROUTES',val);
+        },
+        setTotalRutas({ commit },val ) {
+            commit('SET_TOTAL_ROUTES',val);
         },
     }
 });

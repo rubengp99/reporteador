@@ -8,7 +8,7 @@
         </v-card-title>
         <v-row v-if="!loading">
             <masonry :cols="cols" style="width:100%;">
-                <route v-for="(route, i) in vendedores.slice(offset, offset + itemsPerPage)" :key="route.id" :style="'margin: 15px '+gutter/2+'px'" :i="i" :route="route"  @click.native="open(route)"></route>
+                <route v-for="(route) in vendedores.slice(offset, offset + itemsPerPage)" :key="route.id" :style="'margin: 15px '+gutter/2+'px'" :route="route"></route>
             </masonry>
             <v-pagination
                 v-model="page"
@@ -66,9 +66,6 @@ export default {
         }
     },
     methods:{
-        open(openItem){
-            this.vendedores.slice(this.offset, this.offset + this.itemsPerPage).forEach(route => route.expand = (openItem.id === route.id && !openItem.expand));
-        },
         paginate(page){
             if (page === 1) this.offset = 0;
             else if (page > this.page_old)
@@ -78,6 +75,7 @@ export default {
             this.page_old = page;
         },
         async createRoutes(){
+            this.$data.loading = true;
             this.apiRoutes = this.vuexRoutes;
             let totalSales = this.apiRoutes.data.data.map(a => a.ventas).reduce((a,b) => a+b);
             this.apiRoutes.data.data.forEach(route => {
@@ -106,6 +104,7 @@ export default {
     watch:{
         vuexRoutes(){
             this.apiRoutes = this.vuexRoutes;
+            this.createRoutes();
         },
         routesUpdated(){
             this.createRoutes();
