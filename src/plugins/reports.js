@@ -258,4 +258,71 @@ const chart__barRank = (data,category,today) => {
     };
 };
 
-export default { chart__area, chart__barRank , chart__donut};
+const chart__barCompare = (data, colors, comparado,moneda) => {
+    return {
+        series: [{
+            data: data
+        }],
+        chartOptions: {
+            chart: {
+                type: 'bar',
+                height: 380,
+                toolbar: {
+                    show: false,
+                }
+            },
+            plotOptions: {
+                bar: {
+                    barHeight: '75%',
+                    distributed: true,
+                    horizontal: true,
+                    dataLabels: {
+                        position: 'bottom'
+                    },
+                }
+            },
+            colors: colors,
+            dataLabels: {
+                enabled: true,
+                textAnchor: 'start',
+                style: {
+                    colors: ['#fff']
+                },
+                formatter: function (val, opt) {
+                    return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val + moneda+ " " + comparado
+                },
+                offsetX: 0,
+                dropShadow: {
+                    enabled: true
+                }
+            },
+            stroke: {
+                width: 1,
+                colors: ['#fff']
+            },
+            xaxis: {
+                categories: ['Mes en curso', 'Mes pasado'],
+            },
+            yaxis: {
+                labels: {
+                    show: false
+                }
+            },
+            tooltip: {
+                theme: 'dark',
+                x: {
+                    show: false
+                },
+                y: {
+                    title: {
+                        formatter: function () {
+                            return ''
+                        }
+                    }
+                }
+            }
+        },
+    }
+
+}
+export default { chart__area, chart__barRank , chart__donut, chart__barCompare};

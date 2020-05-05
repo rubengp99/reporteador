@@ -10,7 +10,7 @@
             <v-row>
                 <dCard col="4" icon img="box"  title="Inventario" hoverable path="/Inventario"/>
                 <dCard col="4" icon img="payment" title="Ventas" hoverable path="/Ventas"/>
-                <dCard col="4" icon img="value" title="Rentabilidad" hoverable last/>
+                <dCard col="4" icon img="value" title="Rentabilidad" hoverable last path="/Rentabilidad"/>
             </v-row>
             <v-row>
                 <v-col cols="12" md="6">

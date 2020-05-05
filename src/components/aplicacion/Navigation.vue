@@ -68,7 +68,7 @@ export default {
         drawer: false,
         items: [
             { icon: require("@/assets/home.png"), title: "Inicio", path: "/" },
-           // { icon: require("@/assets/value.svg"), title: "Rentabilidad", path: "/rentabilidad" },
+            { icon: require("@/assets/value.svg"), title: "Rentabilidad", path: "/rentabilidad" },
             { icon: require("@/assets/box.svg"), title: "Inventario", path: "/Inventario" },
             { icon: require("@/assets/payment.svg"), title: "Ventas", path: "/ventas" },
             { icon: require("@/assets/help.svg"), title: "Ayuda", path: "/cuenta/ayuda" }

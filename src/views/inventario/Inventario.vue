@@ -375,8 +375,6 @@ export default {
                 this.table.dataOffset += Math.abs(page - this.table.page_old) === 0 ? this.table.itemsPerPage : Math.abs(page - this.table.page_old) * this.table.itemsPerPage;
             else if (page < this.table.page_old)
                 this.table.dataOffset -= Math.abs(page - this.table.page_old) === 0 ? this.table.itemsPerPage : Math.abs(page - this.table.page_old) * this.table.itemsPerPage;
-            //limpiamos los datos
-            this.table.products = [];
             //guardamos un historial de la página anterior para mayor precision al paginar.
             this.table.page_old = page;
             //si hay datos filtrados entonces se utiliza ese arreglo, sino, se usa el arreglo general

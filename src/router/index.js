@@ -23,6 +23,15 @@ const routes = [
         }
     },
     {
+        path: '/rentabilidad',
+        name: 'rentabilidad',
+        component: () => import('../views/rentabilidad/rentabilidad.vue'),
+        meta:{
+            auth:false,
+            transitionName: 'slide'
+        }
+    },
+    {
         path: "/forgot",
         name:"forgot",
         component:() => import('../views/auth/Forgot.vue'),

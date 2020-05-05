@@ -129,14 +129,14 @@ export default {
     },
     watch:{
         progresoMeta(){
-            this.progreso = Math.trunc((this.progresoMeta / this.meta) * 100);
+            this.progreso = Math.trunc((+this.progresoMeta / +this.meta) * 100);
         },
         limite(){
             this.limiteMoment =  this.limiteFormatted();
         }
     },
     beforeMount(){
-        this.progreso = Math.trunc((this.progresoMeta / this.meta) * 100);
+        this.progreso = Math.trunc((+this.progresoMeta / +this.meta) * 100);
         this.limiteMoment = this.limiteFormatted();
         if(this.progreso >= 47){
             switch (this.progreso.toString()) {

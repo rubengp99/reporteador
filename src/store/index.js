@@ -44,6 +44,7 @@ export default new Vuex.Store({
         vuexSubGroupSales: null,
         vuexTodayInvoices: null,
         vuexSellers: null,
+        vuexRoutes: null,
         vuexGoals: null,
         vuexBuyers: null,
         initAux: [false, false, false, false, false, false, false, false, false],
@@ -56,9 +57,11 @@ export default new Vuex.Store({
         sellersUpdated: false,
         buyersUpdated: false,
         goalsUpdated: false,
+        routesUpdated: false,
         totalClientes: 0,
         totalVendedores: 0,
         totalObjetivos:0,
+        totalRutas: 0,
         restoredFromCache: false,
     },
     getters: {
@@ -129,6 +132,12 @@ export default new Vuex.Store({
         },
         SET_SELLERS(state, val) {
             state.vuexSellers = val;
+        },
+        SET_ROUTES(state, val) {
+            state.vuexRoutes = val;
+        },
+        SET_TOTAL_RUTAS(state, val) {
+            state.totalRutas = val;
         },
         SET_TOTAL_VENDEDORES(state, val) {
             state.totalVendedores = val;
