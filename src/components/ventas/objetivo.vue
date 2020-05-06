@@ -154,6 +154,24 @@ export default {
             }else{
                 this.percent = 0;
             }
+        },
+        checkCompleted(){
+            if(this.progreso >= 100){
+                Objetivo().delete('/'+this.id).then(async () =>{
+                    let aux = await Objetivo().get('?limit=1');
+                    window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof aux.data.totalCount !== 'undefined' ? aux.data.totalCount : 0));
+                    aux = await Objetivo().get('?limit='+JSON.parse(window.localStorage.getItem('totalObjetivos')));
+                    this.setGoals(aux);
+                    
+                    this.$toasted.info("Un objetivo de ventas ha finalizado. Revise su bandeja de notificaciones.", { 
+                        theme: "bubble", 
+                        position: "bottom-right", 
+                        duration : 6000,
+                        icon : 'done_all'
+                    });
+                });
+               
+            }
         }
     },
     computed:{
@@ -163,21 +181,17 @@ export default {
         progresoMeta(){
             this.progreso = Math.trunc((+this.progresoMeta / +this.meta) * 100);
             this.fixColors();
+            this.checkCompleted();
         },
         limite(){
             this.limiteMoment =  this.limiteFormatted();
-        }
+        },
     },
     beforeMount(){
         this.progreso = Math.trunc((+this.progresoMeta / +this.meta) * 100);
         this.limiteMoment = this.limiteFormatted();
         this.fixColors();
-        
-        if(this.progreso >= 100){
-            this.setGoals(this.vuexGoals.data.data.filter(i => i.id !== this.id));
-            Objetivo().delete('/'+this.id);
-        }
-
+        this.checkCompleted();
     }
 
 };
