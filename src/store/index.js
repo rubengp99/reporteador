@@ -22,11 +22,11 @@ export default new Vuex.Store({
             loggedIn: false
         },
         objetivo: {//variable para crear objetivos
-            tipo: '',
-            responsable: 0,
-            meta: 0,
+            tipo: null,
+            responsable: null,
+            meta: null,
             moneda: '',
-            limite: '',
+            limite: moment(w.test).locale('es').format('YYYY-MM-DD'),
         },
         //banderas
         drawer: false,
@@ -160,11 +160,11 @@ export default new Vuex.Store({
         },
         RESET_NEW_GOAL(state){
             state.objetivo = Object.assign({}, {
-                tipo: '',
-                responsable: 0,
-                meta: 0,
+                tipo: null,
+                responsable: null,
+                meta: null,
                 moneda: '',
-                limite: '',
+                limite: moment(w.test).locale('es').format('YYYY-MM-DD'),
             });
         },
         async SET_UPDATE_INVENTARIO(state) {

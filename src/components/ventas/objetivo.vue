@@ -122,6 +122,38 @@ export default {
             return moment(this.fecha).locale('es').format("MMM Do YYYY") !== moment().locale('es').format("MMM Do YYYY") ? 
                 moment(this.fecha).locale('es').format("MMM Do YYYY") :
                 moment(this.fecha).locale('es').calendar(); 
+        },
+        fixColors(){
+            if(this.progreso >= 47){
+                switch (this.progreso) {
+                    case 47:
+                        this.percent = 10;
+                        break;
+                    case 48:
+                        this.percent = 25;
+                        break;
+                    case 49:
+                        this.percent = 40;
+                        break;
+                    case 50:
+                        this.percent = 45;
+                        break;
+                    case 51:
+                        this.percent = 55;
+                        break;
+                    case 52:
+                        this.percent = 70;
+                        break;
+                    case 53:
+                        this.percent = 90;
+                        break;
+                    default:
+                        this.percent = 110;
+                        break;
+                }
+            }else{
+                this.percent = 0;
+            }
         }
     },
     computed:{
@@ -130,6 +162,7 @@ export default {
     watch:{
         progresoMeta(){
             this.progreso = Math.trunc((+this.progresoMeta / +this.meta) * 100);
+            this.fixColors();
         },
         limite(){
             this.limiteMoment =  this.limiteFormatted();
@@ -138,36 +171,7 @@ export default {
     beforeMount(){
         this.progreso = Math.trunc((+this.progresoMeta / +this.meta) * 100);
         this.limiteMoment = this.limiteFormatted();
-        if(this.progreso >= 47){
-            switch (this.progreso.toString()) {
-                case '47':
-                    this.percent = 10;
-                    break;
-                case '48':
-                    this.percent = 25;
-                    break;
-                case '49':
-                    this.percent = 40;
-                    break;
-                case '50':
-                    this.percent = 45;
-                    break;
-                case '51':
-                    this.percent = 55;
-                    break;
-                case '52':
-                    this.percent = 70;
-                    break;
-                case '53':
-                    this.percent = 90;
-                    break;
-                default:
-                    this.percent = 110;
-                    break;
-            }
-        }else{
-            this.percent = 0;
-        }
+        this.fixColors();
         
         if(this.progreso >= 100){
             this.setGoals(this.vuexGoals.data.data.filter(i => i.id !== this.id));

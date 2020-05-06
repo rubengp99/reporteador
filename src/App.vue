@@ -103,9 +103,10 @@ export default {
     created() {
         this.checkCache();
         if(this.dataCache.every(val => val !== null))
-            this.cacheApp();        
+            this.cacheApp();
+        else
+            this.setInitAplicacion(null);     
         this.animate(this.transitionName);
-        this.setInitAplicacion(null);
     },
 }
 </script>

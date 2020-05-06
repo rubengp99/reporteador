@@ -142,7 +142,7 @@ export default {
                     duration : 2000,
                     icon : 'done_all'
                 });
-                this.updateRecords();
+                await this.updateRecords();
                 this.crearObjetivos();
             }).catch((e)=>{
                 console.log(e);
@@ -157,14 +157,14 @@ export default {
             this.dialog = false;
         },
         remove(id){
-            Objetivo().delete('/'+id).then(() => {
+            Objetivo().delete('/'+id).then( async () => {
                 this.$toasted.info("Se ha eliminado un Objetivo de Ventas.", { 
                     theme: "bubble", 
                     position: "bottom-right", 
                     duration : 2000,
                     icon : 'done_all'
                 });
-                this.updateRecords();
+                await this.updateRecords();
                 this.crearObjetivos();
             }).catch((e)=>{
                 console.log(e);
@@ -195,10 +195,11 @@ export default {
                     duration : 2000,
                     icon : 'done_all'
                 });
-                this.updateRecords();
+                await this.updateRecords();
                 this.editId = 0;
                 this.resetNewGoal();
                 this.dialog = false;
+                this.editMode = false;
                 this.crearObjetivos();
             }).catch((e)=>{
                 console.log(e);
@@ -263,10 +264,10 @@ export default {
     },
     watch:{
         async vuexGoals(){
-            await this.crearObjetivos();
+            this.crearObjetivos();
         },
         async goalsUpdated(){
-            await this.crearObjetivos();
+            this.crearObjetivos();
         },
     },
     created(){

@@ -78,6 +78,7 @@ export default {
             this.page_old = page;
         },
         async createBuyers(){
+            this.$data.loading = true;
             this.apiBuyers = this.vuexBuyers;
             let totalBuys = this.apiBuyers.data.response.data.map(a => a.compras).reduce((a,b) => a+b);
             this.apiBuyers.data.response.data.forEach(buyer => {
@@ -109,6 +110,8 @@ export default {
     watch:{
         vuexBuyers(){
             this.apiBuyers = this.vuexBuyers;
+            this.compradores = [];
+            this.createBuyers();
         },
         buyersUpdated(){
             this.createBuyers();

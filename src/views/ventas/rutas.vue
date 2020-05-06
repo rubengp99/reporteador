@@ -60,7 +60,7 @@ export default {
             return {
                 inner:'Reporteador',
                 separator:'|',
-                complement:'Vendedores'
+                complement:'Rutas'
             };
         }
     },
