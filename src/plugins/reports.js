@@ -34,7 +34,7 @@ const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'],
                             value: {
                                 color: 'white',
                                 formatter: function (val) {
-                                    return (formatter !== 'default' && formatter !== 'volumen') ? accounting.formatMoney(val,{symbol:'$',thousand:'.',decimal:','}) : accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0] + ' uds';
+                                    return ((formatter !== 'default' && formatter !== 'volumen' &&  formatter !== 'cantidad') ? (accounting.formatMoney(val,{symbol:'$',thousand:'.',decimal:','})) : (accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0] + ((formatter !== 'cantidad') ? ' uds' : '')));
                                 },
                             },
                             total: {
@@ -43,7 +43,7 @@ const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'],
                                 showAlways: false,
                                 show: true,
                                 formatter: function (val) {
-                                    if(formatter === null || formatter === 'default'){
+                                    if(formatter === null || formatter === 'default' || formatter === 'cantidad'){
                                         return (
                                             isNaN(Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)) || !isFinite(Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)) ? 0 + "%" : Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 100)+'%'
                                         );
@@ -88,7 +88,7 @@ const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'],
             tooltip: {
                 y: {
                     formatter: function (val) {
-                        return (formatter !== 'default' && formatter !== 'volumen') ? accounting.formatMoney(val,{symbol:'$',thousand:'.',decimal:','}) : accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0] + ' uds';
+                        return ((formatter !== 'default' && formatter !== 'volumen' &&  formatter !== 'cantidad') ? (accounting.formatMoney(val,{symbol:'$',thousand:'.',decimal:','})) : (accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0] + ((formatter !== 'cantidad') ? ' uds' : '')));
                     },
                   },
                 fillSeriesColor: false,
