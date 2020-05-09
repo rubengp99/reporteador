@@ -105,8 +105,11 @@ export default {
         if(this.dataCache.every(val => val !== null))
             this.cacheApp();
         else
-            this.setInitAplicacion(null);     
+            this.setInitAplicacion();
         this.animate(this.transitionName);
     },
+    mounted(){
+        console.log(this.init);
+    }
 }
 </script>

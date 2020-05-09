@@ -118,8 +118,8 @@ export default {
         }
     },
     created(){
-            window.addEventListener('resize', this.onResize);
-            this.onResize();
+        window.addEventListener('resize', this.onResize);
+        this.onResize();
     },
     async beforeMount(){
         try {

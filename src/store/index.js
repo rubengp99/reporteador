@@ -8,6 +8,7 @@ import groups from "@/services/Grupos"
 import subGroups from '@/services/SubGrupos'
 import storages from '@/services/Depositos';
 import goals from "@/services/Objetivos";
+import compras from "@/services/Compras";
 import routes from "@/services/Rutas";
 import w from '@/services/variables'
 import moment from "moment";
@@ -33,10 +34,12 @@ export default new Vuex.Store({
         foto: '',
         fotoChanged: false,
         fotoFile: null,
+        vuexIngresosVs:null,
         vuexConcepts: null,
         vuexConceptSales: null,
         vuexConceptReturns: null,
         vuexInvoices: null,
+        vuexFacturasVs: null,
         vuexGroups: null,
         vuexSubGroups: null,
         vuexWeeklySales: null,
@@ -44,11 +47,12 @@ export default new Vuex.Store({
         vuexGroupSales: null,
         vuexSubGroupSales: null,
         vuexTodayInvoices: null,
+        vuexComprasVsVentas: null,
         vuexSellers: null,
         vuexRoutes: null,
         vuexGoals: null,
         vuexBuyers: null,
-        initAux: [false, false, false, false, false, false, false, false, false, false],
+        initAux: [false, false, false, false, false, false, false, false, false, false, false],
         init: false,
         inventoryUpdatedAux: [false, false, false, false, false, false],
         inventoryUpdated: false,
@@ -59,10 +63,16 @@ export default new Vuex.Store({
         buyersUpdated: false,
         goalsUpdated: false,
         routesUpdated: false,
+        rentabilidadUpdatedAux:[false, false, false, false, false, false],
+        rentabilidadUpdated:false,
+        vuexIngresosComp: [false, false, true],
+        vuexFacturasComp: [false, false, true],
+        vuexComprasVsVentasComp: [false, false, true],
         totalClientes: 0,
         totalVendedores: 0,
         totalObjetivos:0,
         totalRutas: 0,
+        totalCompras: 0,
         restoredFromCache: false,
     },
     getters: {
@@ -158,6 +168,9 @@ export default new Vuex.Store({
         SET_TOTAL_GOALS(state, val) {
             state.totalObjetivos = val;
         },
+        SET_TOTAL_COMPRAS(state, val) {
+            state.totalCompras = val;
+        },
         RESET_NEW_GOAL(state){
             state.objetivo = Object.assign({}, {
                 tipo: null,
@@ -174,45 +187,36 @@ export default new Vuex.Store({
                 state.vuexConcepts = response;
                 window.localStorage.setItem('Concepts', JSON.stringify(response));
                 state.inventoryUpdatedAux[0] = true;
-                if (state.inventoryUpdatedAux.every(i => i))
-                    state.inventoryUpdated = true;
-                if (state.inventoryUpdatedAux.slice(0,3).every(i => i))
-                    state.rankingUpdated = true;
+                state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
+                state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
             });
             concept().get('/mostSold/?limit=' + state.vuexConcepts.data.totalCount).then(response => {
                 state.vuexConceptSales = response;
                 window.localStorage.setItem('ConceptSales', JSON.stringify(response));
                 state.inventoryUpdatedAux[1] = true;
-                if (state.inventoryUpdatedAux.every(i => i))
-                    state.inventoryUpdated = true;
-                if (state.inventoryUpdatedAux.slice(0,3).every(i => i))
-                    state.rankingUpdated = true;
+                state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
+                state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
             });
             groups().get('?limit=' + state.vuexGroups.data.totalCount).then(response => {
                 state.vuexGroups = response;
                 window.localStorage.setItem('Groups', JSON.stringify(response));
                 state.inventoryUpdatedAux[2] = true;
-                if (state.inventoryUpdatedAux.every(i => i))
-                    state.inventoryUpdated = true;
-                if (state.inventoryUpdatedAux.slice(0,3).every(i => i))
-                    state.rankingUpdated = true;
+                state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
+                state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
             });
             subGroups().get('?limit=' + state.vuexSubGroups.data.totalCount).then(response => {
                 state.vuexSubGroups = response;
                 window.localStorage.setItem('SubGroups', JSON.stringify(response));
                 state.inventoryUpdatedAux[3] = true;
-                if (state.inventoryUpdatedAux.every(i => i))
-                    state.inventoryUpdated = true;
-                if (state.inventoryUpdatedAux.slice(0,3).every(i => i))
-                    state.rankingUpdated = true;
+                state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
+                state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
             });
             concept().get('/mostreturned/?fields=devueltos,id&limit=' + state.vuexConcepts.data.totalCount).then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexConceptReturns = response;
                     window.localStorage.setItem('ConceptReturns', JSON.stringify(response));
-                    state.initAux[4] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.inventoryUpdatedAux[4] = true;
+                    state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
                 } else {
                     state.init = true;
                 }
@@ -222,8 +226,7 @@ export default new Vuex.Store({
                 weeklySales.push(await invoices().get('?limit=' + state.vuexInvoices.data.totalCount + '&fields=id&fecha_at=' + moment(w.test).locale('es').subtract(i, 'days').format('YYYY-MM-DD')));
             state.vuexWeeklySales = weeklySales;
             state.inventoryUpdatedAux[5] = true;
-            if (state.inventoryUpdatedAux.every(i => i))
-                state.inventoryUpdated = true;
+            state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
             window.localStorage.setItem('WeeklySales', JSON.stringify(weeklySales));
         },
 
@@ -233,8 +236,7 @@ export default new Vuex.Store({
                 if (!state.restoredFromCache) {
                     state.vuexConcepts = response;
                     state.initAux[0] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.init = state.initAux.every(i => i)
                 } else {
                     state.init = true;
                 }
@@ -243,8 +245,7 @@ export default new Vuex.Store({
                 if (!state.restoredFromCache) {
                     state.vuexConceptSales = response;
                     state.initAux[1] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.init = state.initAux.every(i => i)
                 } else {
                     state.init = true;
                 }
@@ -254,8 +255,7 @@ export default new Vuex.Store({
                     state.vuexInvoices = response;
                     window.localStorage.setItem('Invoices', JSON.stringify(response));
                     state.initAux[2] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.init = state.initAux.every(i => i)
                 } else {
                     state.init = true;
                 }
@@ -264,16 +264,14 @@ export default new Vuex.Store({
                 if (!state.restoredFromCache) {
                     state.vuexGroups = response;
                     state.initAux[3] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.init = state.initAux.every(i => i)
                 }
             });
             subGroups().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexSubGroups = response;
                     state.initAux[4] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.init = state.initAux.every(i => i)
                 } else {
                     state.init = true;
                 }
@@ -284,8 +282,7 @@ export default new Vuex.Store({
                     state.totalVendedores = state.vuexSellers.data.totalCount;
                     window.localStorage.setItem('totalVendedores', state.totalVendedores);
                     state.initAux[5] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.init = state.initAux.every(i => i)
                 } else {
                     state.init = true;
                 }
@@ -296,8 +293,7 @@ export default new Vuex.Store({
                     state.totalClientes = state.vuexBuyers.data.totalCount;
                     window.localStorage.setItem('totalClientes', state.totalClientes);
                     state.initAux[6] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.init = state.initAux.every(i => i)
                 } else {
                     state.init = true;
                 }
@@ -306,8 +302,7 @@ export default new Vuex.Store({
                 if (!state.restoredFromCache) {
                     state.vuexConceptReturns = response;
                     state.initAux[7] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.init = state.initAux.every(i => i)
                 } else {
                     state.init = true;
                 }
@@ -320,8 +315,7 @@ export default new Vuex.Store({
                         state.totalObjetivos = 0;
                     window.localStorage.setItem('totalObjetivos', state.totalObjetivos);
                     state.initAux[8] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.init = state.initAux.every(i => i)
                 } else {
                     state.init = true;
                 }
@@ -334,11 +328,23 @@ export default new Vuex.Store({
                         state.totalRutas = 0;
                     window.localStorage.setItem('totalRutas', state.totalRutas);
                     state.initAux[9] = true;
-                    if (state.initAux.every(i => i))
-                        state.init = true;
+                    state.init = state.initAux.every(i => i)
                 } else {
                     state.init = true;
                 }
+            });
+            compras().get('?limit=1').then(response => {
+                if(!state.restoredFromCache) {
+                   typeof response.data.totalCount !== 'undefined' ?
+                       state.totalCompras = response.data.totalCount :
+                       state.totalCompras = 0;
+                    window.localStorage.setItem('totalCompras', state.totalCompras);
+                    state.initAux[10] = true;
+                    state.init = state.initAux.every(i => i)
+                } else {
+                    state.init = true;
+                }
+                
             });
         },
         
@@ -348,29 +354,25 @@ export default new Vuex.Store({
                 state.vuexStorages = response;
                 window.localStorage.setItem('Storages', JSON.stringify(response));
                 state.dashboardUpdatedAux[0] = true;
-                if (state.dashboardUpdatedAux.every(i => i))
-                    state.dashboardUpdated = true;
+                state.dashboardUpdated = state.dashboardUpdatedAux.every(i => i)
             });
             groups().get('/mostSold/?limit=' + state.vuexGroups.data.totalCount + '&fecha_at=' + moment(w.test).format('YYYY-MM-DD')).then(response => {
                 state.vuexGroupSales = response;
                 window.localStorage.setItem('GroupSales', JSON.stringify(response));
                 state.dashboardUpdatedAux[1] = true;
-                if (state.dashboardUpdatedAux.every(i => i))
-                    state.dashboardUpdated = true;
+                state.dashboardUpdated = state.dashboardUpdatedAux.every(i => i)
             });
             subGroups().get('/mostsold/?limit=' + state.vuexSubGroups.data.totalCount + '&fecha_at=' + moment(w.test).format('YYYY-MM-DD')).then(response => {
                 state.vuexSubGroupSales = response;
                 window.localStorage.setItem('SubGroupSales', JSON.stringify(response));
                 state.dashboardUpdatedAux[2] = true;
-                if (state.dashboardUpdatedAux.every(i => i))
-                    state.dashboardUpdated = true;
+                state.dashboardUpdated = state.dashboardUpdatedAux.every(i => i)
             });
             invoices().get('?limit=' + state.vuexInvoices.data.totalCount + '&fecha_at=' + moment(w.test).format('YYYY-MM-DD')).then(response => {
                 state.vuexTodayInvoices = response;
                 window.localStorage.setItem('TodayInvoices', JSON.stringify(response));
                 state.dashboardUpdatedAux[3] = true;
-                if (state.dashboardUpdatedAux.every(i => i))
-                    state.dashboardUpdated = true;
+                state.dashboardUpdated = state.dashboardUpdatedAux.every(i => i)
             });
         },
 
@@ -397,6 +399,17 @@ export default new Vuex.Store({
                 window.localStorage.setItem('Routes', JSON.stringify(response));
                 window.localStorage.setItem('totalRutas', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
                 state.routesUpdated = true;
+            });
+        },
+
+        //HACE UPDATE AL MODULO RENTABILIDAD
+        async SET_UPDATE_RENTABILIDAD(state){
+            compras().get('?limit='+state.totalCompras).then( response => {
+                typeof response.data.totalCount !== 'undefined' ?
+                    state.totalCompras = response.data.totalCount
+                    : state.totalCompras = 0;
+                window.localStorage.setItem('totalCompras', state.totalCompras);
+                state.rentabilidadUpdatedAux[0] = true;
             });
         },
 
@@ -513,6 +526,9 @@ export default new Vuex.Store({
         },
         setTotalRutas({ commit },val ) {
             commit('SET_TOTAL_RUTAS',val);
+        },
+        setTotalCompras({ commit },val ) {
+            commit('SET_TOTAL_COMPRAS',val);
         },
     }
 });

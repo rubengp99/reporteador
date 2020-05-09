@@ -29,7 +29,18 @@ const routes = [
         meta:{
             auth:false,
             transitionName: 'slide'
-        }
+        },
+        children:[
+            {
+                path: ":reporte",
+                name:"rentabilidad-reporte",
+                component:() => import('../views/inventario/Inventario.vue'),
+                meta:{
+                    auth:true,
+                    transitionName: 'slide'
+                },
+            }
+        ]
     },
     {
         path: "/forgot",

@@ -1,9 +1,6 @@
 <template>
     <v-card width="100%">
         <div v-if="!loading">
-            <v-card-title class="title" style="justify-content:center;padding-bottom:0;">
-                {{title}}
-            </v-card-title>
             <v-card-text>
                 <apexchart
                     type="donut"
@@ -14,7 +11,7 @@
             </v-card-text>
             <v-divider></v-divider>
             <v-card-actions>
-                <p class="caption" style="padding: 5px 20px;">
+                <p class="caption" style="padding: 5px 20px;width:100%;">
                     El mes pasado 
                     <span class="text-capitalize" style="color:#0D47A1">{{ moment(w.test).locale('es').subtract(1,'months').format('MMMM [de] YYYY') }}</span>
                     se facturó un {{tipo}} con cantidad de 
@@ -41,7 +38,7 @@
                         }}.
                     </span>
                     <br><br>
-                     Se estima que {{conectivo}} {{title}} 
+                     Se estima que {{conectivo}} <span style="color:#0D47A1"> {{title}} </span>
                      <span style="color:#0D47A1">
                         {{
                             data[1] / data[0] >= 1 ? 'aumentó' : 'disminuyó'                   

@@ -1,78 +1,97 @@
 <template>
     <div style="margin-top:79px;padding: 0 20px;">
-        <v-row>
-            <v-col cols="12" md="6">
+        <v-row class="report-container">
+            <v-col cols="12" md="6" class="report">
+                <dCard col="12" icon img="facturacion" :title="`Facturas - ${rango}`" hoverable rmPadding :path="`/rentabilidad/incremento-facturas-${rango}`" />
                 <v-card width="100%">
-                    <compareCard 
-                        title="N° de Facturas" 
-                        tipo="total" 
-                        moneda='facturas' 
-                        :loading="facturasComp[2]" 
-                        :chart="facturas"
-                        :formula="
-                            apiFacturas
-                                .map(i=> +i.cantidad)[0] 
-                            / apiFacturas
-                                .map(i=> +i.cantidad)[1]"
-                       
-                    />
+                    <v-expand-transition>
+                        <compareCard 
+                            style="margin-bottom: 20px;"
+                            v-if="$route.params.reporte === `incremento-facturas-${rango}`"
+                            title="N° de Facturas"
+                            tipo="total" 
+                            moneda='facturas' 
+                            :loading="facturasComp[2]" 
+                            :chart="facturas"
+                            :formula="
+                                apiFacturas
+                                    .map(i=> +i.cantidad)[0] 
+                                / apiFacturas
+                                    .map(i=> +i.cantidad)[1]"
+                        
+                        />
+                    </v-expand-transition>
                 </v-card>
-            </v-col>
-            <v-col cols="12" md="6">
-                <compareCard
-                    title="Ingreso Mensual" 
-                    :moneda="moneda" 
-                    tipo="ingreso" 
-                    :loading="ingresosComp[2]"
-                    :chart="ingresos" 
-                    :formula="
-                        apiIngresos
-                            .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[0] 
-                        / apiIngresos
-                            .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[1]"
-                />
-            </v-col>
-            <v-col cols="12" md="6">
-                <rentabilidadCard
-                    title="Rentabilidad de Ventas" 
-                    :moneda="moneda" 
-                    entidad="Empresa"
-                    variableA="Ventas"
-                    variableB="Costos"
-                    :loading="comprasVsVentasComp[2]" 
-                    :chart="comprasVsVentas" 
-                    :formula="
-                        (apiComprasVsVentas
-                            .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[0] 
-                        - apiComprasVsVentas
-                            .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[1]) 
-                        / apiComprasVsVentas
-                            .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[0]"
-                />
-            </v-col>
+            </v-col >
+            <v-col cols="12" md="6" class="report">
+                <dCard col="12" icon img="savings" :title="`Ingresos - ${rango}`" hoverable rmPadding :path="`/rentabilidad/incremento-ingresos-${rango}`" />
+                <v-expand-transition>
+                    <compareCard
+                        style="margin-bottom: 20px;"
+                        v-if="$route.params.reporte === `incremento-ingresos-${rango}`"
+                        title="Ingreso Mensual"
+                        :moneda="moneda" 
+                        tipo="ingreso" 
+                        :loading="ingresosComp[2]"
+                        :chart="ingresos" 
+                        :formula="
+                            apiIngresos
+                                .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[0] 
+                            / apiIngresos
+                                .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[1]"
+                    />
+                </v-expand-transition>
+            </v-col >
+            <v-col cols="12" md="6" class="report">
+                <dCard col="12" icon img="benefits" :title="`Rentabilidad de Ventas`" hoverable rmPadding :path="`/rentabilidad/rentabilidad-ventas-${rango}`"/>
+                <v-expand-transition>
+                    <rentabilidadCard
+                        style="margin-bottom: 20px;"
+                        v-if="$route.params.reporte === `rentabilidad-ventas-${rango}`"
+                        :moneda="moneda" 
+                        entidad="Empresa"
+                        variableA="Ventas"
+                        variableB="Costos"
+                        :loading="comprasVsVentasComp[2]" 
+                        :chart="comprasVsVentas" 
+                        :formula="
+                            (apiComprasVsVentas
+                                .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[0] 
+                            - apiComprasVsVentas
+                                .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[1]) 
+                            / apiComprasVsVentas
+                                .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[0]"
+                    />
+                </v-expand-transition>
+            </v-col >
         </v-row>
     </div>
 </template>
 
 <script>
 import reports from '@/plugins/reports';
-import compareCard from '@/components/rentabilidad/compareCard'
-import rentabilidadCard from '@/components/rentabilidad/rentabilidadCard'
+import compareCard from '@/components/rentabilidad/compareCard';
+import rentabilidadCard from '@/components/rentabilidad/rentabilidadCard';
+import dCard from "@/components/aplicacion/Dashcard";
 import facturas from '@/services/Factura';
 import compras from '@/services/Compras';
 import vendedores from '@/services/Vendedores';
 import moment from 'moment';
+import router from '@/router';
+
 import w from '@/services/variables';
 
 export default {
     name:'rentabilidad',
     components:{
         compareCard,
-        rentabilidadCard
+        rentabilidadCard,
+        dCard
     },
     data(){
         return{
             w,
+            router,
             ingresos: {},
             apiIngresos:[],
             facturas: {},
@@ -85,7 +104,9 @@ export default {
             facturasComp: [false, false, true],
             comprasVsVentasComp: [false, false, true],
             moneda: 'Bs',
-            monedas: ['Bolivares','Dolares']
+            monedas: ['Bolivares','Dolares'],
+            rango: 'Mes',
+            rangos: ['Semana','Mes','Año']
         }
     },
     methods:{
@@ -163,7 +184,7 @@ export default {
             this.createIngresosComp();
             this.createFacturasComp();
             this.createcomprasVsVentas();
-        }
+        },
     },
     watch:{
         apiIngresos:{
@@ -175,7 +196,7 @@ export default {
                     this.ingresos = reports.chart__donut(
                         data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares),
                         data[0]/data[1] <= 1 ? 'Aumentó un' : 'Disminuyó un',             
-                        data[0]/data[1] <= 1 ? ["Mes Actual", "Mes Pasado"] : ["Mes Pasado", "Mes Actual"] ,
+                        data[0]/data[1] <= 1 ? [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] : [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] ,
                         data[0]/data[1] <= 1 ? ["#009688","#f73859"] : ["#f73859", "#009688"], 
                         null,
                         this.moneda
@@ -195,7 +216,7 @@ export default {
                     this.facturas = reports.chart__donut(
                         data.map(i=> +i.cantidad),
                         data[0]/data[1] <= 1 ? 'Aumentó un' : 'Disminuyó un',             
-                        data[0]/data[1] <= 1 ? ["Mes Actual", "Mes Pasado"] : ["Mes Pasado", "Mes Actual"] ,
+                        data[0]/data[1] <= 1 ? [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] : [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] ,
                         data[0]/data[1] <= 1 ? ["#3F51B5","#009688"] : ["#009688", "#3F51B5"], 
                         'cantidad'
                     )
@@ -229,3 +250,18 @@ export default {
     },
 }
 </script>
+
+<style lang="scss">
+
+.report-container{
+    .report{
+        padding: 0px 15px!important;
+    }
+
+    .report:nth-last-child(1):nth-child(odd){
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+</style>

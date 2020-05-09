@@ -1,9 +1,6 @@
 <template>
     <v-card width="100%">
         <div v-if="!loading">
-            <v-card-title class="title" style="justify-content:center;padding-bottom:0;">
-                {{title}}
-            </v-card-title>
             <v-card-text>
                 <apexchart
                     type="donut"
@@ -14,7 +11,7 @@
             </v-card-text>
             <v-divider></v-divider>
             <v-card-actions>
-                <p class="caption" style="padding: 5px 20px;">
+                <p class="caption" style="padding: 5px 20px;width:100%;">
                     La <span style="color:#0D47A1">{{ entidad }}</span> ha tenido <span style="color:#0D47A1">{{variableA}}</span> por una cantidad de
                     <span style="color:#0D47A1">
                         {{

@@ -39,7 +39,7 @@ const configStockDays = async function(product) {
             );
         }
         //este es el día que representa el final de las existencias de un producto
-        product.stock_lastDay = moment(w.test).locale("ES").add(stock_dates.length - 1, "days").format("LL");
+        product.stock_lastDay = moment(w.test).locale("ES").add(stock_dates.length - 1, "days").format("LL") + (moment(w.test).locale("ES").add(stock_dates.length - 1, "days").format("LL") === moment(w.test).locale('ES').format('LL') ? ' (Hoy)' : '');
     }else{
         //si no hay demanda, se crea un arreglo auxiliar donde no existen movimientos, el valor se repite 7 veces
         //esto con fines visuales en el reporte.
@@ -78,7 +78,7 @@ const configCostRelation = async function(product){
     */
 
 const configStockRotation = async function(product){
-    product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"], ["#ffc93c","#15b7b9"]);
+    product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"], ["#f73859","#009688"]);
 
     return product;
 }
@@ -149,7 +149,7 @@ const configDevolutions = async function(product){
   //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
   product.returned = typeof devolutions !== 'undefined' ? !isNaN(+devolutions.devueltos) ? Math.trunc(+devolutions.devueltos * 100) / 100 : 0 : 0;
   
-  product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#E91E63", "#3F51B5"]);
+  product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#f73859","#3F51B5",]);
   return product;
 }
 
