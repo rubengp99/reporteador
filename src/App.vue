@@ -107,9 +107,6 @@ export default {
         else
             this.setInitAplicacion();
         this.animate(this.transitionName);
-    },
-    mounted(){
-        console.log(this.init);
     }
 }
 </script>
