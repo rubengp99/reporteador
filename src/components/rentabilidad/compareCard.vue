@@ -107,8 +107,9 @@ export default {
             data: [],
         }
     },
-    beforeUpdate(){
+    beforeMount(){
         this.data = this.chart.series;
+        this.$forceUpdate();
     }
 }
 </script>

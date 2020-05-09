@@ -31,10 +31,11 @@ export default {
     methods:{
         ...transitions,
         ...mapActions(['setInitAplicacion','setUpdateInventario','setUpdateDashboard','setGoals',
-            'setUpdateVentas','setConcepts','setInvoices','setConceptSales','setGroups','setSubgroups',
+            'setUpdateVentas','setUpdateRentabilidad','setConcepts','setInvoices','setConceptSales','setGroups','setSubgroups',
             'setGroupSales','setSubgroupSales','setWeeklySales','setStorages','setSellers','setConceptReturns',
             'setBuyers','setTotalClientes','setTotalVendedores','setTodayInvoices', 'setTotalObjetivos',
-            'setTotalRutas','setRoutes','restoreFromCache',
+            'setTotalRutas','setRoutes','setCompras','setIngresosVs','setFacturasVs','setTotalCompras',
+            'setComprasVsVentas','restoreFromCache',
         ]),
         checkCache(){
             this.dataCache = [
@@ -57,6 +58,10 @@ export default {
                 JSON.parse(window.localStorage.getItem('Goals')),
                 JSON.parse(window.localStorage.getItem('Routes')),
                 JSON.parse(window.localStorage.getItem('totalRutas')),
+                JSON.parse(window.localStorage.getItem('totalCompras')),
+                JSON.parse(window.localStorage.getItem('IngresosVs')),
+                JSON.parse(window.localStorage.getItem('FacturasVs')),
+                JSON.parse(window.localStorage.getItem('ComprasVsVentas'))
             ];
         },
         cacheApp(){
@@ -72,6 +77,7 @@ export default {
             this.setStorages(JSON.parse(window.localStorage.getItem('Storages')));
             this.setTotalVendedores(JSON.parse(window.localStorage.getItem('totalVendedores')));
             this.setTotalClientes(JSON.parse(window.localStorage.getItem('totalClientes')));
+            this.setTotalCompras(JSON.parse(window.localStorage.getItem('totalCompras')));
             this.setTotalObjetivos(JSON.parse(window.localStorage.getItem('totalObjetivos')));
             this.setTotalRutas(JSON.parse(window.localStorage.getItem('totalRutas')));
             this.setSellers(JSON.parse(window.localStorage.getItem('Sellers')));
@@ -79,18 +85,23 @@ export default {
             this.setConceptReturns(JSON.parse(window.localStorage.getItem('ConceptReturns')));
             this.setGoals(JSON.parse(window.localStorage.getItem('Goals')));
             this.setRoutes(JSON.parse(window.localStorage.getItem('Routes')));
+            this.setIngresosVs(JSON.parse(window.localStorage.getItem('IngresosVs')));
+            this.setFacturasVs(JSON.parse(window.localStorage.getItem('FacturasVs')));
+            this.setComprasVsVentas(JSON.parse(window.localStorage.getItem('ComprasVsVentas')));
             this.restoreFromCache();
         }
     },
     watch:{
         init: async function(){
-            this.setUpdateInventario(null);
-            this.setUpdateDashboard(null);
-            this.setUpdateVentas(null);
+            this.setUpdateInventario();
+            this.setUpdateDashboard();
+            this.setUpdateVentas();
+            this.setUpdateRentabilidad();
             setInterval(async ()=>{
-                this.setUpdateInventario(null);
-                this.setUpdateDashboard(null);
-                this.setUpdateVentas(null);
+                this.setUpdateInventario();
+                this.setUpdateDashboard();
+                this.setUpdateVentas();
+                this.setUpdateRentabilidad();
                 this.$toasted.info("Se actualizó la información.", { 
                     theme: "bubble", 
                     position: "bottom-right", 

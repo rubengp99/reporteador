@@ -63,8 +63,9 @@ export default new Vuex.Store({
         buyersUpdated: false,
         goalsUpdated: false,
         routesUpdated: false,
-        rentabilidadUpdatedAux:[false, false, false, false, false, false],
-        rentabilidadUpdated:false,
+        facturasVsUpdated:false,
+        ingresosVsUpdated:false,
+        comprasVsVentasUpdated: false,
         vuexIngresosComp: [false, false, true],
         vuexFacturasComp: [false, false, true],
         vuexComprasVsVentasComp: [false, false, true],
@@ -146,6 +147,15 @@ export default new Vuex.Store({
         },
         SET_ROUTES(state, val) {
             state.vuexRoutes = val;
+        },
+        SET_COMPRAS(state, val) {
+            state.vuexComprasVsVentas = val;
+        },
+        SET_FACTURAS_VS(state, val) {
+            state.vuexFacturasVs = val;
+        },
+        SET_INGRESOS_VS(state, val) {
+            state.vuexIngresosVs = val;
         },
         SET_TOTAL_RUTAS(state, val) {
             state.totalRutas = val;
@@ -382,6 +392,18 @@ export default new Vuex.Store({
                 state.vuexSellers = response;
                 window.localStorage.setItem('Sellers', JSON.stringify(response));
                 state.sellersUpdated = true;
+
+                //esta data se usa en rentabilidad
+                let data = {
+                    bolivares: Math.round(response.data.data.map(i => +i.venta_total).reduce((a, b) => a + b) * 100) / 100,
+                    dolares: Math.round(response.data.data.map(i => +i.venta_total_dolar).reduce((a, b) => a + b) * 100) / 100,
+                    compras: 0,
+                };
+                state.vuexComprasVsVentas.push(data);
+                state.vuexComprasVsVentasComp[1] = true;
+                
+                if (state.vuexComprasVsVentasComp.slice(1,2).every(i => i)) window.localStorage.setItem('ComprasVsVentas', JSON.stringify(state.vuexComprasVsVentas));
+                state.comprasVsVentasUpdated = state.comprasVsVentasComp.slice(1, 2).every(i => i);
             });
             buyers().get('/mostBuyers/?limit=' + state.totalClientes).then(response => {
                 state.vuexBuyers = response;
@@ -404,13 +426,82 @@ export default new Vuex.Store({
 
         //HACE UPDATE AL MODULO RENTABILIDAD
         async SET_UPDATE_RENTABILIDAD(state){
-            compras().get('?limit='+state.totalCompras).then( response => {
-                typeof response.data.totalCount !== 'undefined' ?
-                    state.totalCompras = response.data.totalCount
-                    : state.totalCompras = 0;
-                window.localStorage.setItem('totalCompras', state.totalCompras);
-                state.rentabilidadUpdatedAux[0] = true;
+            state.vuexIngresosVs = [];
+            state.vuexFacturasVs = [];
+            state.vuexComprasVsVentas = [];
+            state.vuexIngresosComp = [false, false, true];
+            state.vuexFacturasComp = [false, false, true];
+            state.vuexComprasVsVentasComp = [false, false, true]
+            
+            let pastMonth = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM');
+            let thisMonth = moment(w.test).locale('es').format('YYYY-MM');
+
+            invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+pastMonth+'-01').then(Response =>{
+                let data = {
+                    bolivares: Response.data.data.subtotal,
+                    dolares:  Response.data.data.subtotal_dolar,
+                    mesActual: 0,
+                };
+                state.vuexIngresosVs.push(data);
+                state.vuexIngresosComp[0] = true;
+
+                if (state.vuexIngresosComp.slice(1, 2).every(i => i)) window.localStorage.setItem('IngresosVs', JSON.stringify(state.vuexIngresosVs));
+                
+                state.ingresosVsUpdated = state.vuexIngresosComp.slice(1, 2).every(i => i);
             });
+            invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+thisMonth+'-01').then(Response =>{
+                let data = {
+                    bolivares: Response.data.data.subtotal,
+                    dolares:  Response.data.data.subtotal_dolar,
+                    mesActual: 1,
+                };
+                state.vuexIngresosVs.push(data);
+                state.vuexIngresosComp[1] = true;
+
+                if (state.vuexIngresosComp.slice(1, 2).every(i => i)) window.localStorage.setItem('IngresosVs', JSON.stringify(state.vuexIngresosVs));
+                
+                state.ingresosVsUpdated = state.vuexIngresosComp.slice(1, 2).every(i => i);
+            });
+
+            invoices().get('/cantidad?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at=' + pastMonth + '-01').then(Response => {
+                let data = {
+                    cantidad: Response.data.count,
+                    mesActual: 0,
+                };
+                state.vuexFacturasVs.push(data);
+                state.vuexFacturasComp[0] = true;
+
+                if (state.vuexFacturasComp.slice(1, 2).every(i => i)) window.localStorage.setItem('FacturasVs', JSON.stringify(state.vuexFacturasVs));
+                
+                state.facturasVsUpdated = state.vuexFacturasComp.slice(1, 2).every(i => i);
+            });
+            invoices().get('/cantidad?limit=' + state.vuexInvoices.data.totalCount + '&after-fecha_at=' + thisMonth + '-01').then(Response => {
+                let data = {
+                    cantidad: Response.data.count,
+                    mesActual: 1,
+                };
+                state.vuexFacturasVs.push(data);
+                state.vuexFacturasComp[1] = true;
+
+                if (state.vuexFacturasComp.slice(1, 2).every(i => i)) window.localStorage.setItem('FacturasVs', JSON.stringify(state.vuexFacturasVs));
+            
+                state.facturasVsUpdated = state.vuexFacturasComp.slice(1, 2).every(i => i);
+            });
+
+            compras().get('?limit=' + state.totalCompras).then(Response => {
+                let data = {
+                    bolivares: Math.round(Response.data.data.map(i => +i.subtotal).reduce((a, b) => a + b) * 100) / 100,
+                    dolares: Math.round(Response.data.data.map(i => +i.subtotal_dolar).reduce((a, b) => a + b) * 100) / 100,
+                    compras: 1,
+                };
+                state.vuexComprasVsVentas.push(data);
+                state.vuexComprasVsVentasComp[0] = true;
+                
+                if (state.vuexComprasVsVentasComp.slice(1, 2).every(i => i)) window.localStorage.setItem('ComprasVsVentas', JSON.stringify(state.vuexComprasVsVentas));
+            
+                state.comprasVsVentasUpdated = state.comprasVsVentasComp.slice(1, 2).every(i => i);
+            });
+
         },
 
         // ACTIVA TODAS LAS BANDERAS LUEGO DE CARGAR LA DATA DEL CACHE
@@ -422,6 +513,12 @@ export default new Vuex.Store({
             state.buyersUpdated = true;
             state.sellersUpdated = true;
             state.goalsUpdated = true;
+            state.facturasVsUpdated = true;
+            state.ingresosVsUpdated = true;
+            state.comprasVsVentasUpdated = true;
+            state.vuexIngresosComp = [true, true, false];
+            state.vuexFacturasComp = [true, true, false];
+            state.vuexComprasVsVentasComp = [true, true, false];
         }
     },
     actions: {
@@ -529,6 +626,18 @@ export default new Vuex.Store({
         },
         setTotalCompras({ commit },val ) {
             commit('SET_TOTAL_COMPRAS',val);
+        },
+        setComprasVsVentas({ commit },val ) {
+            commit('SET_COMPRAS',val);
+        },
+        setUpdateRentabilidad({ commit },val ) {
+            commit('SET_UPDATE_RENTABILIDAD',val);
+        },
+        setFacturasVs({ commit },val ) {
+            commit('SET_FACTURAS_VS',val);
+        },
+        setIngresosVs({ commit },val ) {
+            commit('SET_INGRESOS_VS',val);
         },
     }
 });
