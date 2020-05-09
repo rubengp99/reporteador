@@ -5,7 +5,7 @@ const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'],
         series: data,
         chartOptions: {
             chart: {
-                type: "pie",
+                type: "donut",
                 animations: {
                     enabled: true,
                     easing: 'easeinout',

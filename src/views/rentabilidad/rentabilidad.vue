@@ -1,13 +1,13 @@
 <template>
     <div style="margin-top:79px;padding: 0 20px;">
         <v-row class="report-container">
-            <v-col cols="12" md="6" class="report">
-                <dCard col="12" icon img="facturacion" :title="`Facturas - ${rango}`" hoverable rmPadding :path="`/rentabilidad/incremento-facturas-${rango}`" />
+            <v-col cols="12" lg="6" class="report">
+                <dCard col="12" icon img="facturacion" :title="`Facturación`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/incremento-facturas-${rango}` : ''" last />
                 <v-card width="100%">
                     <v-expand-transition>
                         <compareCard 
                             style="margin-bottom: 20px;"
-                            v-if="$route.params.reporte === `incremento-facturas-${rango}`"
+                            v-if="$route.params.reporte === `incremento-facturas-${rango}` || isDesktop"
                             title="N° de Facturas"
                             tipo="total" 
                             moneda='facturas' 
@@ -23,12 +23,12 @@
                     </v-expand-transition>
                 </v-card>
             </v-col >
-            <v-col cols="12" md="6" class="report">
-                <dCard col="12" icon img="savings" :title="`Ingresos - ${rango}`" hoverable rmPadding :path="`/rentabilidad/incremento-ingresos-${rango}`" />
+            <v-col cols="12" lg="6" class="report">
+                <dCard col="12" icon img="savings" :title="`Ingreso Mensual`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/incremento-ingresos-${rango}` : ''" last/>
                 <v-expand-transition>
                     <compareCard
                         style="margin-bottom: 20px;"
-                        v-if="$route.params.reporte === `incremento-ingresos-${rango}`"
+                        v-if="$route.params.reporte === `incremento-ingresos-${rango}` || isDesktop"
                         title="Ingreso Mensual"
                         :moneda="moneda" 
                         tipo="ingreso" 
@@ -42,12 +42,12 @@
                     />
                 </v-expand-transition>
             </v-col >
-            <v-col cols="12" md="6" class="report">
-                <dCard col="12" icon img="benefits" :title="`Rentabilidad de Ventas`" hoverable rmPadding :path="`/rentabilidad/rentabilidad-ventas-${rango}`"/>
+            <v-col cols="12" lg="6" class="report">
+                <dCard col="12" icon img="benefits" :title="`Rentabilidad de Ventas`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/rentabilidad-ventas-${rango}` : ''" last/>
                 <v-expand-transition>
                     <rentabilidadCard
                         style="margin-bottom: 20px;"
-                        v-if="$route.params.reporte === `rentabilidad-ventas-${rango}`"
+                        v-if="$route.params.reporte === `rentabilidad-ventas-${rango}` || isDesktop" 
                         :moneda="moneda" 
                         entidad="Empresa"
                         variableA="Ventas"
@@ -103,7 +103,8 @@ export default {
             moneda: 'Bs',
             monedas: ['Bolivares','Dolares'],
             rango: 'Mes',
-            rangos: ['Semana','Mes','Año']
+            rangos: ['Semana','Mes','Año', 'Todo'],
+            isDesktop:true,
         }
     },
     computed:{
@@ -124,6 +125,7 @@ export default {
                 data[0]/data[1] <= 1 ? ["#3F51B5","#009688"] : ["#009688", "#3F51B5"], 
                 'cantidad'
             );
+            this.$forceUpdate();
         },
         createIngresosComp(){
             this.apiIngresos = this.vuexIngresosVs;
@@ -137,6 +139,7 @@ export default {
                 null,
                 this.moneda
             );
+            this.$forceUpdate();
         },
         createComprasVsVentasComp(){
             this.apiComprasVsVentas = this.vuexComprasVsVentas;
@@ -149,13 +152,22 @@ export default {
                 data[0]/data[1] <= 1 ? ["#3F51B5","#f73859"] : ["#f73859", "#3F51B5"], 
                 'benefits',
                 this.moneda
-            );  
+            );
+            this.$forceUpdate();
         },
         createRentabilidad(){
             if(this.facturasVsUpdated) this.createFacturasComp();
             if(this.ingresosVsUpdated) this.createIngresosComp();
             if(this.comprasVsVentasUpdated) this.createComprasVsVentasComp();
         },
+        onResize(){
+            if (window.innerWidth > 599){
+                this.isDesktop = true;
+                if (this.$route.name === 'rentabilidad-reporte') this.router.push('/rentabilidad');
+            }else
+                this.isDesktop = false;
+            
+        }
     },
     watch:{
         vuexComprasVsVentas(newVal){
@@ -171,13 +183,20 @@ export default {
             this.createFacturasComp();
         },
     },
+    created(){
+        window.addEventListener('resize', this.onResize);
+        this.onResize();
+    },
     beforeMount(){
         this.createRentabilidad();
     },
     beforeUpdate(){
         this.createRentabilidad();
 
-    }
+    },
+    beforeDestroy() {
+        window.removeEventListener('resize', this.onResize)
+    },
 
 }
 </script>
