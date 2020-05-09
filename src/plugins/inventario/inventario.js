@@ -137,7 +137,7 @@ const configClaims = async function  (product) {
         [0, product.sold],
         "Reclamos del",             //esto corresponde a reclamos, aún no está hecho, 
         ["Reclamos", "Compras"],    //solo hay que cambiar el 0 por el Nº de reclamos
-        ["#FFC107", "#3f72af"]
+        ["#FFC107", "#3F51B5"]
     );
 
     return product;
@@ -149,7 +149,7 @@ const configDevolutions = async function(product){
   //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
   product.returned = typeof devolutions !== 'undefined' ? !isNaN(+devolutions.devueltos) ? Math.trunc(+devolutions.devueltos * 100) / 100 : 0 : 0;
   
-  product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#E91E63", "#3f72af"]);
+  product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#E91E63", "#3F51B5"]);
   return product;
 }
 

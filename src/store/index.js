@@ -167,6 +167,8 @@ export default new Vuex.Store({
                 limite: moment(w.test).locale('es').format('YYYY-MM-DD'),
             });
         },
+
+        //HACE UPDATE DE LA DATA DEL INVENTARIO
         async SET_UPDATE_INVENTARIO(state) {
             concept().get('?limit=' + state.vuexConcepts.data.totalCount + '&fields=existencias&orderField=id&order=DESC').then(response => {
                 state.vuexConcepts = response;
@@ -224,6 +226,8 @@ export default new Vuex.Store({
                 state.inventoryUpdated = true;
             window.localStorage.setItem('WeeklySales', JSON.stringify(weeklySales));
         },
+
+        //INICIALIZA TODA LA DATA DEL PROYECTO SI NO SE USÓ CACHE
         async SET_INIT_APLICACION(state) {
             concept().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
@@ -337,6 +341,8 @@ export default new Vuex.Store({
                 }
             });
         },
+        
+        /// HACE UPDATE AL DASHBOARD
         async SET_UPDATE_DASHBOARD(state) {
             storages().get().then(response => {
                 state.vuexStorages = response;
@@ -367,6 +373,8 @@ export default new Vuex.Store({
                     state.dashboardUpdated = true;
             });
         },
+
+        /// HACE UPDATE AL MODULO DE VENTAS
         async SET_UPDATE_VENTAS(state) {
             sellers().get('/mostSellers/?limit=' + state.totalVendedores).then(response => {
                 state.vuexSellers = response;
@@ -391,6 +399,8 @@ export default new Vuex.Store({
                 state.routesUpdated = true;
             });
         },
+
+        // ACTIVA TODAS LAS BANDERAS LUEGO DE CARGAR LA DATA DEL CACHE
         RESTORE_FROM_CACHE(state) {
             state.restoredFromCache = true;
             state.dashboardUpdated = true;

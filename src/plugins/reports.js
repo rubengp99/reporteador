@@ -1,6 +1,6 @@
 import accounting from 'accounting';
 
-const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'], formatter = 'default') => {
+const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'], formatter = 'default',moneda = '$') => {
     return {
         series: data,
         chartOptions: {
@@ -34,7 +34,7 @@ const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'],
                             value: {
                                 color: 'white',
                                 formatter: function (val) {
-                                    return ((formatter !== 'default' && formatter !== 'volumen' &&  formatter !== 'cantidad') ? (accounting.formatMoney(val,{symbol:'$',thousand:'.',decimal:','})) : (accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0] + ((formatter !== 'cantidad') ? ' uds' : '')));
+                                    return ((formatter !== 'default' && formatter !== 'volumen' &&  formatter !== 'cantidad') ? (accounting.formatMoney(val,{symbol: moneda,thousand:'.',decimal:','})) : (accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0] + ((formatter !== 'cantidad') ? ' uds' : '')));
                                 },
                             },
                             total: {
@@ -88,7 +88,7 @@ const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'],
             tooltip: {
                 y: {
                     formatter: function (val) {
-                        return ((formatter !== 'default' && formatter !== 'volumen' &&  formatter !== 'cantidad') ? (accounting.formatMoney(val,{symbol:'$',thousand:'.',decimal:','})) : (accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0] + ((formatter !== 'cantidad') ? ' uds' : '')));
+                        return ((formatter !== 'default' && formatter !== 'volumen' &&  formatter !== 'cantidad') ? (accounting.formatMoney(val,{symbol: moneda ,thousand:'.',decimal:','})) : (accounting.formatMoney(val,{symbol:'',thousand:'.',decimal:','}).split(',')[0] + ((formatter !== 'cantidad') ? ' uds' : '')));
                     },
                   },
                 fillSeriesColor: false,

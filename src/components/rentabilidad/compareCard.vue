@@ -15,7 +15,9 @@
             <v-divider></v-divider>
             <v-card-actions>
                 <p class="caption" style="padding: 5px 20px;">
-                    El mes pasado se facturó un {{tipo}} con cantidad de 
+                    El mes pasado 
+                    <span class="text-capitalize" style="color:#0D47A1">{{ moment(w.test).locale('es').subtract(1,'months').format('MMMM [de] YYYY') }}</span>
+                    se facturó un {{tipo}} con cantidad de 
                     <span style="color:#0D47A1">
                         {{
                             moneda === 'Bs' || moneda === '$' ?
@@ -48,7 +50,7 @@
                      en un 
                      <span style="color:#0D47A1">
                         {{
-                            (Math.round((data[0] / data[1]) * 100)) + '%'
+                            (Math.round((formula) * 100)) + '%'
                         }}.
                      </span>
                 </p>
@@ -92,6 +94,10 @@ export default {
         loading:{
             type:Boolean,
             default:false,
+        },
+        formula:{
+            type:Number,
+            default:0,
         }
     },
     methods:{

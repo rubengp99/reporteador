@@ -1,7 +1,7 @@
 <template>
     <v-col cols="12" :sm="col === '6' || last ? '12' : '6'" :md="col === '4' ? '4' : '6'" :lg="col === '4' ?  '4' : col === '3' ? '3' : '6'">
         <v-scale-transition v-if="!loading">
-            <v-card :class="cssClass" width="100%" height="100%" :to="path" style="background:#fdfdfd;" active-class="active" >
+            <v-card :class="cssClass" width="100%" height="100%" :to="path" style="background:#fdfdfd;" active-class="active">
                 <v-list-item three-line>
                     <v-list-item-content>
                         <div class="overline mb-1">{{'Hoy, '+ hoy}}</div>
