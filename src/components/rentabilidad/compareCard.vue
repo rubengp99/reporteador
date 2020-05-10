@@ -1,10 +1,10 @@
 <template>
-    <v-card width="100%">
+    <v-card width="100%" fill-height>
         <div v-if="!loading">
             <v-card-text>
                 <apexchart
                     type="donut"
-                    height="335em"
+                    :height=" isDesktop ? '350em' : '335em'"
                     :options="chart.chartOptions"
                     :series="chart.series"
                 />
@@ -23,9 +23,9 @@
                         }}
                         {{
                             moneda !== 'Bs' && moneda !== '$' ? moneda : ''
-                        }}
+                        }}.
                     </span>
-                    . Durante el curso de este mes <span class="text-capitalize" style="color:#0D47A1">{{ moment(w.test).locale('es').format('MMMM [de] YYYY') }}</span>
+                     Durante el curso de este mes <span class="text-capitalize" style="color:#0D47A1">{{ moment(w.test).locale('es').format('MMMM [de] YYYY') }}</span>
                      se ha facturado un {{tipo}} de 
                     <span style="color:#0D47A1">
                         {{
@@ -35,7 +35,7 @@
                         }}
                         {{
                             moneda !== 'Bs' && moneda !== '$' ? moneda : ''
-                        }}.
+                        }}
                     </span>
                     <br><br>
                      Se estima que {{conectivo}} <span style="color:#0D47A1"> {{title}} </span>
@@ -100,16 +100,31 @@ export default {
     methods:{
         formatMoney,
         moment,
+        onResize(){
+            if (window.innerWidth > 599){
+                this.isDesktop = true;
+            }else
+                this.isDesktop = false;
+            
+        }
     },
     data(){
         return{
             w,
             data: [],
+            isDesktop: true,
         }
+    },
+    created(){
+        window.addEventListener('resize', this.onResize);
+        this.onResize();
     },
     beforeMount(){
         this.data = this.chart.series;
         this.$forceUpdate();
-    }
+    },
+    beforeDestroy() {
+        window.removeEventListener('resize', this.onResize)
+    },
 }
 </script>

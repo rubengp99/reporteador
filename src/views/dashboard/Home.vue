@@ -4,8 +4,8 @@
             <v-row>
                 <dCard col="3" icon img="savings" text="Ingresos." :title="gains$" :loading="loading[0]"/>
                 <dCard col="3" icon img="factura" text="Facturas." :title="invoices" :loading="loading[1]"/>
-                <dCard col="3" icon img="boxOF" text="Conceptos bajo la mínima." :title="stockMin" :loading="loading[2]"/>
-                <dCard col="3" icon img="boxO" text="Conceptos sobre la máxima." :title="stockMax" :loading="loading[3]"/>
+                <dCard col="3" icon img="boxOF" text="Conceptos bajo el mínimo." :title="stockMin" :loading="loading[2]" hoverable/>
+                <dCard col="3" icon img="boxO" text="Conceptos sobre el máximo." :title="stockMax" :loading="loading[3]" hoverable/>
             </v-row>
             <v-row>
                 <dCard col="4" icon img="box"  title="Inventario" hoverable path="/Inventario"/>
@@ -108,8 +108,8 @@ export default {
             this.$data.gains$ = accounting.formatMoney(+this.$data.gains$, { symbol   : "$", thousand : ".", decimal  : ",", });
             //productos con existencia mínima y máxima
             for (let concept of this.apiConcepts.data.data){
-                this.stockMin += typeof concept.existencia_minima !== 'string' ? 0 : +concept.existencia_minima > +concept.existencia ? 1 : 0;
-                this.stockMax += typeof concept.existencia_maxima !== 'string' ? 0 : +concept.existencia_maxima > +concept.existencia ? 1 : 0;
+                this.stockMin += typeof concept.existencia_minima === 'undefined' ? 0 : +concept.existencia_minima > +this.getExistencias(concept) ? 1 : 0;
+                this.stockMax += typeof concept.existencia_maxima === 'undefined' ? 0 : +concept.existencia_maxima > +this.getExistencias(concept) ? 1 : 0;
             }
             this.loading[2] = false;
             this.loading[3] = false;
@@ -196,6 +196,9 @@ export default {
                 this.createStorageValue();
             }
         },
+        getExistencias(concept){
+            return (Array.isArray(concept.existencias) ? concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : 0 : concept.existencias);
+        }
     },
     watch:{
         vuexConcepts(){
