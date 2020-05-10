@@ -130,8 +130,8 @@ export default {
             for (let concept of this.apiConcepts.data.data){
                 this.stockMin += typeof concept.existencia_minima === 'undefined' ? 0 : +concept.existencia_minima > +this.getExistencias(concept) ? 1 : 0;
                 if (typeof concept.existencia_minima === 'undefined' ? false : (+concept.existencia_minima > +this.getExistencias(concept))) this.stockMinConcepts.push(concept);
-                this.stockMax += typeof concept.existencia_maxima === 'undefined' ? 0 : +concept.existencia_maxima > +this.getExistencias(concept) ? 1 : 0;
-                if (typeof concept.existencia_maxima === 'undefined' ? false : (+concept.existencia_maxima > +this.getExistencias(concept))) this.stockMaxConcepts.push(concept);
+                this.stockMax += typeof concept.existencia_maxima === 'undefined' ? 0 : +this.getExistencias(concept) > +concept.existencia_maxima ? 1 : 0;
+                if (typeof concept.existencia_maxima === 'undefined' ? false : (+this.getExistencias(concept) > +concept.existencia_maxima)) this.stockMaxConcepts.push(concept);
             }
             this.loading[2] = false;
             this.loading[3] = false;
