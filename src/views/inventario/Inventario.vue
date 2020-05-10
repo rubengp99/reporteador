@@ -69,7 +69,7 @@
                             ref="Inventario"
                             :loading="loading && '#01579B'"
                             :headers="table.headers"
-                            :items="table.products"
+                            :items="table.concepts"
                             :search="table.search"
                             :single-expand="table.expand"
                             :expanded.sync="table.expanded"
@@ -182,10 +182,9 @@
 <script>
 import chart from "@/components/inventario/Chart"
 import conceptDialog from '@/components/inventario/Concepto'
-import accounting from 'accounting';
-import _ from 'lodash';
 import expandibles from '@/plugins/inventario/expandibles';
 import inventario from '@/plugins/inventario/inventario';
+import inventarioData from '@/plugins/inventario/data'
 import watchers from '@/plugins/inventario/watchers';
 import {mapState} from 'vuex';
 
@@ -204,62 +203,7 @@ export default {
     },
     data() {
         return {
-            isExpanded: false,
-            apiConcepts: null,
-            apiConceptsAux: null,
-            apiConceptReturns: null,
-            apiInvoices: null,
-            apiConceptSales: null,
-            weeklySales: [],
-            apiSales: null,
-            apiGroups: null,
-            selectedItem: {
-                referece: null,
-                stock: null,
-                stockMin:null, 
-                stockMax:null,
-                stock_lastDay: null
-            },
-            apiSubGroups: [],
-            //existen conceptos con subgrupos_id = null, esta categoría las engloba para que no se pierdan
-            //durante el filtrado, PD: se pushean más grupos, pero este es el inicial
-            grupos: [{text: 'Indefinidos', value: {id: null, name: '-', hasSub: true} }],
-            subgrupos: [],
-            grupo: "",
-            subgrupo: "",
-            search: "",
-            goSearch: false,
-            transitioned: [],
-            closeTimeouts: {},
-            singleExpand: false,
-            subNoData: 'Seleccione un «Grupo» primero.',
-            filteredConcepts: [],
-            clear: false,
-            dialog: false,
-            loading: true,
-            table: {
-                expanded: [],
-                expand: false,
-                page: 1,
-                page_old: 1,
-                pageCount: 0,
-                itemsPerPage: 10,// para cambiar el limite de conceptos por página, cambia este número, lo demas se configura solo
-                dataOffset: 0,
-                totalConceptos: 0,
-                headers: [
-                    { text: "Más Detalles", align: "center", sortable: false, value: "image" },
-                    //{ text: "ID", align: "center", value: "id", sortable: false, },
-                    { text: "Código", align: "center", value: "codigo", sortable: false, },
-                    { text: "Producto", align: "center", value: "name", sortable: false, },
-                    { text: "Grupo", align: "center", value: "category.name", sortable: false, },
-                    { text: "Sub-Grupo", align: "center", value: "subCategory.name", sortable: false, },
-                    { text: "Existencia", align: "center", value: "stock", sortable:false, },
-                    //{ text: "Vendidos", align: "center", value: "sold", sortable: false, },
-                    { text: "Precio", align: "center", value: "sale", sortable: false, },
-                    { text: "Estadísticas", align: "center", value: "data-table-expand", sortable: false, }
-                ],
-                products: [],
-            }
+            ...inventarioData
         };
     },
     computed:{
@@ -269,150 +213,6 @@ export default {
         //VISTA LA CARPETA @/PLUGINS/INVENTARIO
         ...expandibles,
         ...inventario,
-        //EXTRAEMOS 8 CONCEPTOS ANALIZADOS PARA MOSTRAR EN LA TABLA
-        getConcept: _.debounce(async function(search = false, input = "", pConcept = null) {
-            let aux = [];
-            //este metodo solo procesa el limite por pagina, por eso se corta el arreglo segun lo calculado en paginate()
-            let apiConcepts = (pConcept.length > this.table.itemsPerPage) ? 
-                pConcept.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage) : pConcept;
-            //si se ha habilitado alguna busqueda por nombre entonces  
-            if (search && typeof this.$route.params.id === 'undefined'){
-                //se filtran los resultados del arreglo general si no hay grupos acti vos, sino, se filtran desde el arreglo previamente filtrado
-                this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
-                .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase()));
-                apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
-                this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
-                .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase())).length;
-            }else if(typeof this.$route.params.id !== 'undefined'){
-                this.filteredConcepts = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
-                .filter(concept => concept.id === this.$route.params.id);
-                apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
-                this.table.totalConceptos = ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
-                .filter(concept => concept.adm_grupos_id === this.$route.params.grupo && concept.adm_subgrupos_id === this.$route.params.subgrupo && concept.nombre === this.$route.params.nombre).length;
-            }
-            this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
-            //procesamos los productos que apareceran en la página
-            //aunado a ello, construimos nuestro propio objecto debido a que el modulo requiere una estructura diferente
-            //a la planteada en la base de datos
-            for(let concept of apiConcepts){
-                aux.push(
-                    await this.configData(
-                        {
-                            image: concept.imagen,
-                            icon: {
-                                img: '/images/box.svg',
-                                toggled: false,
-                            },
-                            reference: concept.referencia,
-                            id: concept.id,
-                            codigo: concept.codigo,
-                            name: concept.nombre,
-                            stock: Array.isArray(concept.existencias) ? concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : 0 : concept.existencias ,
-                            sold: 0,
-                            stockMin: concept.existencia_minima,
-                            stockMax: concept.existencia_maxima,
-                            description: concept.descripcion,
-                            returned: 0,
-                            sale: +concept.precio_dolar,
-                            cost: +concept.costo_dolar,
-                            category: {
-                                id: (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
-                                    this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).id:0,
-                                name: (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
-                                        this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).nombre:'-',
-                            },
-                            subCategory: {
-                                id: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
-                                    typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].id : 0 : 0,
-                                name: (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
-                                        typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' :'-'
-                            },
-                            stock_daily_sells: [0,0,0,0,0,0],
-                            stock_end: [],
-                            stock_lastDay: "",
-                            stock_rotation: null,
-                            stock_demand: null,
-                            stock_devolution: null,
-                            stock_claims: null,
-                            stock_days: null,
-                            stock_costs: null,
-                        }
-                    )
-                );
-            }
-            this.table.products = aux.sort((a, b) => a.id + b.id);   
-            this.loading = false;
-        },555),
-        //-------------------------------------------------
-        // este metodo solo abre la caja al lado de los products
-        // @param concepto
-        // configura la variable concepto.toggle = true/false para el cambio
-
-        open(item){
-            //este metodo abre la pestaña más detalles de cada producto.
-            if(typeof item !== 'undefined'){
-                if (item === null){
-                    this.table.products.map(p => p.icon.toggled = p.icon.toggled ? !p.icon.toggled : p.icon.toggled);
-                    this.dialog = false;
-                }else{
-                    item.icon.toggled = !item.icon.toggled;
-                    this.selectedItem = item;
-                    this.selectedItem.sold = accounting.formatMoney(this.selectedItem.sold,{symbol:'',thousand:'.',decimal:','}).split(',')[0];
-                    this.dialog = true;
-                }
-            }
-        },
-
-        //este metodo procesa una cantidad especifica de conceptos por cada página
-        //dependiendo del número de página se calcula desde donde empieza a leer el arreglo general
-        //para empezar a calcular los reportes.
-
-        async paginate(page) {
-            this.loading = true;
-            //esta seccion determinar las posiciones del arreglo general que se tomarán mas adelante, un limite inferior y uno superior
-            if (page === 1) this.table.dataOffset = 0;
-            else if (page > this.table.page_old)
-                this.table.dataOffset += Math.abs(page - this.table.page_old) === 0 ? this.table.itemsPerPage : Math.abs(page - this.table.page_old) * this.table.itemsPerPage;
-            else if (page < this.table.page_old)
-                this.table.dataOffset -= Math.abs(page - this.table.page_old) === 0 ? this.table.itemsPerPage : Math.abs(page - this.table.page_old) * this.table.itemsPerPage;
-            //guardamos un historial de la página anterior para mayor precision al paginar.
-            this.table.page_old = page;
-            //si hay datos filtrados entonces se utiliza ese arreglo, sino, se usa el arreglo general
-            if (this.grupo === "" && this.subgrupo === ""){
-                await this.getConcept((this.search !== ""), this.search, this.apiConcepts.data.data);
-            }else{
-                await this.getConcept((this.search !== ""), this.search, this.filteredConcepts);
-            }
-        },
-        async createInventory(){
-        //se piden las facturas de hoy, y de 6 dias anteriores a este para poder calcular las ventas de X producto en la seman
-            this.weeklySales = this.vuexWeeklySales;
-            this.apiConceptReturns = this.vuexConceptReturns;
-            this.apiConcepts = this.vuexConcepts;
-            this.apiConceptSales = this.vuexConceptSales;
-            this.apiInvoices = this.vuexInvoices;
-            this.apiGroups = this.vuexGroups;
-            this.apiGroups = this.apiGroups.data.data;
-            this.apiSubGroups = this.vuexSubGroups;
-            this.apiSubGroups = this.apiSubGroups.data.data;
-            //se crea un arreglo con objectos personalizados de grupos para poder filtrar los subgrupos pertenecientes al mas adelante
-            for (let group of this.apiGroups){
-                // si result contiene datos, entonces el grupo tiene subgrupos (hasSubGroups)
-                let result = this.apiSubGroups.filter(asg => asg.grupos_id === group.id || asg.adm_grupos_id === group.id);
-                let hasSubGroups = true;
-                if(result.length === 0){
-                    hasSubGroups = false;
-                }
-                this.grupos.push({text: group.nombre, value: {id: group.id, name: group.nombre, hasSub: hasSubGroups} })
-            }
-            if(typeof this.$route.params.id !== 'undefined' && this.$route.name === 'concepto'){
-                this.search = this.$route.params.nombre;
-                this.goSearch = !this.goSearch;
-            }else{
-                this.table.totalConceptos = this.apiConcepts.data.totalCount;
-                await this.getConcept(false,"",this.apiConcepts.data.data);
-            }
-        }
     },
 
     watch: {

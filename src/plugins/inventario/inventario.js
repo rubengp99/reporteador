@@ -2,9 +2,167 @@ import w from '@/services/variables'
 import reports from '@/plugins/reports';
 import accounting from 'accounting';
 import moment from "moment";
+import _ from 'lodash';
 
-//Crea los analisis respectivos de cada concepto
-const configData = async function(product){
+/**
+ *  CAMBIA UN ICONO DE LA TABLA Y ABRE UN MODAL
+ * @param {Object} item // CONCEPTO QUE PROPORCIONA EL FLAG PARA ABRIR EL MODAL
+ */
+const open = async function (item) {
+    //este metodo abre la pestaña más detalles de cada producto.
+    if (typeof item !== 'undefined') {
+        if (item === null) {
+            this.table.concepts.map(p => p.icon.toggled = p.icon.toggled ? !p.icon.toggled : p.icon.toggled);
+            this.dialog = false;
+        } else {
+            item.icon.toggled = !item.icon.toggled;
+            this.selectedItem = item;
+            this.selectedItem.sold = accounting.formatMoney(this.selectedItem.sold, {
+                symbol: '',
+                thousand: '.',
+                decimal: ','
+            }).split(',')[0];
+            this.dialog = true;
+        }
+    }
+};
+
+/**
+ * DETERMINA QUE CONCEPTOS SE MONSTRARAN SEGÚN LA PÁGINA
+ * @param {Number} page //INT QUE RELACIONA EL NÚMERO DE PÁGINA AL QUE SE MUEVE 
+ */
+const paginate = async function (page) {
+    this.loading = true;
+    //esta seccion determinar las posiciones del arreglo general que se tomarán mas adelante, un limite inferior y uno superior
+    if (page === 1) this.table.dataOffset = 0;
+    else if (page > this.table.page_old)
+        this.table.dataOffset += Math.abs(page - this.table.page_old) === 0 ? this.table.itemsPerPage : Math.abs(page - this.table.page_old) * this.table.itemsPerPage;
+    else if (page < this.table.page_old)
+        this.table.dataOffset -= Math.abs(page - this.table.page_old) === 0 ? this.table.itemsPerPage : Math.abs(page - this.table.page_old) * this.table.itemsPerPage;
+    //guardamos un historial de la página anterior para mayor precision al paginar.
+    this.table.page_old = page;
+    //si hay datos filtrados entonces se utiliza ese arreglo, sino, se usa el arreglo general
+    if (this.grupo === "" && this.subgrupo === "") {
+        await this.getConcept((this.search !== ""), this.search, this.apiConcepts.data.data);
+    } else {
+        await this.getConcept((this.search !== ""), this.search, this.filteredConcepts);
+    }
+}
+
+//CREA EL INVENTARIO
+const createInventory = async function() {
+    //se piden las facturas de hoy, y de 6 dias anteriores a este para poder calcular las ventas de X producto en la seman
+    this.weeklySales = this.vuexWeeklySales;
+    this.apiConceptReturns = this.vuexConceptReturns;
+    this.apiConcepts = this.vuexConcepts;
+    this.apiConceptSales = this.vuexConceptSales;
+    this.apiInvoices = this.vuexInvoices;
+    this.apiGroups = this.vuexGroups;
+    this.apiGroups = this.apiGroups.data.data;
+    this.apiSubGroups = this.vuexSubGroups;
+    this.apiSubGroups = this.apiSubGroups.data.data;
+    //se crea un arreglo con objectos personalizados de grupos para poder filtrar los subgrupos pertenecientes al mas adelante
+    for (let group of this.apiGroups) {
+        // si result contiene datos, entonces el grupo tiene subgrupos (hasSubGroups)
+        let result = this.apiSubGroups.filter(asg => asg.grupos_id === group.id || asg.adm_grupos_id === group.id);
+        let hasSubGroups = true;
+        if (result.length === 0) {
+            hasSubGroups = false;
+        }
+        this.grupos.push({
+            text: group.nombre,
+            value: {
+                id: group.id,
+                name: group.nombre,
+                hasSub: hasSubGroups
+            }
+        })
+    }
+    if (typeof this.$route.params.id !== 'undefined' && this.$route.name === 'concepto') {
+        this.search = this.$route.params.nombre;
+        this.goSearch = !this.goSearch;
+    } else {
+        this.table.totalConceptos = this.apiConcepts.data.totalCount;
+        await this.getConcept(false, "", this.apiConcepts.data.data);
+    }
+}
+
+/**
+ * RETORNA UNA N CANTIDAD DE CONCEPTOS PARA LA PÁGINA ACTUAL DE LA TABLA CON SUS RESPECTIVOS ANALISIS
+ * 
+ * @param {Boolean} search // DETERMINA SI SE ESTÁ BUSCANDO POR NOMBRE DE CONCEPTO
+ * @param {String} input // SI SE BUSCA POR NOMBRE DE CONCEPTO, ESTA SERIA LA CADENA CON EL NOMBRE
+ * @param {Array of Objects} pConcept // ARREGLO DE CONCEPTOS QUE SERÁ FILTRADO
+ */
+const getConcept =  _.debounce(async function (search = false, input = "", pConcept = null) {
+    let aux = [];
+    //este metodo solo procesa el limite por pagina, por eso se corta el arreglo segun lo calculado en paginate()
+    let apiConcepts = (pConcept.length > this.table.itemsPerPage) ?
+        pConcept.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage) : pConcept;
+    //si se ha habilitado alguna busqueda por nombre entonces  
+    if (search && typeof this.$route.params.id === 'undefined') {
+        //se filtran los resultados del arreglo general si no hay grupos acti vos, sino, se filtran desde el arreglo previamente filtrado
+        this.filteredConcepts = this.filterConcepts(input);
+        apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage)
+        this.table.totalConceptos = this.filterConcepts(input).length;
+    } else if (typeof this.$route.params.id !== 'undefined') {
+        this.filteredConcepts = this.filterConceptsFromRanking();
+        apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
+        this.table.totalConceptos = this.filterConceptsFromRanking().length;
+    }
+    this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
+    //procesamos los productos que apareceran en la página
+    //aunado a ello, construimos nuestro propio objecto debido a que el modulo requiere una estructura diferente
+    //a la planteada en la base de datos
+    for (let concept of apiConcepts) {
+        aux.push(
+            await this.configData({
+                image: concept.imagen,
+                icon: {
+                    img: '/images/box.svg',
+                    toggled: false,
+                },
+                reference: concept.referencia,
+                id: concept.id,
+                codigo: concept.codigo,
+                name: concept.nombre,
+                stock: await this.getExistencias(concept),
+                sold: 0,
+                stockMin: concept.existencia_minima,
+                stockMax: concept.existencia_maxima,
+                description: concept.descripcion,
+                returned: 0,
+                sale: +concept.precio_dolar,
+                cost: +concept.costo_dolar,
+                category: {
+                    id: await this.getGrupoId(concept),
+                    name: await this.getGrupoName(concept),
+                },
+                subCategory: {
+                    id: await this.getSubGrupoId(concept),
+                    name: await this.getSubGrupoName(concept)
+                },
+                stock_daily_sells: [0, 0, 0, 0, 0, 0],
+                stock_end: [],
+                stock_lastDay: "",
+                stock_rotation: null,
+                stock_demand: null,
+                stock_devolution: null,
+                stock_claims: null,
+                stock_days: null,
+                stock_costs: null,
+            })
+        );
+    }
+    this.table.concepts = aux.sort((a, b) => a.id + b.id);
+    this.loading = false;
+}, 555)
+
+/**
+ * CREA LOS ANALISIS RESPECTIVOS DEL CONCEPTO
+ * @param {Object} product //Concepto a ser modificado 
+ */
+const configData = async function (product) {
     product = await this.configSales(product);
     product = await this.configWeeklyDemand(product);
     product = await this.configStockDays(product);
@@ -14,11 +172,11 @@ const configData = async function(product){
     product = await this.configDevolutions(product);
     return product;
 };
-  /* ----------------------------
-      Diseñado para configurar:
-        -- Días de Inventario
-    */
 
+/**
+ * RETORNA LOS DATOS DE AGOTAMIENTO DE INVENTARIO
+ * @param {Object} product //Concepto a ser modificado 
+ */
 const configStockDays = async function(product) {
     //variables auxiliares
     var stock_aux = product.stock;
@@ -59,11 +217,10 @@ const configStockDays = async function(product) {
     return product;
 };
 
-   /* ----------------------------
-      Diseñado para configurar:
-        -- Rentabilidad
-    */
-
+/**
+ * RETORNA EL MARGEN DE BENEFICIO
+ * @param {Object} product //Concepto a ser modificado 
+ */
 const configCostRelation = async function(product){
     product.stock_costs = reports.chart__donut([+product.sale, +product.cost], "Beneficios del", ["Precio", "Costo"], ["#15b7b9","#f73859"], "benefits");
     //esto da formato de BSF + Precio (formato español -> Bs1.000,00)
@@ -72,22 +229,20 @@ const configCostRelation = async function(product){
     return product;
 }
 
-   /* ----------------------------
-      Diseñado para configurar:
-        -- Rotacion de Inventario
-    */
-
+/**
+ * RETORNA LA ROTACION DE INVENTARIO
+ * @param {Object} product //Concepto a ser modificado 
+ */
 const configStockRotation = async function(product){
     product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"], ["#f73859","#009688"]);
 
     return product;
 }
 
-  /* ----------------------------
-      Diseñado para configurar:
-        -- Ventas a partir del arreglo retornado por concepts/mostSold
-  */
-
+/**
+ * RETORNA LA DEMANDA SEMALA EN UN ARREGLO DE 7 PIEZAS
+ * @param {Object} product //Concepto a ser modificado 
+ */
 const configWeeklyDemand = async function(product){
     let sales = [0,0,0,0,0,0,0];
     //WeekylySales es un arreglo de 7 posiciones que almacena las facturas de 1 semana, por dias.
@@ -116,10 +271,10 @@ const configWeeklyDemand = async function(product){
     return product;
 }
 
-  /* ----------------------------
-      Diseñado para configurar:
-        -- Ventas a partir del arreglo retornado por concepts/mostSold
-  */
+/**
+ * RETORNA LAS VENTAS
+ * @param {Object} product //Concepto a ser modificado 
+ */
 const configSales = async function(product){
     let aux = this.apiConceptSales.data.data.find(c => c.id === product.id);
     product.sold = typeof aux !== 'undefined' ? +Math.trunc(+aux.vendidos) : 0;
@@ -127,11 +282,10 @@ const configSales = async function(product){
     return product;
   };
 
-  /* ----------------------------
-      Diseñado para configurar:
-        -- Reclamos del concepto
-  */
-
+/**
+ * RETORNA LOS RECLAMOS
+ * @param {Object} product //Concepto a ser modificado 
+ */
 const configClaims = async function  (product) {
     product.stock_claims = reports.chart__donut(
         [0, product.sold],
@@ -143,6 +297,10 @@ const configClaims = async function  (product) {
     return product;
 }
 
+/**
+ * RETORNA LAS DEVOLUCIONES
+ * @param {Object} product //Concepto a ser modificado 
+ */
 const configDevolutions = async function(product){
   //pedimos las devoluciones
   let devolutions = this.apiConceptReturns.data.data.find(i => i.id === product.id)
@@ -153,7 +311,75 @@ const configDevolutions = async function(product){
   return product;
 }
 
+/**
+ * BUSCA UN CONCEPTO POR GRUPOS, NOMBRE, ETC
+ * @param {String} input // DATA PROVENIENTE DE TEXT-FIELD - NOMBRE DEL CONCEPTO
+ */
+const filterConcepts = async function(input){
+    return ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
+        .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase()));
+}
+
+//SI ACCEDES DESDE LA VISTA << VENTAS >> ---> << RANKING >> DEVUELVE EL CONCEPTO SELECCIONADO
+const filterConceptsFromRanking = async function(){
+    return ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
+        .filter(concept => concept.id === this.$route.params.id);
+}
+
+/**
+ * 
+ * @param {Object} concept // Concepto que proporciona las existencias
+ */
+//RETORNA LAS EXISTENCIAS DE UN CONCEPTO A PARTIR DEL ARRAY DE DEPOSITOS DEVUELTO POR LA API
+const getExistencias = async function (concept) {
+    return (Array.isArray(concept.existencias) ? concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a, b) => a + b) : 0 : concept.existencias);
+}
+
+/**
+ * 
+ * @param {Object} concept // Concepto que proporciona los IDs
+ */
+//OBTIENE EL ID DE UN GRUPO
+const getGrupoId = async function (concept){
+    return (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined') ?
+        this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).id: 0;
+}
+
+/**
+ * 
+ * @param {Object} concept // Concepto que proporciona los IDs
+ */
+//OBTIENE EL NOMBRE DE UN GRUPO
+const getGrupoName = async function (concept){
+    return (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined') ?
+        this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).nombre : '-';
+}
+
+/**
+ * 
+ * @param {Object} concept // Concepto que proporciona los IDs
+ */
+//OBTIENE EL ID DE UN SUBGRUPO
+const getSubGrupoId = async function (concept){
+    return (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined') ?
+        typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].id : 0 : 0;
+}
+
+/**
+ * 
+ * @param {Object} concept // Concepto que proporciona los IDs
+ */
+//OBTIENE EL NOMBRE DE UN SUBGRUPO
+const getSubGrupoName = async function (concept){
+    return (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined') ?
+        typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' : '-';
+}
+
 export default {
+    open,
+    paginate,
+    getConcept,
+    createInventory,
     configData,
     configStockDays, 
     configSales, 
@@ -161,5 +387,12 @@ export default {
     configCostRelation, 
     configStockRotation, 
     configWeeklyDemand, 
-    configDevolutions
+    configDevolutions,
+    filterConcepts,
+    filterConceptsFromRanking,
+    getExistencias,
+    getGrupoId,
+    getGrupoName,
+    getSubGrupoId,
+    getSubGrupoName,
 };

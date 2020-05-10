@@ -28,12 +28,16 @@
                 </v-col>
             </v-row>
         </v-container>
+
+        <stockConceptsDialog :concepts="stockMinConcepts" :dialog="stockMindialog" existencia="Mínima"/>
+        <stockConceptsDialog :concepts="stockMaxConcepts" :dialog="stockMaxDialog" existencia="Máxima"/>
     </div>
 </template>
 
 <script>
 import dTable from "@/components/dashboard/dTable"
 import dCard from "@/components/aplicacion/Dashcard"
+import stockConceptsDialog from "@/components/dashboard/conceptsTable"
 import moment from "moment";
 import accounting from 'accounting';
 import storages from '@/services/Depositos';
@@ -48,6 +52,7 @@ export default {
         dCard: dCard,
         storagesTables: dTable,
         loader: loader,
+        stockConceptsDialog,
     },
     head: {
         title() {
@@ -60,23 +65,27 @@ export default {
     },
     data() {
         return {
-        apiInvoices: null,
-        apiGroups: null,
-        apiSubGroups: null,
-        apiConcepts: null,
-        sVentas: null,
-        groupSales: null,
-        apiStorages: null,
-        gains$: 0,
-        invoices: 0,
-        stockMin: 0,
-        stockMax: 0,
-        storages: [],
-        //[ganancias, facturas, existencia min, existencia max, grupos vendidos, depositos]
-        loading: [true, true, true, true,true, true],
-        //
-        series: [], 
-        ranking: null,  
+            apiInvoices: null,
+            apiGroups: null,
+            apiSubGroups: null,
+            apiConcepts: null,
+            sVentas: null,
+            groupSales: null,
+            apiStorages: null,
+            gains$: 0,
+            invoices: 0,
+            stockMin: 0,
+            stockMax: 0,
+            storages: [],
+            //[ganancias, facturas, existencia min, existencia max, grupos vendidos, depositos]
+            loading: [true, true, true, true,true, true],
+            //
+            series: [], 
+            ranking: null,  
+            stockMindialog: false,
+            stockMaxDialog: false,
+            stockMinConcepts: [],
+            stockMaxConcepts: [],
         }
     },
     computed:{
@@ -93,6 +102,8 @@ export default {
         async createBasics(){
             this.apiConcepts = this.vuexConcepts;
             this.apiInvoices = this.vuexTodayInvoices;
+            this.stockMinConcepts = [];
+            this.stockMaxConcepts = [];
             //sumamos las ganancias producidas por esa cantidad de facturas
             try {
                 //cantidad de facturas hoy
@@ -109,7 +120,9 @@ export default {
             //productos con existencia mínima y máxima
             for (let concept of this.apiConcepts.data.data){
                 this.stockMin += typeof concept.existencia_minima === 'undefined' ? 0 : +concept.existencia_minima > +this.getExistencias(concept) ? 1 : 0;
+                if (typeof concept.existencia_minima === 'undefined' ? false : (+concept.existencia_minima > +this.getExistencias(concept))) this.stockMinConcepts.push(concept);
                 this.stockMax += typeof concept.existencia_maxima === 'undefined' ? 0 : +concept.existencia_maxima > +this.getExistencias(concept) ? 1 : 0;
+                if (typeof concept.existencia_maxima === 'undefined' ? false : (+concept.existencia_maxima > +this.getExistencias(concept))) this.stockMaxConcepts.push(concept);
             }
             this.loading[2] = false;
             this.loading[3] = false;

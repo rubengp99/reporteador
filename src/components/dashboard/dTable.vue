@@ -52,8 +52,8 @@ export default {
     props: {
         objects: Array,
         loading:{
-        type:Boolean,
-        default: false,
+            type:Boolean,
+            default: false,
         }
     },
     data() {
