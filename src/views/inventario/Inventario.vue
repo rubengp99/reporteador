@@ -161,10 +161,13 @@
                                     mdi-chevron-down
                                 </v-icon>
                             </template>
+                            <!-- Paginacion -->
+                            <template v-slot:footer>
+                                <div class="text-center" style="padding: 10px;" >
+                                    <v-pagination v-model="table.page" :length="table.pageCount" :totalItems="table.totalConceptos" light :disabled="loading" style="padding: 0 20px;"></v-pagination>
+                                </div>
+                            </template>
                         </v-data-table>
-                        <div class="text-center" style="padding: 10px 3vw;">
-                            <v-pagination v-model="table.page" :length="table.pageCount" :totalItems="table.totalConceptos" light :disabled="loading"></v-pagination>
-                        </div>
                     </v-card>
                 </v-col>
             </v-row>
@@ -203,7 +206,8 @@ export default {
     },
     data() {
         return {
-            ...inventarioData
+            ...inventarioData,
+            dialog: false,
         };
     },
     computed:{
@@ -243,7 +247,6 @@ export default {
             this.createInventory();
         }
     },
-
     async beforeMount() {
         try {
         //llamadas a la api

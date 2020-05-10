@@ -4,8 +4,8 @@
             <v-row>
                 <dCard col="3" icon img="savings" text="Ingresos." :title="gains$" :loading="loading[0]"/>
                 <dCard col="3" icon img="factura" text="Facturas." :title="invoices" :loading="loading[1]"/>
-                <dCard col="3" icon img="boxOF" text="Conceptos bajo el mínimo." :title="stockMin" :loading="loading[2]" hoverable/>
-                <dCard col="3" icon img="boxO" text="Conceptos sobre el máximo." :title="stockMax" :loading="loading[3]" hoverable/>
+                <dCard col="3" icon img="boxOF" text="Conceptos bajo el mínimo." :title="stockMin" :loading="loading[2]" hoverable @click.native.stop="stockMinDialog = !stockMinDialog"/>
+                <dCard col="3" icon img="boxO" text="Conceptos sobre el máximo." :title="stockMax" :loading="loading[3]" hoverable @click.native.stop="stockMaxDialog = !stockMaxDialog"/>
             </v-row>
             <v-row>
                 <dCard col="4" icon img="box"  title="Inventario" hoverable path="/Inventario"/>
@@ -29,8 +29,17 @@
             </v-row>
         </v-container>
 
-        <stockConceptsDialog :concepts="stockMinConcepts" :dialog="stockMindialog" existencia="Mínima"/>
-        <stockConceptsDialog :concepts="stockMaxConcepts" :dialog="stockMaxDialog" existencia="Máxima"/>
+        <stockConceptsDialog v-if="stockMinDialog" :concepts="stockMinConcepts" :show="stockMinDialog" existencia="Mínima"> 
+            <template v-slot:close>
+                <v-btn icon large  @click="stockMinDialog = !stockMinDialog" style="position:absolute;right:0;z-index:1;"><v-icon>close</v-icon></v-btn>
+            </template>
+        </stockConceptsDialog>
+
+        <stockConceptsDialog v-if="stockMaxDialog" :concepts="stockMaxConcepts" :show="stockMaxDialog" existencia="Máxima">
+            <template v-slot:close>
+                <v-btn icon large @click="stockMaxDialog = !stockMaxDialog" style="position:absolute;right:0;z-index:1;"><v-icon>close</v-icon></v-btn>
+            </template>
+        </stockConceptsDialog>
     </div>
 </template>
 
@@ -82,7 +91,7 @@ export default {
             //
             series: [], 
             ranking: null,  
-            stockMindialog: false,
+            stockMinDialog: false,
             stockMaxDialog: false,
             stockMinConcepts: [],
             stockMaxConcepts: [],
