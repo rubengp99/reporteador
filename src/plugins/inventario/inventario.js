@@ -54,7 +54,7 @@ const createInventory = async function() {
     //se piden las facturas de hoy, y de 6 dias anteriores a este para poder calcular las ventas de X producto en la seman
     this.weeklySales = this.vuexWeeklySales;
     this.apiConceptReturns = this.vuexConceptReturns;
-    this.apiConcepts = this.vuexConcepts;
+    this.apiConcepts = (this.isExistencia) ? Object.assign({}, { totalCount: this.concepts.length, data: { data: this.concepts, } }) : this.vuexConcepts;
     this.apiConceptSales = this.vuexConceptSales;
     this.apiInvoices = this.vuexInvoices;
     this.apiGroups = this.vuexGroups;
@@ -102,15 +102,14 @@ const getConcept =  _.debounce(async function (search = false, input = "", pConc
     //si se ha habilitado alguna busqueda por nombre entonces  
     if (search && typeof this.$route.params.id === 'undefined') {
         //se filtran los resultados del arreglo general si no hay grupos acti vos, sino, se filtran desde el arreglo previamente filtrado
-        this.filteredConcepts = this.filterConcepts(input);
+        this.filteredConcepts = await this.filterConcepts(input);
         apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage)
-        this.table.totalConceptos = this.filterConcepts(input).length;
+        this.table.totalConceptos = await this.filterConcepts(input).length;
     } else if (typeof this.$route.params.id !== 'undefined') {
-        this.filteredConcepts = this.filterConceptsFromRanking();
+        this.filteredConcepts = await this.filterConceptsFromRanking();
         apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
-        this.table.totalConceptos = this.filterConceptsFromRanking().length;
+        this.table.totalConceptos = await this.filterConceptsFromRanking().length;
     }
-    this.table.pageCount = Math.ceil(this.table.totalConceptos / this.table.itemsPerPage);
     //procesamos los productos que apareceran en la página
     //aunado a ello, construimos nuestro propio objecto debido a que el modulo requiere una estructura diferente
     //a la planteada en la base de datos
@@ -127,7 +126,7 @@ const getConcept =  _.debounce(async function (search = false, input = "", pConc
                 codigo: concept.codigo,
                 name: concept.nombre,
                 stock: await this.getExistencias(concept),
-                sold: 0,
+                sold: await this.configSales(concept),
                 stockMin: concept.existencia_minima,
                 stockMax: concept.existencia_maxima,
                 description: concept.descripcion,
@@ -163,7 +162,7 @@ const getConcept =  _.debounce(async function (search = false, input = "", pConc
  * @param {Object} product //Concepto a ser modificado 
  */
 const configData = async function (product) {
-    product = await this.configSales(product);
+    if (this.isExistencia) return product;
     product = await this.configWeeklyDemand(product);
     product = await this.configStockDays(product);
     product = await this.configStockRotation(product);
@@ -277,9 +276,7 @@ const configWeeklyDemand = async function(product){
  */
 const configSales = async function(product){
     let aux = this.apiConceptSales.data.data.find(c => c.id === product.id);
-    product.sold = typeof aux !== 'undefined' ? +Math.trunc(+aux.vendidos) : 0;
-
-    return product;
+    return (typeof aux !== 'undefined' ? +Math.trunc(+aux.vendidos) : 0);
   };
 
 /**

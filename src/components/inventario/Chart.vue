@@ -8,6 +8,7 @@
                 <div>
                     <v-row >
                         <v-col  cols="12">
+                            <!-- Primer texto TITULO -->
                             <p  class="body-1" style="line-height:normal;">
                                 <!--Rotación de stock-->
                                 <span  v-if="type === 'Rotación'">Rotación de Inventario para </span>
@@ -32,6 +33,7 @@
                             </p>
                         </v-col>
                     </v-row>
+                    <!-- GRAFICO -->
                     <div >
                         <apexchart
                             :type="ctype"
@@ -40,6 +42,8 @@
                             :series="options.series"
                         />
                         <v-divider></v-divider>
+                        
+                        <!-- TEXTO LARGO DEL FINAL  -->
                         <p  class="caption" style="padding-bottom:15px;padding-top:5px;" >
                             <!--Días de inventario-->
                             <span  v-if="type === 'Agotamiento' && Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 > 0">Si la demanda de </span>
