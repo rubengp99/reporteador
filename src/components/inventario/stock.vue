@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <v-card>
-            <v-card-title>
+    <div style="height:100%">
+        <v-card style="height:100%">
+            <v-card-title class="title" style="word-break:normal;">
                 <v-spacer></v-spacer>
                 {{ title }}          
                 <v-spacer></v-spacer>
@@ -24,9 +24,9 @@
                         dense
                         :disabled="loading"
                         style="height:39px;"
-                        @keyup.enter="goSearch = !goSearch"
+                        @keypress.enter="goSearch = !goSearch"
                         @click:append="search = ''"
-                        @update:search-input="goSearch = !goSearch"
+                        @change="goSearch = !goSearch"
                         :loading="loading"
                     ></v-autocomplete>
                    
@@ -61,7 +61,7 @@
                     ></v-select>
                 </v-col>
                 <!-- Select de Monedas -->
-                <v-col cols="6" sm="4">
+                <v-col cols="12" sm="4">
                     <v-select
                         v-model="moneda"
                         :items="monedas"
@@ -85,6 +85,7 @@
             <!-- Tabla com los conceptos -->
             <v-data-table
                 ref="Inventario"
+                calculate-widths
                 :loading="loading && '#01579B'"
                 :headers=" isExistencia ? headers : table.headers.filter(i => i.text !== (moneda === '$' ? 'Precio (Bs)' : 'Precio ($)'))"
                 :items="table.concepts"
@@ -99,7 +100,7 @@
                 :items-per-page="table.itemsPerPage"
                 :server-items-length="table.totalConceptos"
                 hide-default-footer
-                class="elevation-1"
+                class="elevation-1 fixed-header"
                 @update:page="paginate"
                 @page-count="table.pageCount = $event"
             >
