@@ -1,8 +1,32 @@
 <template>
     <div class="home">
         <v-container data-app style="padding:0 2.5vw;margin-top: 74px;max-width:97vw;">
+            <v-row justify="center">
+                <v-col cols="12" md="5">
+                    <v-card width="100%">
+                        <v-row justify="center">
+                            <!-- Select de Monedas -->
+                            <v-col cols="12" sm="6" style="padding:0">
+                                <v-card-title class="title"><span style="margin-left:auto;">Utilizar moneda</span></v-card-title>
+                            </v-col>
+                            <!-- Select de Monedas -->
+                            <v-col cols="12" sm="6" style="text-align:left;">
+                                <v-select
+                                    v-model="moneda"
+                                    :items="monedas"
+                                    label="Moneda"
+                                    outlined
+                                    dense
+                                    style="height:39px;max-width:170px;"
+                                    menu-props="offset-y"
+                                ></v-select>
+                            </v-col>
+                        </v-row>
+                    </v-card>
+                </v-col>
+            </v-row>
             <v-row>
-                <dCard col="3" icon img="savings" text="Ingresos." :title="gains$" :loading="loading[0]"/>
+                <dCard col="3" icon img="savings" text="Ingresos." :title="moneda === '$' ? gains$ : gainsBs" :loading="loading[0]"/>
                 <dCard col="3" icon img="factura" text="Facturas." :title="invoices" :loading="loading[1]"/>
                 <dCard col="3" icon img="boxOF" text="Conceptos bajo el mínimo." :title="stockMin" :loading="loading[2]" hoverable @click.native.stop="stockMinDialog = !stockMinDialog"/>
                 <dCard col="3" icon img="boxO" text="Conceptos sobre el máximo." :title="stockMax" :loading="loading[3]" hoverable @click.native.stop="stockMaxDialog = !stockMaxDialog"/>
@@ -82,6 +106,7 @@ export default {
             groupSales: null,
             apiStorages: null,
             gains$: 0,
+            gainsBs: 0,
             invoices: 0,
             stockMin: 0,
             stockMax: 0,
@@ -95,6 +120,17 @@ export default {
             stockMaxDialog: false,
             stockMinConcepts: [],
             stockMaxConcepts: [],
+            moneda: '$',
+            monedas: [
+                {
+                    text: 'Dolares',
+                    value: '$'
+                },
+                {
+                    text: 'Bolivares',
+                    value: 'Bs'
+                },
+            ],
         }
     },
     computed:{
@@ -119,13 +155,15 @@ export default {
                 this.invoices =  this.apiInvoices.data.count;
                 this.loading[1] = false;
                 this.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.$data.gains$ += +d.precio_dolar * +Math.trunc(+d.cantidad)));
+                this.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.$data.gainsBs += +d.precio * +Math.trunc(+d.cantidad)));
             } catch (e) {
                 this.$data.gains$ = 0;
                 this.$data.invoices = 0;
             }
             this.loading[0] = false;
             //le damos un formato contable
-            this.$data.gains$ = accounting.formatMoney(+this.$data.gains$, { symbol   : "$", thousand : ".", decimal  : ",", });
+            this.$data.gains$ = accounting.formatMoney(+this.$data.gains$, { symbol: "$", thousand : ".", decimal  : ",", });
+            this.$data.gainsBs = accounting.formatMoney(+this.$data.gainsBs, { symbol: "Bs", thousand : ".", decimal  : ",", });
             //productos con existencia mínima y máxima
             for (let concept of this.apiConcepts.data.data){
                 this.stockMin += typeof concept.existencia_minima === 'undefined' ? 0 : +concept.existencia_minima > +this.getExistencias(concept) ? 1 : 0;
