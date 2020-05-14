@@ -86,7 +86,7 @@ const clear = _.debounce(async function(){
     this.apiConcepts = this.vuexConcepts;
     this.table.totalConceptos = this.apiConcepts.data.totalCount;
     await this.getConcept(false,"",this.apiConcepts.data.data);
-  }, 555);
+}, 555);
 
 
 export default {search, goSearch, grupo, subgrupo, clear, singleExpand};

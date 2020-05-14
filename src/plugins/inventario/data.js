@@ -58,9 +58,21 @@ export default {
             { text: "Sub-Grupo", align: "center", value: "subCategory.name", sortable: false, },
             { text: "Existencia", align: "center", value: "stock", sortable: false, },
             //{ text: "Vendidos", align: "center", value: "sold", sortable: false, },
-            { text: "Precio", align: "center", value: "sale", sortable: false, },
+            { text: "Precio ($)", align: "center", value: "saleDollar", sortable: false, },
+            { text: "Precio (Bs)", align: "center", value: "saleBolivar", sortable: false, },
             { text: "Análisis", align: "center", value: "data-table-expand", sortable: false, }
         ],
         concepts: [],
-    }
+    },
+    moneda: "Bs",
+    monedas: [
+        {
+            text: 'Dolares',
+            value: '$'
+        },
+        {
+            text: 'Bolivares',
+            value: 'Bs'
+        },
+    ],
 }

@@ -134,8 +134,10 @@ const getConcept =  _.debounce(async function (search = false, input = "", pConc
                 stockMax: concept.existencia_maxima,
                 description: concept.descripcion,
                 returned: 0,
-                sale: +concept.precio_dolar,
-                cost: +concept.costo_dolar,
+                saleDollar: +concept.precio_dolar,
+                cost$: +concept.costo_dolar,
+                saleBolivar: +concept.precio_a,
+                costBs: +concept.ultimo_costo,
                 category: {
                     id: await this.getGrupoId(concept),
                     name: await this.getGrupoName(concept),
@@ -152,7 +154,8 @@ const getConcept =  _.debounce(async function (search = false, input = "", pConc
                 stock_devolution: null,
                 stock_claims: null,
                 stock_days: null,
-                stock_costs: null,
+                stock_costs_dollar: null,
+                stock_costs_bolivar: null,
             })
         );
     }
@@ -224,10 +227,26 @@ const configStockDays = async function(product) {
  * @param {Object} product //Concepto a ser modificado 
  */
 const configCostRelation = async function(product){
-    product.stock_costs = reports.chart__donut([+product.sale, +product.cost], "Beneficios del", ["Precio", "Costo"], ["#15b7b9","#f73859"], "benefits");
+    product.stock_costs_dollar = reports.chart__donut(
+        [product.saleDollar, +product.cost$],
+        "Beneficios del", 
+        ["Precio", "Costo"], 
+        ["#15b7b9","#f73859"], 
+        "benefits", 
+        '$'
+    );
+
+    product.stock_costs_bolivar = reports.chart__donut(
+        [ product.saleBolivar ,+product.costBs], 
+        "Beneficios del", 
+        ["Precio", "Costo"], 
+        ["#15b7b9","#f73859"], 
+        "benefits", 
+        'Bs'
+    );
     //esto da formato de BSF + Precio (formato español -> Bs1.000,00)
-    product.sale = accounting.formatMoney(+product.sale, { symbol   : "$", thousand : ".", decimal  : ",", });
-    
+    product.saleDollar = accounting.formatMoney( +product.saleDollar, { symbol: '$', thousand : ".", decimal  : ",", });
+    product.saleBolivar = accounting.formatMoney(+product.saleBolivar, { symbol: 'Bs', thousand : ".", decimal  : ",", });
     return product;
 }
 
@@ -236,7 +255,7 @@ const configCostRelation = async function(product){
  * @param {Object} product //Concepto a ser modificado 
  */
 const configStockRotation = async function(product){
-    product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"], ["#f73859","#009688"]);
+    product.stock_rotation = reports.chart__donut([product.sold, product.stock + product.sold], "Rotación del", ["Consumo", "Existencias"], ["#f73859", "#009688"]);
 
     return product;
 }
@@ -291,7 +310,7 @@ const configClaims = async function  (product) {
         [0, product.sold],
         "Reclamos del",             //esto corresponde a reclamos, aún no está hecho, 
         ["Reclamos", "Compras"],    //solo hay que cambiar el 0 por el Nº de reclamos
-        ["#FFC107", "#3F51B5"]
+        ["#FFC107", "#3F51B5"],
     );
 
     return product;
@@ -307,7 +326,7 @@ const configDevolutions = async function(product){
   //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
   product.returned = typeof devolutions !== 'undefined' ? !isNaN(+devolutions.devueltos) ? Math.trunc(+devolutions.devueltos * 100) / 100 : 0 : 0;
   
-  product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#f73859","#3F51B5",]);
+  product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#f73859", "#3F51B5", ]);
   return product;
 }
 

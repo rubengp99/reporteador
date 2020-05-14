@@ -8,7 +8,7 @@
             </v-card-title>
             <v-row style="padding:0 20px;">
             <!-- Barra de busqueda por nombre -->
-                <v-col cols="12" sm="5">
+                <v-col cols="12" sm="4">
                     <v-text-field
                         v-model="search"
                         :append-icon="search === '' ? 'search' : 'close'"
@@ -23,7 +23,7 @@
                     ></v-text-field>
                 </v-col>
                 <!-- Select de Grupos -->
-                <v-col cols="6" sm="3">
+                <v-col cols="6" sm="4">
                     <v-select
                         v-model="grupo"
                         :items="grupos"
@@ -35,7 +35,7 @@
                     ></v-select>
                 </v-col>
                 <!-- Select de Subgrupos -->
-                <v-col cols="6" sm="3">
+                <v-col cols="6" sm="4">
                     <v-select
                         v-model="subgrupo"
                         :items="subgrupos"
@@ -47,10 +47,22 @@
                         style="height:39px;"
                     ></v-select>
                 </v-col>
+                <!-- Select de Monedas -->
+                <v-col cols="6" sm="4">
+                    <v-select
+                        v-model="moneda"
+                        :items="monedas"
+                        label="Moneda"
+                        outlined
+                        dense
+                        :disabled="loading"
+                        style="height:39px;"
+                    ></v-select>
+                </v-col>
                 <!-- Limpiar filtros -->
-                <v-col cols="12" sm="1">
+                <v-col cols="12" sm="2">
                     <v-btn style="height:39px;" outlined dense color="error" @click="clear = !clear" :disabled="loading">
-                        <p class="d-flex d-sm-none" style="margin:0">Limpiar Filtros </p>
+                        <p style="margin:0">Limpiar Filtros </p>
                         <v-icon>mdi-autorenew</v-icon>
                     </v-btn>
                 </v-col>
@@ -59,7 +71,7 @@
             <v-data-table
                 ref="Inventario"
                 :loading="loading && '#01579B'"
-                :headers=" isExistencia ? headers :table.headers"
+                :headers=" isExistencia ? headers : table.headers.filter(i => i.text !== (moneda === '$' ? 'Precio (Bs)' : 'Precio ($)'))"
                 :items="table.concepts"
                 :search="table.search"
                 :single-expand="table.expand"
@@ -108,6 +120,34 @@
                     </div>
                 </template>
 
+                 <!-- formatting de precio -->
+                <template v-slot:item.precioDollar="{ item }">
+                    <span>
+                        {{ formatMoney(item.precioDollar,{symbol: moneda, thousand: '.', decimal:'.' }) }}
+                    </span>
+                </template>
+
+                <template v-slot:item.precioBolivar="{ item }">
+                    <span>
+                        {{ formatMoney(item.precioBolivar,{symbol: moneda, thousand: '.', decimal:'.' }) }}
+                    </span>
+                </template>
+
+                 <!-- Template de la columna MÁS DETALLES, esta es la caja -->
+                <template v-slot:item.image="{ item }">
+                    <div class="p-2">
+                        <v-btn icon height="70px" width="65px" hoverable @focus="open(item)">
+                            <v-img
+                                :src="(typeof item !== 'undefined') ? item.icon.toggled ? require('@/assets/boxOF.svg'):require('@/assets/box.svg') :  require('@/assets/boxOF.svg')"
+                                :alt="item.name"
+                                width="60px"
+                                height="65px"
+                                style="margin: 0 auto;"
+                            ></v-img>
+                        </v-btn>
+                    </div>
+                </template>
+
                 <!-- Template de la columna ESTADISTICAS expandida, aqui estanlos graficos -->
                 <template v-slot:expanded-item="{headers, item}">
                 <!-- we must remove padding, margins and min-height from td -->
@@ -139,7 +179,7 @@
                                             <chart type="Agotamiento" :item="item" :options="item.stock_days" ctype="area" height="251" wait=2.5 />
                                             <v-divider inset vertical class="absolute-center"></v-divider>
                                             <!--linea de gráficos para UTILIDAD DEL CONCEPTO-->
-                                            <chart type="Rentabilidad" :item="item" :options="item.stock_costs" ctype="donut" height="298" wait=3 />
+                                            <chart type="Rentabilidad" :item="item" :options="moneda === '$' ? item.stock_costs_dollar : item.stock_costs_bolivar" ctype="donut" height="298" wait=3 />
                                         </v-row>
                                 </div>
                             </div>
@@ -179,6 +219,7 @@ import expands from "@/plugins/inventario/expandibles";
 import inventario from '@/plugins/inventario/inventario';
 import data from "@/plugins/inventario/data";
 import watchers from "@/plugins/inventario/watchers";
+import { formatMoney  } from 'accounting'
 import { mapState } from 'vuex';
 
 export default {
@@ -206,7 +247,8 @@ export default {
     },
     methods:{
         ...inventario,
-        ...expands
+        ...expands,
+        formatMoney
     },
     data(){
         return{
@@ -247,8 +289,9 @@ export default {
         ...mapState(['vuexConceptReturns','vuexConcepts','vuexConceptSales','vuexInvoices','vuexGroups','vuexSubGroups','vuexWeeklySales','inventoryUpdated']),
     },
     async beforeMount(){
-        if(this.inventoryUpdated)
+        if(this.inventoryUpdated){
             this.createInventory();
+        }
     }
 }
 </script>

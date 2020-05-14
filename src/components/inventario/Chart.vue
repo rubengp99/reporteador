@@ -81,8 +81,8 @@
                                 del
                                 <span  style="color:#0D47A1">
                                     {{
-                                        isNaN(Math.round(((item.stock_costs.series[0] - item.stock_costs.series[1]) / item.stock_costs.series[0] + Number.EPSILON) * 100  ))  ? 0 + "%."
-                                        : Math.round( ((item.stock_costs.series[0] - item.stock_costs.series[1]) / item.stock_costs.series[0] + Number.EPSILON) * 100 ) + "%."
+                                        isNaN(Math.round(((options.series[0] - options.series[1]) / options.series[0] + Number.EPSILON) * 100  ))  ? 0 + "%."
+                                        : Math.round( ((options.series[0] - options.series[1]) / options.series[0] + Number.EPSILON) * 100 ) + "%."
                                     }}
                                 </span>
                             </span>
@@ -122,7 +122,7 @@
                                 <span > no ha vendido unidades, por lo tanto no existen {{type.toLowerCase()}}.</span>
                             </span>
                             <span   v-else-if="(type === 'Rotación'  && (+options.series[1] === 0 || +options.series[0] === 0))">
-                                <span > no cuenta con {{+options.series[0] === 0 ? 'unidades ventidas' : 'existencias'}}, por lo tanto no existe {{type.toLowerCase()}}.</span>
+                                <span > no cuenta con {{+options.series[0] === 0 ? 'unidades vendidas' : 'existencias'}}, por lo tanto no existe {{type.toLowerCase()}}.</span>
                             </span>
 
 
@@ -135,7 +135,7 @@
                                     }}
                                 </span>
                                 <span  v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 === 0">
-                                    Actualmente este producto no cuenta con una demanda en el mercado, las <span  style="color:#0D47A1">{{item.stock}} unidades</span> de <span  style="color:#0D47A1">{{item.name}}</span> se mantendrán estancadas en el inventario.
+                                    Actualmente este producto no cuenta con una demanda en el mercado, las <span  style="color:#0D47A1">{{item.stock}} unidades</span> de <span  style="color:#0D47A1">{{item.name}}</span> no se agotarán.
                                 </span>
                                 <span  v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 > 0">
                                     unidades diarias, se estima que las existencias del producto se
