@@ -9,8 +9,14 @@
             <v-row style="padding:0 20px;">
             <!-- Barra de busqueda por nombre -->
                 <v-col cols="12" sm="4">
-                    <v-text-field
-                        v-model="search"
+                    <v-autocomplete
+                        :items="apiConcepts.data.data"
+                        :search-input.sync="search"
+                        hide-no-data
+                        hide-selected
+                        item-text="nombre"
+                        item-value="nombre"
+                        return-object
                         :append-icon="search === '' ? 'search' : 'close'"
                         label="Nombre"
                         outlined
@@ -20,7 +26,10 @@
                         style="height:39px;"
                         @keyup.enter="goSearch = !goSearch"
                         @click:append="search = ''"
-                    ></v-text-field>
+                        @update:search-input="goSearch = !goSearch"
+                        :loading="loading"
+                    ></v-autocomplete>
+                   
                 </v-col>
                 <!-- Select de Grupos -->
                 <v-col cols="6" sm="4">
@@ -32,6 +41,8 @@
                         dense
                         :disabled="loading"
                         style="height:39px;"
+                        :loading="loading"
+                        menu-props="offset-y"
                     ></v-select>
                 </v-col>
                 <!-- Select de Subgrupos -->
@@ -45,6 +56,8 @@
                         :disabled="loading"
                         :no-data-text="subNoData"
                         style="height:39px;"
+                        :loading="loading"
+                        menu-props="offset-y"
                     ></v-select>
                 </v-col>
                 <!-- Select de Monedas -->
@@ -57,11 +70,13 @@
                         dense
                         :disabled="loading"
                         style="height:39px;"
+                        :loading="loading"
+                        menu-props="offset-y"
                     ></v-select>
                 </v-col>
                 <!-- Limpiar filtros -->
                 <v-col cols="12" sm="2">
-                    <v-btn style="height:39px;" outlined dense color="error" @click="clear = !clear" :disabled="loading">
+                    <v-btn style="height:39px;" :loading="loading" outlined dense color="error" @click="clear = !clear" :disabled="loading">
                         <p style="margin:0">Limpiar Filtros </p>
                         <v-icon>mdi-autorenew</v-icon>
                     </v-btn>
