@@ -61,19 +61,7 @@
                     ></v-select>
                 </v-col>
                 <!-- Select de Monedas -->
-                <v-col cols="12" sm="4">
-                    <v-select
-                        v-model="moneda"
-                        :items="monedas"
-                        label="Moneda"
-                        outlined
-                        dense
-                        :disabled="loading"
-                        style="height:39px;"
-                        :loading="loading"
-                        menu-props="offset-y"
-                    ></v-select>
-                </v-col>
+                <coinType hideTitle/>
                 <!-- Limpiar filtros -->
                 <v-col cols="12" sm="2">
                     <v-btn style="height:39px;" :loading="loading" outlined dense color="error" @click="clear = !clear" :disabled="loading">
@@ -166,42 +154,43 @@
 
                 <!-- Template de la columna ESTADISTICAS expandida, aqui estanlos graficos -->
                 <template v-slot:expanded-item="{headers, item}">
-                <!-- we must remove padding, margins and min-height from td -->
+                    <!-- we must remove padding, margins and min-height from td -->
                     <td :colspan="headers.length" :class="{'ma-0 pa-0': true, 'expanded-closing': !transitioned[getItemId(item)]}" style="height: auto;">
                         <!-- aqui van los graficos -->
                         <v-expand-transition>
-                             <!-- Container we'll transition -->
+                            <!-- Container we'll transition -->
                             <div v-show="transitioned[getItemId(item)]">
                                 <!-- container for content. replace with whatever you want -->
                                 <div style="min-height: 50px; border-bottom:0px!important;">
                                     <v-row style="position:relative;margin:0;">
                                         <!--linea de gráficos para ROTACIÓN DE INVENTARIO-->
                                         <chart type="Rotación" :item="item" :options="item.stock_rotation" ctype="donut" height="298" wait=0.5 />
-                                            <v-divider inset vertical class="absolute-center"></v-divider>
-                                            <!--linea de gráficos para DEMANDA DE INVENTARIO SEMANAL-->
-                                            <chart type="Demanda" :item="item" :options="item.stock_demand" ctype="area" height="252" wait=1 />
-                                        </v-row>
-                                        <v-divider inset></v-divider>
-                                        <v-row style="position:relative;margin:0;">
-                                            <!--linea de gráficos para RECLAMOS DEL CONCEPTO-->
-                                            <chart type="Reclamos" :item="item" :options="item.stock_claims" ctype="donut" height="298" wait=1.5 />
-                                            <v-divider inset vertical class="absolute-center"></v-divider>
-                                            <!--linea de gráficos para DEVOLUCIONES DEL CONCEPTO-->
-                                            <chart type="Devoluciones" :item="item" :options="item.stock_devolution" ctype="donut" height="298" wait=2 />
-                                        </v-row>
-                                        <v-divider inset></v-divider>
-                                        <v-row style="position:relative;margin:0;">
+                                        <v-divider inset vertical class="absolute-center"></v-divider>
+                                        <!--linea de gráficos para DEMANDA DE INVENTARIO SEMANAL-->
+                                        <chart type="Demanda" :item="item" :options="item.stock_demand" ctype="area" height="252" wait=1 />
+                                    </v-row>
+                                    <v-divider inset></v-divider>
+                                    <v-row style="position:relative;margin:0;">
+                                        <!--linea de gráficos para RECLAMOS DEL CONCEPTO-->
+                                        <chart type="Reclamos" :item="item" :options="item.stock_claims" ctype="donut" height="298" wait=1.5 />
+                                        <v-divider inset vertical class="absolute-center"></v-divider>
+                                        <!--linea de gráficos para DEVOLUCIONES DEL CONCEPTO-->
+                                        <chart type="Devoluciones" :item="item" :options="item.stock_devolution" ctype="donut" height="298" wait=2 />
+                                    </v-row>
+                                    <v-divider inset></v-divider>
+                                    <v-row style="position:relative;margin:0;">
                                         <!--linea de gráficos para DÍAS DE INVENTARIO-->
-                                            <chart type="Agotamiento" :item="item" :options="item.stock_days" ctype="area" height="251" wait=2.5 />
-                                            <v-divider inset vertical class="absolute-center"></v-divider>
-                                            <!--linea de gráficos para UTILIDAD DEL CONCEPTO-->
-                                            <chart type="Rentabilidad" :item="item" :options="moneda === '$' ? item.stock_costs_dollar : item.stock_costs_bolivar" ctype="donut" height="298" wait=3 />
-                                        </v-row>
+                                        <chart type="Agotamiento" :item="item" :options="item.stock_days" ctype="area" height="251" wait=2.5 />
+                                        <v-divider inset vertical class="absolute-center"></v-divider>
+                                        <!--linea de gráficos para UTILIDAD DEL CONCEPTO-->
+                                        <chart type="Rentabilidad" :item="item" :options="moneda === '$' ? item.stock_costs_dollar : item.stock_costs_bolivar" ctype="donut" height="298" wait=3 />
+                                    </v-row>
                                 </div>
                             </div>
                         </v-expand-transition>
                     </td>
                 </template>
+                
                 <!-- Template de la columna ESTADISTICAS -->
                 <template v-slot:item.data-table-expand="item">
                     <v-icon :ref="typeof $route.params.nombre !== 'undefined' ? 'expand1' : 'expand'+item.item.id"
@@ -230,10 +219,12 @@
 
 <script>
 import concept from '@/components/inventario/Concepto';
-import chart from "@/components/inventario/Chart"
+import chart from '@/components/inventario/Chart';
 import expands from "@/plugins/inventario/expandibles";
+import monedas from '@/plugins/monedas';
 import inventario from '@/plugins/inventario/inventario';
 import data from "@/plugins/inventario/data";
+import coinType from '@/components/aplicacion/coinSelector'
 import watchers from "@/plugins/inventario/watchers";
 import { formatMoney  } from 'accounting'
 import { mapState } from 'vuex';
@@ -241,6 +232,7 @@ import { mapState } from 'vuex';
 export default {
     components:{
         concept,
+        coinType,
         chart
     },
     props:{
@@ -270,6 +262,7 @@ export default {
         return{
             ...data,
             dialog:false,
+            ...monedas,
         }
     },
     watch:{

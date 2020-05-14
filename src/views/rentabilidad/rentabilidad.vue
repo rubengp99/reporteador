@@ -1,25 +1,10 @@
 <template>
     <div style="margin-top:79px;padding: 0 20px;">
-        <v-row>
-            <v-col cols="12">
-                <v-card width="100%">
+        <v-row justify="center">
+            <v-col cols="12" md="5">
+                <v-card width="100%" outlined>
                     <v-row justify="center">
-                        <!-- Select de Monedas -->
-                        <v-col cols="12" sm="6" style="text-align:right;">
-                            <span class="title">Utilizar moneda</span>
-                        </v-col>
-                        <!-- Select de Monedas -->
-                        <v-col cols="12" sm="6" style="text-align:left;">
-                            <v-select
-                                v-model="moneda"
-                                :items="monedas"
-                                label="Moneda"
-                                outlined
-                                dense
-                                style="height:39px;max-width:200px;"
-                                menu-props="offset-y"
-                            ></v-select>
-                        </v-col>
+                        <coinType />
                     </v-row>
                 </v-card>
             </v-col>
@@ -94,8 +79,10 @@
 
 <script>
 import reports from '@/plugins/reports';
+import monedas from '@/plugins/monedas';
 import compareCard from '@/components/rentabilidad/compareCard';
 import rentabilidadCard from '@/components/rentabilidad/rentabilidadCard';
+import coinType from '@/components/aplicacion/coinSelector'
 import dCard from "@/components/aplicacion/Dashcard";
 import router from '@/router';
 import { mapState } from 'vuex';
@@ -107,7 +94,8 @@ export default {
     components:{
         compareCard,
         rentabilidadCard,
-        dCard
+        dCard,
+        coinType
     },
     data(){
         return{
@@ -127,17 +115,7 @@ export default {
             rango: 'Mes',
             rangos: ['Semana','Mes','Año', 'Todo'],
             isDesktop:true,
-            moneda: '$',
-            monedas: [
-                {
-                    text: 'Dolares',
-                    value: '$'
-                },
-                {
-                    text: 'Bolivares',
-                    value: 'Bs'
-                },
-            ],
+            ...monedas,
         }
     },
     computed:{

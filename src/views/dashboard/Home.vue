@@ -3,24 +3,9 @@
         <v-container data-app style="padding:0 2.5vw;margin-top: 74px;max-width:97vw;">
             <v-row justify="center">
                 <v-col cols="12" md="5">
-                    <v-card width="100%">
+                    <v-card width="100%" outlined>
                         <v-row justify="center">
-                            <!-- Select de Monedas -->
-                            <v-col cols="12" sm="6" style="padding:0">
-                                <v-card-title class="title"><span style="margin-left:auto;">Utilizar moneda</span></v-card-title>
-                            </v-col>
-                            <!-- Select de Monedas -->
-                            <v-col cols="12" sm="6" style="text-align:left;">
-                                <v-select
-                                    v-model="moneda"
-                                    :items="monedas"
-                                    label="Moneda"
-                                    outlined
-                                    dense
-                                    style="height:39px;max-width:170px;"
-                                    menu-props="offset-y"
-                                ></v-select>
-                            </v-col>
+                            <coinType />
                         </v-row>
                     </v-card>
                 </v-col>
@@ -75,7 +60,9 @@ import moment from "moment";
 import accounting from 'accounting';
 import storages from '@/services/Depositos';
 import reports from '@/plugins/reports'
+import monedas from '@/plugins/monedas';
 import loader from '@/components/aplicacion/loading'
+import coinType from '@/components/aplicacion/coinSelector'
 import w from '@/services/variables';
 import { mapState } from 'vuex';
 
@@ -86,6 +73,7 @@ export default {
         storagesTables: dTable,
         loader: loader,
         stockConceptsDialog,
+        coinType
     },
     head: {
         title() {
@@ -120,17 +108,7 @@ export default {
             stockMaxDialog: false,
             stockMinConcepts: [],
             stockMaxConcepts: [],
-            moneda: '$',
-            monedas: [
-                {
-                    text: 'Dolares',
-                    value: '$'
-                },
-                {
-                    text: 'Bolivares',
-                    value: 'Bs'
-                },
-            ],
+            ...monedas,           
         }
     },
     computed:{

@@ -64,15 +64,4 @@ export default {
         ],
         concepts: [],
     },
-    moneda: "Bs",
-    monedas: [
-        {
-            text: 'Dolares',
-            value: '$'
-        },
-        {
-            text: 'Bolivares',
-            value: 'Bs'
-        },
-    ],
 }
