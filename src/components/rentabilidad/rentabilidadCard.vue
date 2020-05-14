@@ -16,8 +16,8 @@
                     <span style="color:#0D47A1">
                         {{
                             moneda === 'Bs' || moneda === '$' ?
-                                formatMoney(data[0], { symbol   : moneda === 'Bs' || moneda === '$ ' ? moneda : "", thousand : ".", decimal  : ",", })
-                                : formatMoney(data[0], { symbol   : moneda === 'Bs' || moneda === '$ ' ? moneda : "", thousand : ".", decimal  : ",", }).split(',')[0]
+                                formatMoney(data[0], { symbol: moneda , thousand : ".", decimal  : ",", })
+                                : formatMoney(data[0], { symbol: "", thousand : ".", decimal  : ",", }).split(',')[0]
                         }}
                         {{
                             moneda !== 'Bs' && moneda !== '$' ? moneda : ''
@@ -28,8 +28,8 @@
                     <span style="color:#0D47A1">
                         {{
                             moneda === 'Bs' || moneda === '$' ?
-                                formatMoney(data[1], { symbol   : moneda === 'Bs' || moneda === '$ ' ? moneda : "", thousand : ".", decimal  : ",", })
-                                : formatMoney(data[1], { symbol   : moneda === 'Bs' || moneda === '$ ' ? moneda : "", thousand : ".", decimal  : ",", }).split(',')[0]
+                                formatMoney(data[1], { symbol:  moneda, thousand : ".", decimal  : ",", })
+                                : formatMoney(data[1], { symbol: "", thousand : ".", decimal  : ",", }).split(',')[0]
                         }}
                         {{
                             moneda !== 'Bs' && moneda !== '$' ? moneda : ''
@@ -60,7 +60,7 @@ import w from '@/services/variables';
 import moment from 'moment';
 
 export default {
-    name:'compare',
+    name:'rentabilidadCard',
     props:{
         title:{
             type: String,
@@ -68,7 +68,7 @@ export default {
         },
         moneda:{
             type: String,
-            default:'',
+            default:'$',
         },
         entidad:{
             type: String,
@@ -107,6 +107,10 @@ export default {
     },
     beforeMount(){
         this.data = this.chart.series;
+    },
+    beforeUpdate(){
+        this.data = this.chart.series;
+        console.log(this);
     }
 }
 </script>

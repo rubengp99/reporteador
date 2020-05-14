@@ -10,7 +10,7 @@
                 />
             </v-card-text>
             <v-divider></v-divider>
-            <v-card-actions>
+            <v-card-actions v-if="!isNaN((Math.round((formula) * 100)))">
                 <p class="caption" style="padding: 5px 20px;width:100%;">
                     El mes pasado 
                     <span class="text-capitalize" style="color:#0D47A1">{{ moment(w.test).locale('es').subtract(1,'months').format('MMMM [de] YYYY') }}</span>
@@ -18,8 +18,8 @@
                     <span style="color:#0D47A1">
                         {{
                             moneda === 'Bs' || moneda === '$' ?
-                                formatMoney(data[0], { symbol   : moneda === 'Bs' || moneda === '$ ' ? moneda : "", thousand : ".", decimal  : ",", })
-                                : formatMoney(data[0], { symbol   : moneda === 'Bs' || moneda === '$ ' ? moneda : "", thousand : ".", decimal  : ",", }).split(',')[0]
+                                formatMoney(data[0], { symbol: moneda, thousand : ".", decimal  : ",", })
+                                : formatMoney(data[0], { symbol: "", thousand : ".", decimal  : ",", }).split(',')[0]
                         }}
                         {{
                             moneda !== 'Bs' && moneda !== '$' ? moneda : ''
@@ -30,8 +30,8 @@
                     <span style="color:#0D47A1">
                         {{
                             moneda === 'Bs' || moneda === '$' ?
-                                formatMoney(data[1], { symbol   : moneda === 'Bs' || moneda === '$ ' ? moneda : "", thousand : ".", decimal  : ",", })
-                                : formatMoney(data[1], { symbol   : moneda === 'Bs' || moneda === '$ ' ? moneda : "", thousand : ".", decimal  : ",", }).split(',')[0]
+                                formatMoney(data[1], { symbol: moneda, thousand : ".", decimal  : ",", })
+                                : formatMoney(data[1], { symbol: "", thousand : ".", decimal  : ",", }).split(',')[0]
                         }}
                         {{
                             moneda !== 'Bs' && moneda !== '$' ? moneda : ''
@@ -52,6 +52,11 @@
                      </span>
                 </p>
             </v-card-actions>
+            <v-card-actions v-else>
+                <span>
+                    Parece que usted no tiene facturas con montos en <span style="color:#0D47A1"> dólares</span>, por lo tanto, este reporte no tiene nada que mostrar.
+                </span>
+            </v-card-actions>
         </div>
         <div v-else style="padding: 25px 0;">
             <v-spacer></v-spacer>
@@ -66,7 +71,7 @@ import w from '@/services/variables';
 import moment from 'moment';
 
 export default {
-    name:'compare',
+    name:'compareCard',
     props:{
         title:{
             type: String,
@@ -122,6 +127,9 @@ export default {
     beforeMount(){
         this.data = this.chart.series;
         this.$forceUpdate();
+    },
+    beforeUpdate(){
+        this.data = this.chart.series;
     },
     beforeDestroy() {
         window.removeEventListener('resize', this.onResize)

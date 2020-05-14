@@ -1,5 +1,29 @@
 <template>
     <div style="margin-top:79px;padding: 0 20px;">
+        <v-row>
+            <v-col cols="12">
+                <v-card width="100%">
+                    <v-row justify="center">
+                        <!-- Select de Monedas -->
+                        <v-col cols="12" sm="6" style="text-align:right;">
+                            <span class="title">Utilizar moneda</span>
+                        </v-col>
+                        <!-- Select de Monedas -->
+                        <v-col cols="12" sm="6" style="text-align:left;">
+                            <v-select
+                                v-model="moneda"
+                                :items="monedas"
+                                label="Moneda"
+                                outlined
+                                dense
+                                style="height:39px;max-width:200px;"
+                                menu-props="offset-y"
+                            ></v-select>
+                        </v-col>
+                    </v-row>
+                </v-card>
+            </v-col>
+        </v-row>
         <v-row class="report-container">
             <v-col cols="12" lg="6" class="report">
                 <dCard col="12" icon img="facturacion" :title="`Facturación`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/incremento-facturas-${rango}` : ''" last />
@@ -100,11 +124,20 @@ export default {
             ingresosComp: [false, false, true],
             facturasComp: [false, false, true],
             comprasVsVentasComp: [false, false, true],
-            moneda: 'Bs',
-            monedas: ['Bolivares','Dolares'],
             rango: 'Mes',
             rangos: ['Semana','Mes','Año', 'Todo'],
             isDesktop:true,
+            moneda: '$',
+            monedas: [
+                {
+                    text: 'Dolares',
+                    value: '$'
+                },
+                {
+                    text: 'Bolivares',
+                    value: 'Bs'
+                },
+            ],
         }
     },
     computed:{
@@ -167,6 +200,11 @@ export default {
             }else
                 this.isDesktop = false;
             
+        },
+        reload(){
+            this.ingresosComp = this.ingresosComp.map(i => !i);
+            this.facturasComp = this.facturasComp.map(i => !i);
+            this.comprasVsVentasComp = this.comprasVsVentasComp.map(i => !i);
         }
     },
     watch:{
@@ -182,6 +220,12 @@ export default {
             if(newVal === this.apiFacturas) return;
             this.createFacturasComp();
         },
+        moneda(){
+            this.reload();
+            this.createRentabilidad();
+            this.reload();
+            console.log(this.$data);
+        }
     },
     created(){
         window.addEventListener('resize', this.onResize);
