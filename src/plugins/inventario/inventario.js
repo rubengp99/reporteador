@@ -78,6 +78,9 @@ const createInventory = async function() {
             }
         })
     }
+
+    this.gruposAux = this.grupos;
+
     if (typeof this.$route.params.id !== 'undefined' && this.$route.name === 'concepto') {
         this.search = this.$route.params.nombre;
         this.goSearch = !this.goSearch;
@@ -372,10 +375,48 @@ const getSubGrupoName = async function (concept){
         typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' : '-';
 }
 
+const filterSubGrupos = async function(){
+    //existen conceptos con subgrupos_id = null, esta categoría las engloba para que no se pierdan
+    //durante el filtrado
+    let subgrupos = [];
+    subgrupos.push({
+        text: 'Indefinidos',
+        value: {
+            id: null,
+            name: '-',
+            hasSub: true
+        }
+    })
+    //al seleccionar un grupo es necesario filtrar los subgrupos pertenecientes a el
+    let aux = this.apiSubGroups.filter(e => e.grupos_id === this.grupo.id || e.adm_grupos_id === this.grupo.id);
+    //se puede dar el caso de que el grupo no tenga subgrupos, por eso es necesario hacer la verificación
+    if (typeof aux !== 'undefined') aux.forEach(i => subgrupos.push({
+        text: i.nombre,
+        value: {
+            id: i.id,
+            name: i.nombre
+        }
+    }));
+    else this.subNoData = (this.grupo.hasSub) ? 'Seleccione un «Grupo» primero.' : 'El grupo «' + this.grupo.name + '» no contiene Sub-Grupos.'
+    
+    return subgrupos;
+}
+
+
+const commonDataReset = async function () {
+    this.table.page = 1;
+    this.table.page_old = 1;
+    this.table.dataOffset = 0;
+    this.search = "";
+    this.loading = true;
+    this.table.products = [];
+    this.grupos = this.gruposAux;
+}
+
 export default {
     open,
     paginate,
-    getConcept,
+    commonDataReset,
     createInventory,
     configData,
     configStockDays, 
@@ -387,8 +428,10 @@ export default {
     configDevolutions,
     filterConcepts,
     filterConceptsFromRanking,
+    filterSubGrupos,
     getExistencias,
     getGrupoId,
+    getConcept,
     getGrupoName,
     getSubGrupoId,
     getSubGrupoName,

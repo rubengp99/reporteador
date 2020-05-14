@@ -26,7 +26,9 @@ export default {
             hasSub: true
         }
     }],
+    gruposAux: [],
     subgrupos: [],
+    subgruposAux: [],
     grupo: "",
     subgrupo: "",
     search: "",
