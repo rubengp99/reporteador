@@ -3,7 +3,7 @@
         <v-card class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
         <v-card-title class="title" style="padding:5px;">
             <v-spacer></v-spacer>
-            Vendedores de tu Empresa
+            Rutas de Servicio
             <v-spacer></v-spacer>
         </v-card-title>
         <v-row v-if="!loading">

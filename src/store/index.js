@@ -513,6 +513,7 @@ export default new Vuex.Store({
             state.buyersUpdated = true;
             state.sellersUpdated = true;
             state.goalsUpdated = true;
+            state.routesUpdated = true;
             state.facturasVsUpdated = true;
             state.ingresosVsUpdated = true;
             state.comprasVsVentasUpdated = true;
