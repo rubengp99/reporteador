@@ -300,7 +300,7 @@ const configSales = async function(product){
     try{
         var aux = this.apiConceptSales.data.data.find(c => c.id === product.id);
     }catch(e){
-        NaN
+        null
     }
     return (typeof aux !== 'undefined' ? +Math.trunc(+aux.vendidos) : 0);
   };
@@ -325,13 +325,17 @@ const configClaims = async function  (product) {
  * @param {Object} product //Concepto a ser modificado 
  */
 const configDevolutions = async function(product){
-  //pedimos las devoluciones
-  let devolutions = this.apiConceptReturns.data.data.find(i => i.id === product.id)
-  //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
-  product.returned = typeof devolutions !== 'undefined' ? !isNaN(+devolutions.devueltos) ? Math.trunc(+devolutions.devueltos * 100) / 100 : 0 : 0;
-  
-  product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#f73859", "#3F51B5", ]);
-  return product;
+    try {
+        //pedimos las devoluciones
+        var devolutions = this.apiConceptReturns.data.data.find(i => i.id === product.id)
+    } catch (e) {
+        
+    }
+    //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
+    product.returned = typeof devolutions !== 'undefined' ? !isNaN(+devolutions.devueltos) ? Math.trunc(+devolutions.devueltos * 100) / 100 : 0 : 0;
+    
+    product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#f73859", "#3F51B5", ]);
+    return product;
 }
 
 /**
