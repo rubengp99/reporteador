@@ -213,7 +213,7 @@ export default {
         },
         async crearObjetivos(){
             try {
-                let aux = typeof this.vuexGoals.data.data !== 'undefined' ? this.vuexGoals.data.data : [];
+                let aux = typeof this.vuexGoals.data.data !== undefined ? this.vuexGoals.data.data : [];
                 
                 for (const goal of aux) {
                     let fecha_in = w.test !== '' ? w.test : goal.fecha_at;
@@ -251,7 +251,7 @@ export default {
         async updateRecords(){
             let aux;
             aux = await Objetivo().get('?limit=1');
-            window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof aux.data.totalCount !== 'undefined' ? aux.data.totalCount : 0));
+            window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof aux.data.totalCount !== undefined ? aux.data.totalCount : 0));
             aux = await Objetivo().get('?limit='+JSON.parse(window.localStorage.getItem('totalObjetivos')));
             this.setGoals(aux);
             window.localStorage.setItem('Goals', JSON.stringify(aux));
