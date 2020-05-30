@@ -14,7 +14,7 @@ import FusionTheme from 'fusioncharts/themes/fusioncharts.theme.fusion';
 import loader from '@/components/aplicacion/loading.vue';
 import Auth from '@/services/auth';
 import croppa from 'vue-croppa';
-import './assets/css/styles.scss';
+import '@/assets/css/styles.scss';
 import VueMasonry from 'vue-masonry-css'
 
 let options = {
