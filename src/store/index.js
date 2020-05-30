@@ -298,7 +298,7 @@ export default new Vuex.Store({
             concept().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     
-                    typeof reponse.data.data !== 'undefined' ?
+                    typeof response.data.data !== 'undefined' ?
                         state.vuexConcepts = response :
                         state.vuexConcepts = Object.assign({}, state.emptyResArr)
                     
@@ -312,7 +312,7 @@ export default new Vuex.Store({
             concept().get('/mostSold/?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     
-                    typeof reponse.data.data !== 'undefined' ?
+                    typeof response.data.data !== 'undefined' ?
                         state.vuexConceptSales = response: 
                         state.vuexConceptSales = Object.assign({}, state.emptyResArr)
 
@@ -326,7 +326,7 @@ export default new Vuex.Store({
             invoices().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
 
-                    typeof reponse.data.data !== 'undefined' ?
+                    typeof response.data.data !== 'undefined' ?
                         state.vuexInvoices = response :
                         state.vuexInvoices = Object.assign({}, state.emptyResArr)
 
@@ -341,7 +341,7 @@ export default new Vuex.Store({
             groups().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
 
-                    typeof reponse.data.data !== 'undefined' ?
+                    typeof response.data.data !== 'undefined' ?
                         state.vuexGroups = response :
                         state.vuexGroups = Object.assign({}, state.emptyResArr)
 
@@ -353,7 +353,7 @@ export default new Vuex.Store({
             subGroups().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
 
-                    typeof reponse.data.data !== 'undefined' ?
+                    typeof response.data.data !== 'undefined' ?
                         state.vuexSubGroups = response :
                         state.vuexSubGroups = Object.assign({}, state.emptyResArr)
 
