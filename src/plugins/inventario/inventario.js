@@ -297,7 +297,11 @@ const configWeeklyDemand = async function(product){
  * @param {Object} product //Concepto a ser modificado 
  */
 const configSales = async function(product){
-    let aux = this.apiConceptSales.data.data.find(c => c.id === product.id);
+    try{
+        let aux = this.apiConceptSales.data.data.find(c => c.id === product.id);
+    }catch(e){
+        NaN
+    }
     return (typeof aux !== 'undefined' ? +Math.trunc(+aux.vendidos) : 0);
   };
 

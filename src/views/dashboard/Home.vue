@@ -124,8 +124,6 @@ export default {
         */
         async createGains(){
             this.apiInvoices = this.vuexTodayInvoices;
-            this.stockMinConcepts = [];
-            this.stockMaxConcepts = [];
             //sumamos las ganancias producidas por esa cantidad de facturas
             try {
                 //cantidad de facturas hoy
@@ -143,12 +141,19 @@ export default {
             this.$data.gainsBs = accounting.formatMoney(+this.$data.gainsBs, { symbol: "Bs", thousand : ".", decimal  : ",", });
         },
         async createStocks(){
-            //productos con existencia mínima y máxima
-            for (let concept of this.apiConcepts.data.data){
-                this.stockMin += typeof concept.existencia_minima === 'undefined' ? 0 : +concept.existencia_minima > +this.getExistencias(concept) ? 1 : 0;
-                if (typeof concept.existencia_minima === 'undefined' ? false : (+concept.existencia_minima > +this.getExistencias(concept))) this.stockMinConcepts.push(concept);
-                this.stockMax += typeof concept.existencia_maxima === 'undefined' ? 0 : +this.getExistencias(concept) > +concept.existencia_maxima ? 1 : 0;
-                if (typeof concept.existencia_maxima === 'undefined' ? false : (+this.getExistencias(concept) > +concept.existencia_maxima)) this.stockMaxConcepts.push(concept);
+            this.stockMinConcepts = [];
+            this.stockMaxConcepts = [];
+            this.apiConcepts = this.vuexConcepts;
+            try{
+                //productos con existencia mínima y máxima
+                for (let concept of this.apiConcepts.data.data){
+                    this.stockMin += typeof concept.existencia_minima === 'undefined' ? 0 : +concept.existencia_minima > +this.getExistencias(concept) ? 1 : 0;
+                    if (typeof concept.existencia_minima === 'undefined' ? false : (+concept.existencia_minima > +this.getExistencias(concept))) this.stockMinConcepts.push(concept);
+                    this.stockMax += typeof concept.existencia_maxima === 'undefined' ? 0 : +this.getExistencias(concept) > +concept.existencia_maxima ? 1 : 0;
+                    if (typeof concept.existencia_maxima === 'undefined' ? false : (+this.getExistencias(concept) > +concept.existencia_maxima)) this.stockMaxConcepts.push(concept);
+                }
+            }catch(e){
+                null
             }
             this.loading[2] = false;
             this.loading[3] = false;
@@ -159,55 +164,59 @@ export default {
             --Ranking de ventas por grupos (Gráfico)
         */
         async createGroupsRank(){
-            this.apiGroups = this.vuexGroups;
-            this.apiSubGroups = this.vuexSubGroups;
-            this.apiSubGroups = this.$data.apiSubGroups.data.data;
-            this.groupSales = this.vuexGroupSales;
-            let max = this.apiSubGroups.length;
-            let gVentas = this.$data.groupSales.data.data.slice(0,5);
-            this.sVentas = this.vuexSubGroupSales.data.data;
-            //inicializamos la data del gráficos, esto es solo con fines de establecer una matriz de
-            //5 files con una cantidad de columnas proporcional al número de subgrupos
-            //(el diseño de apexchart nos obliga a hacer el gráfico de barras stackeadas de esta manera)
-            for (let i = 0; i < max+1; i++){
-                max;
-                this.series.push({
-                name: "SubGrupos "+i,
-                data: [{
-                    x: '',
-                    y: 0,
-                },
-                {
-                    x: '',
-                    y: 0,
-                },
-                {
-                    x: '',
-                    y: 0,
-                },
-                {
-                    x: '',
-                    y: 0,
-                },
-                {
-                    x: '',
-                    y: 0,
-                }]
-                });
-            }
-
-            for (let i = 1; i < max+1; i++){
-                for (let j = 0; j < 5; j++) {
-                this.series[i].data[j].x = typeof this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i) !== 'undefined' ?  
-                                                this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).nombre  : '';
-                this.series[i].data[j].y = typeof this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i) !== 'undefined' ?  
-                                                Math.trunc(this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).venta) : 0;
+            try {
+                this.apiGroups = this.vuexGroups;
+                this.apiSubGroups = this.vuexSubGroups;
+                this.apiSubGroups = this.$data.apiSubGroups.data.data;
+                this.groupSales = this.vuexGroupSales;
+                let max = this.apiSubGroups.length;
+                let gVentas = this.$data.groupSales.data.data.slice(0,5);
+                this.sVentas = this.vuexSubGroupSales.data.data;
+                //inicializamos la data del gráficos, esto es solo con fines de establecer una matriz de
+                //5 files con una cantidad de columnas proporcional al número de subgrupos
+                //(el diseño de apexchart nos obliga a hacer el gráfico de barras stackeadas de esta manera)
+                for (let i = 0; i < max+1; i++){
+                    max;
+                    this.series.push({
+                    name: "SubGrupos "+i,
+                    data: [{
+                        x: '',
+                        y: 0,
+                    },
+                    {
+                        x: '',
+                        y: 0,
+                    },
+                    {
+                        x: '',
+                        y: 0,
+                    },
+                    {
+                        x: '',
+                        y: 0,
+                    },
+                    {
+                        x: '',
+                        y: 0,
+                    }]
+                    });
                 }
+
+                for (let i = 1; i < max+1; i++){
+                    for (let j = 0; j < 5; j++) {
+                    this.series[i].data[j].x = typeof this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i) !== 'undefined' ?  
+                                                    this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).nombre  : '';
+                    this.series[i].data[j].y = typeof this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i) !== 'undefined' ?  
+                                                    Math.trunc(this.sVentas.find(a => a.adm_grupos_id === gVentas[j].id && a.id === i).venta) : 0;
+                    }
+                }
+                this.ranking = reports.chart__barRank(this.series,
+                    [gVentas[0].nombre,gVentas[1].nombre,gVentas[2].nombre,gVentas[3].nombre,gVentas[4].nombre],
+                    moment(w.test).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(w.test).locale('es').format('MMM Do YYYY').slice(1,14),
+                );
+            } catch (e) {
+                null
             }
-            this.ranking = reports.chart__barRank(this.series,
-                [gVentas[0].nombre,gVentas[1].nombre,gVentas[2].nombre,gVentas[3].nombre,gVentas[4].nombre],
-                moment(w.test).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(w.test).locale('es').format('MMM Do YYYY').slice(1,14),
-            );
 
             this.loading[4] = false;
         },
