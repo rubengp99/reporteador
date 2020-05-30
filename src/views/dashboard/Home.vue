@@ -122,8 +122,7 @@ export default {
             --?
             --?
         */
-        async createBasics(){
-            this.apiConcepts = this.vuexConcepts;
+        async createGains(){
             this.apiInvoices = this.vuexTodayInvoices;
             this.stockMinConcepts = [];
             this.stockMaxConcepts = [];
@@ -142,6 +141,8 @@ export default {
             //le damos un formato contable
             this.$data.gains$ = accounting.formatMoney(+this.$data.gains$, { symbol: "$", thousand : ".", decimal  : ",", });
             this.$data.gainsBs = accounting.formatMoney(+this.$data.gainsBs, { symbol: "Bs", thousand : ".", decimal  : ",", });
+        },
+        async createStocks(){
             //productos con existencia mínima y máxima
             for (let concept of this.apiConcepts.data.data){
                 this.stockMin += typeof concept.existencia_minima === 'undefined' ? 0 : +concept.existencia_minima > +this.getExistencias(concept) ? 1 : 0;
@@ -151,6 +152,7 @@ export default {
             }
             this.loading[2] = false;
             this.loading[3] = false;
+
         },
         /*
         Diseñado para crear la segunda fila de datos (0-50%):
@@ -230,8 +232,8 @@ export default {
                 }
                 this.loading[5] = false;
             }catch(error){
-                this.loading[5] = true;
-                this.createStorageValue();
+                this.loading[5] = false;
+                this.storages = [];
             }
         },
         getExistencias(concept){
@@ -241,9 +243,11 @@ export default {
     watch:{
         vuexConcepts(){
             this.apiConcepts = this.vuexConcepts;
+            this.createStocks();
         },
         vuexInvoices(){
             this.apiInvoices = this.vuexInvoices;
+            this.createGains();
         },
         vuexGroups(){
             this.apiGroups = this.vuexGroups;
@@ -262,19 +266,22 @@ export default {
         },
         vuexStorages(){
             this.apiStorages = this.vuexStorages;
+            this.createStorageValue();
         },
         vuexTodayInvoices(){
             this.apiInvoices = this.vuexTodayInvoices;
         },
         dashboardUpdated(){
-            this.createBasics();
+            this.createGains();
+            this.createStocks();
             this.createGroupsRank();
             this.createStorageValue();
         }
     },
     beforeMount(){
         if(this.dashboardUpdated){
-            this.createBasics();
+            this.createGains();
+            this.createStocks();
             this.createGroupsRank();
             this.createStorageValue();
         }
