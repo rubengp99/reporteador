@@ -298,7 +298,7 @@ const configWeeklyDemand = async function(product){
  */
 const configSales = async function(product){
     try{
-        let aux = this.apiConceptSales.data.data.find(c => c.id === product.id);
+        var aux = this.apiConceptSales.data.data.find(c => c.id === product.id);
     }catch(e){
         NaN
     }
