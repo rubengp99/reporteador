@@ -89,6 +89,18 @@ export default new Vuex.Store({
         totalRutas: 0,
         totalCompras: 0,
         restoredFromCache: false,
+        valueFixArr: function(response){
+            return typeof response.data.data !== 'undefined' ?
+                response :
+                Object.assign({}, state.emptyResArr)
+
+        },
+        valueFix: function (response) {
+            return typeof response.data.data !== 'undefined' ?
+                response :
+                Object.assign({}, state.emptyRes)
+
+        }
     },
     getters: {
 
@@ -239,7 +251,9 @@ export default new Vuex.Store({
         async SET_UPDATE_INVENTARIO(state) {
 
             concept().get('?limit=' + state.vuexConcepts.data.totalCount + '&fields=existencias&orderField=id&order=DESC').then(response => {
-                state.vuexConcepts = response;
+                
+                state.vuexConcepts = state.valueFixArr(response)
+                
                 window.localStorage.setItem('Concepts', JSON.stringify(response));
                 state.inventoryUpdatedAux[0] = true;
                 state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
@@ -247,7 +261,9 @@ export default new Vuex.Store({
             });
 
             concept().get('/mostSold/?limit=' + state.vuexConcepts.data.totalCount).then(response => {
-                state.vuexConceptSales = response;
+                
+                state.vuexConceptSales = state.valueFixArr(response)
+
                 window.localStorage.setItem('ConceptSales', JSON.stringify(response));
                 state.inventoryUpdatedAux[1] = true;
                 state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
@@ -255,7 +271,9 @@ export default new Vuex.Store({
             });
 
             groups().get('?limit=' + state.vuexGroups.data.totalCount).then(response => {
-                state.vuexGroups = response;
+
+                state.vuexGroups = state.valueFixArr(response)
+
                 window.localStorage.setItem('Groups', JSON.stringify(response));
                 state.inventoryUpdatedAux[2] = true;
                 state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
@@ -263,7 +281,9 @@ export default new Vuex.Store({
             });
 
             subGroups().get('?limit=' + state.vuexSubGroups.data.totalCount).then(response => {
-                state.vuexSubGroups = response;
+
+                state.vuexSubGroups = state.valueFixArr(response)
+
                 window.localStorage.setItem('SubGroups', JSON.stringify(response));
                 state.inventoryUpdatedAux[3] = true;
                 state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
@@ -271,14 +291,12 @@ export default new Vuex.Store({
             });
 
             concept().get('/mostreturned/?fields=devueltos,id&limit=' + state.vuexConcepts.data.totalCount).then(response => {
-                if (!state.restoredFromCache) {
-                    state.vuexConceptReturns = response;
-                    window.localStorage.setItem('ConceptReturns', JSON.stringify(response));
-                    state.inventoryUpdatedAux[4] = true;
-                    state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
-                } else {
-                    state.init = true;
-                }
+                
+                state.vuexConceptReturns = state.valueFixArr(response)
+
+                window.localStorage.setItem('ConceptReturns', JSON.stringify(response));
+                state.inventoryUpdatedAux[4] = true;
+                state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
             });
 
             let weeklySales = [];
@@ -286,7 +304,7 @@ export default new Vuex.Store({
             for (let i = 6; i > -1; i--)
                 weeklySales.push(await invoices().get('?limit=' + state.vuexInvoices.data.totalCount + '&fields=id&fecha_at=' + moment(w.test).locale('es').subtract(i, 'days').format('YYYY-MM-DD')));
             
-            state.vuexWeeklySales = weeklySales;
+            weeklySales.forEach(week => state.vuexWeeklySales.push(state.valueFixArr(week)))
             state.inventoryUpdatedAux[5] = true;
             state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
             window.localStorage.setItem('WeeklySales', JSON.stringify(weeklySales));
@@ -298,9 +316,7 @@ export default new Vuex.Store({
             concept().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     
-                    typeof response.data.data !== 'undefined' ?
-                        state.vuexConcepts = response :
-                        state.vuexConcepts = Object.assign({}, state.emptyResArr)
+                    state.vuexConcepts = state.valueFixArr(response)
                     
                     state.initAux[0] = true;
                     state.init = state.initAux.every(i => i)
@@ -312,9 +328,7 @@ export default new Vuex.Store({
             concept().get('/mostSold/?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     
-                    typeof response.data.data !== 'undefined' ?
-                        state.vuexConceptSales = response: 
-                        state.vuexConceptSales = Object.assign({}, state.emptyResArr)
+                    state.vuexConceptSales = state.valueFixArr(response)
 
                     state.initAux[1] = true;
                     state.init = state.initAux.every(i => i)
@@ -326,9 +340,7 @@ export default new Vuex.Store({
             invoices().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
 
-                    typeof response.data.data !== 'undefined' ?
-                        state.vuexInvoices = response :
-                        state.vuexInvoices = Object.assign({}, state.emptyResArr)
+                    state.vuexInvoices = state.valueFixArr(response)
 
                     window.localStorage.setItem('Invoices', JSON.stringify(response));
                     state.initAux[2] = true;
@@ -341,9 +353,7 @@ export default new Vuex.Store({
             groups().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
 
-                    typeof response.data.data !== 'undefined' ?
-                        state.vuexGroups = response :
-                        state.vuexGroups = Object.assign({}, state.emptyResArr)
+                    state.vuexGroups = state.valueFixArr(response)
 
                     state.initAux[3] = true;
                     state.init = state.initAux.every(i => i)
@@ -353,9 +363,7 @@ export default new Vuex.Store({
             subGroups().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
 
-                    typeof response.data.data !== 'undefined' ?
-                        state.vuexSubGroups = response :
-                        state.vuexSubGroups = Object.assign({}, state.emptyResArr)
+                    state.vuexSubGroups = state.valueFixArr(response)
 
                     state.initAux[4] = true;
                     state.init = state.initAux.every(i => i)
@@ -366,9 +374,9 @@ export default new Vuex.Store({
 
             sellers().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
-                    state.vuexSellers = response;
+                    state.vuexSellers = state.valueFixArr(response)
 
-                    typeof state.vuexSellers.data.totalCount !== 'undefined' ?
+                    typeof response.data.totalCount !== 'undefined' ?
                         state.totalVendedores = state.vuexSellers.data.totalCount :
                         state.totalVendedores = 0;
 
@@ -382,9 +390,9 @@ export default new Vuex.Store({
 
             buyers().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
-                    state.vuexBuyers = response;
+                    state.vuexBuyers = state.valueFixArr(response)
                     
-                    typeof state.vuexSellers.data.totalCount !== 'undefined' ?
+                    typeof response.data.totalCount !== 'undefined' ?
                         state.totalClientes = state.vuexBuyers.data.totalCount :
                         state.totalClientes = 0;
 
@@ -399,9 +407,7 @@ export default new Vuex.Store({
             concept().get('/mostreturned/?fields=id&limit=1').then(response => {
                 if (!state.restoredFromCache) {
 
-                    typeof state.vuexSellers.data.data !== 'undefined' ?
-                        state.vuexConceptReturns = response :
-                        state.vuexConceptReturns = Object.assign({}, state.emptyResArr)
+                    state.vuexConceptReturns = state.valueFixArr(response)
                         
                     state.initAux[7] = true;
                     state.init = state.initAux.every(i => i)
@@ -412,7 +418,7 @@ export default new Vuex.Store({
 
             goals().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
-                    state.vuexGoals = response;
+                    state.vuexGoals = state.valueFixArr(response)
 
                     typeof response.data.totalCount !== 'undefined' ?
                         state.totalObjetivos = response.data.totalCount :
@@ -428,7 +434,7 @@ export default new Vuex.Store({
 
             routes().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
-                    state.vuexRoutes = response;
+                    state.vuexRoutes = state.valueFixArr(response)
 
                     typeof response.data.totalCount !== 'undefined' ?
                         state.totalRutas = response.data.totalCount :
@@ -464,9 +470,7 @@ export default new Vuex.Store({
             
             storages().get().then(response => {
 
-                typeof response.data.data !== 'undefined' ?
-                    state.vuexStorages = response :
-                    state.vuexStorages = Object.assign({}, state.emptyResArr);
+                state.vuexStorages = state.valueFixArr(response)
 
                 window.localStorage.setItem('Storages', JSON.stringify(response));
                 state.dashboardUpdatedAux[0] = true;
@@ -475,9 +479,7 @@ export default new Vuex.Store({
 
             groups().get('/mostSold/?limit=' + state.vuexGroups.data.totalCount + '&fecha_at=' + moment(w.test).format('YYYY-MM-DD')).then(response => {
                 
-                typeof response.data.data !== 'undefined' ?
-                    state.vuexGroupSales = response :
-                    state.vuexGroupSales = Object.assign({}, state.emptyResArr)
+                state.vuexGroupSales = state.valueFixArr(response)
 
                 window.localStorage.setItem('GroupSales', JSON.stringify(response));
                 state.dashboardUpdatedAux[1] = true;
@@ -486,9 +488,7 @@ export default new Vuex.Store({
 
             subGroups().get('/mostsold/?limit=' + state.vuexSubGroups.data.totalCount + '&fecha_at=' + moment(w.test).format('YYYY-MM-DD')).then(response => {
                 
-                typeof response.data.data !== 'undefined' ?
-                    state.vuexSubGroupSales = response :
-                    state.vuexSubGroupSales = Object.assign({}, state.emptyResArr)
+                state.vuexSubGroupSales = state.valueFixArr(response)
 
                 window.localStorage.setItem('SubGroupSales', JSON.stringify(response));
                 state.dashboardUpdatedAux[2] = true;
@@ -497,9 +497,7 @@ export default new Vuex.Store({
 
             invoices().get('?limit=' + state.vuexInvoices.data.totalCount + '&fecha_at=' + moment(w.test).format('YYYY-MM-DD')).then(response => {
                 
-                typeof response.data.data !== 'undefined' ?
-                    state.vuexTodayInvoices = response :
-                    state.vuexTodayInvoices = Object.assign({}, state.emptyResArr)
+                state.vuexTodayInvoices = state.valueFixArr(response)
 
                 window.localStorage.setItem('TodayInvoices', JSON.stringify(response));
                 state.dashboardUpdatedAux[3] = true;
@@ -512,19 +510,27 @@ export default new Vuex.Store({
 
             sellers().get('/mostSellers/?limit=' + state.totalVendedores).then(response => {
                 
-                typeof response.data.data !== 'undefined' ?
-                    state.vuexSellers = response :
-                    state.vuexSellers = Object.assign({}, state.emptyResArr)
+                state.vuexSellers = state.valueFixArr(response)
 
                 window.localStorage.setItem('Sellers', JSON.stringify(response));
                 state.sellersUpdated = true;
 
                 //esta data se usa en rentabilidad
-                let data = {
-                    bolivares: Math.round(response.data.data.map(i => +i.venta_total).reduce((a, b) => a + b) * 100) / 100,
-                    dolares: Math.round(response.data.data.map(i => +i.venta_total_dolar).reduce((a, b) => a + b) * 100) / 100,
-                    compras: 0,
-                };
+                let data 
+
+                try {
+                    data = {
+                        bolivares: Math.round(response.data.data.map(i => +i.venta_total).reduce((a, b) => a + b) * 100) / 100,
+                        dolares: Math.round(response.data.data.map(i => +i.venta_total_dolar).reduce((a, b) => a + b) * 100) / 100,
+                        compras: 0,
+                    };
+                } catch (e) {
+                    data = {
+                        bolivares: 0,
+                        dolares: 0,
+                        compras: 0,
+                    };
+                }
 
                 state.vuexComprasVsVentas.push(data);
                 state.vuexComprasVsVentasComp[1] = true;
@@ -537,9 +543,7 @@ export default new Vuex.Store({
 
             buyers().get('/mostBuyers/?limit=' + state.totalClientes).then(response => {
                 
-                typeof response.data.data !== 'undefined' ?
-                    state.vuexBuyers = response :
-                    state.vuexBuyers = Object.assign({}, state.emptyResArr)
+                state.vuexBuyers = state.valueFixArr(response)
 
                 window.localStorage.setItem('Buyers', JSON.stringify(response));
                 state.buyersUpdated = true;
@@ -547,9 +551,7 @@ export default new Vuex.Store({
 
             goals().get('?orderField=fecha_at&order=ASC&limit=' + state.totalObjetivos).then(response => {
                 
-                typeof response.data.data !== 'undefined' ?
-                    state.vuexGoals = response :
-                    state.vuexGoals = Object.assign({}, state.emptyResArr)
+                state.vuexGoals = state.valueFixArr(response)
 
                 window.localStorage.setItem('Goals', JSON.stringify(response));
                 window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
@@ -558,9 +560,7 @@ export default new Vuex.Store({
 
             routes().get('?limit='+state.totalRutas).then(response => {
                 
-                typeof response.data.data !== 'undefined' ?
-                    state.vuexRoutes = response :
-                    state.vuexRoutes = Object.assign({}, state.emptyResArr)
+                state.vuexRoutes = state.valueFixArr(response)
 
                 window.localStorage.setItem('Routes', JSON.stringify(response));
                 window.localStorage.setItem('totalRutas', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
@@ -647,9 +647,7 @@ export default new Vuex.Store({
 
             compras().get('?limit=' + state.totalCompras).then(Response => {
                 
-                typeof Response.data.data !== undefined ? 
-                    Response.data.data :
-                    Response.data.data = Object.assign({}, state.emptyResArr)
+                Response = state.valueFixArr(Response)
                 
                 let data;
                 try{
