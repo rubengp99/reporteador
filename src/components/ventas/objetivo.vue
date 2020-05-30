@@ -159,7 +159,7 @@ export default {
             if(this.progreso >= 100){
                 Objetivo().delete('/'+this.id).then(async () =>{
                     let aux = await Objetivo().get('?limit=1');
-                    window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof aux.data.totalCount !== undefined ? aux.data.totalCount : 0));
+                    window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof aux.data.totalCount !== 'undefined' ? aux.data.totalCount : 0));
                     aux = await Objetivo().get('?limit='+JSON.parse(window.localStorage.getItem('totalObjetivos')));
                     this.setGoals(aux);
                     

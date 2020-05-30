@@ -176,7 +176,7 @@ import _ from 'lodash';
             async updateUsuario(id){
                 let newUserData = {};
                 this.loading = true;
-                typeof this.date !== undefined && this.date !== '' ? newUserData.fecha_nac = this.date : NaN;
+                typeof this.date !== 'undefined' && this.date !== '' ? newUserData.fecha_nac = this.date : NaN;
                 this.data.nombre !== this.user.data.nombre ? newUserData.nombre = this.data.nombre : NaN;
                 this.data.apellido !== this.user.data.apellido ? newUserData.apellido = this.data.apellido : NaN;
                 this.password === "" ? NaN 
@@ -206,7 +206,7 @@ import _ from 'lodash';
                     });
                 }
 
-                if(!_.isEqual(this.data,this.user.data) || this.telefono !== "" || typeof this.date !== undefined){
+                if(!_.isEqual(this.data,this.user.data) || this.telefono !== "" || typeof this.date !== 'undefined'){
                     Usuario().post(`/${id}`,{data:newUserData}).then(async () => {
                         let updatedUser = await Usuario().get('/'+id);
                         this.user.data = {...updatedUser.data.data};

@@ -114,7 +114,7 @@
                     <div class="p-2">
                         <v-btn icon height="70px" width="65px" hoverable @focus="open(item)">
                             <v-img
-                                :src="(typeof item !== undefined) ? item.icon.toggled ? require('@/assets/boxOF.svg'):require('@/assets/box.svg') :  require('@/assets/boxOF.svg')"
+                                :src="(typeof item !== 'undefined') ? item.icon.toggled ? require('@/assets/boxOF.svg'):require('@/assets/box.svg') :  require('@/assets/boxOF.svg')"
                                 :alt="item.name"
                                 width="60px"
                                 height="65px"
@@ -142,7 +142,7 @@
                     <div class="p-2">
                         <v-btn icon height="70px" width="65px" hoverable @focus="open(item)">
                             <v-img
-                                :src="(typeof item !== undefined) ? item.icon.toggled ? require('@/assets/boxOF.svg'):require('@/assets/box.svg') :  require('@/assets/boxOF.svg')"
+                                :src="(typeof item !== 'undefined') ? item.icon.toggled ? require('@/assets/boxOF.svg'):require('@/assets/box.svg') :  require('@/assets/boxOF.svg')"
                                 :alt="item.name"
                                 width="60px"
                                 height="65px"
@@ -193,7 +193,7 @@
                 
                 <!-- Template de la columna ESTADISTICAS -->
                 <template v-slot:item.data-table-expand="item">
-                    <v-icon :ref="typeof $route.params.nombre !== undefined ? 'expand1' : 'expand'+item.item.id"
+                    <v-icon :ref="typeof $route.params.nombre !== 'undefined' ? 'expand1' : 'expand'+item.item.id"
                         :class="{ 'v-data-table__expand-icon': true, 'v-data-table__expand-icon--active': isExpanded && transitioned[getItemId(item)] }"
                         @click="toggleExpand(item)">
                         mdi-chevron-down

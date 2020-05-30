@@ -29,7 +29,7 @@
                                 <v-col cols=5 align="right" style="text-align:center;">
                                     <v-list-item-subtitle class="subtitle-2" style="text-overflow:none;white-space:normal;">
                                         {{
-                                            (typeof apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== undefined)?
+                                            (typeof apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined')?
                                             apiGroups.data.data.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).nombre : '-'
                                         }}
                                     </v-list-item-subtitle>
@@ -38,8 +38,8 @@
                                 <v-col cols=5 align="left" style="text-align:center;">
                                     <v-list-item-subtitle class="subtitle-2" style="text-overflow:none;white-space:normal;">
                                         {{
-                                            (typeof apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== undefined)?
-                                                typeof apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== undefined ? apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' :'-'
+                                            (typeof apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined')?
+                                                typeof apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' :'-'
                                         }}
                                     </v-list-item-subtitle>
                                 </v-col>

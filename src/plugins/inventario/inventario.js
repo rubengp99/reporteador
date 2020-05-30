@@ -10,7 +10,7 @@ import _ from 'lodash';
  */
 const open = async function (item) {
     //este metodo abre la pestaña más detalles de cada producto.
-    if (typeof item !== undefined) {
+    if (typeof item !== 'undefined') {
         if (item === null) {
             this.table.concepts.map(p => p.icon.toggled = p.icon.toggled ? !p.icon.toggled : p.icon.toggled);
             this.dialog = false;
@@ -81,7 +81,7 @@ const createInventory = async function() {
 
     this.gruposAux = this.grupos;
 
-    if (typeof this.$route.params.id !== undefined && this.$route.name === 'concepto') {
+    if (typeof this.$route.params.id !== 'undefined' && this.$route.name === 'concepto') {
         this.search = this.$route.params.nombre;
         this.goSearch = !this.goSearch;
     } else {
@@ -103,12 +103,12 @@ const getConcept =  _.debounce(async function (search = false, input = "", pConc
     let apiConcepts = (pConcept.length > this.table.itemsPerPage) ?
         pConcept.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage) : pConcept;
     //si se ha habilitado alguna busqueda por nombre entonces  
-    if (search && typeof this.$route.params.id === undefined) {
+    if (search && typeof this.$route.params.id === 'undefined') {
         //se filtran los resultados del arreglo general si no hay grupos acti vos, sino, se filtran desde el arreglo previamente filtrado
         this.filteredConcepts = await this.filterConcepts(input);
         apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage)
         this.table.totalConceptos = await this.filterConcepts(input).length;
-    } else if (typeof this.$route.params.id !== undefined) {
+    } else if (typeof this.$route.params.id !== 'undefined') {
         this.filteredConcepts = await this.filterConceptsFromRanking();
         apiConcepts = this.filteredConcepts.slice(this.table.dataOffset, this.table.dataOffset + this.table.itemsPerPage);
         this.table.totalConceptos = await this.filterConceptsFromRanking().length;
@@ -298,7 +298,7 @@ const configWeeklyDemand = async function(product){
  */
 const configSales = async function(product){
     let aux = this.apiConceptSales.data.data.find(c => c.id === product.id);
-    return (typeof aux !== undefined ? +Math.trunc(+aux.vendidos) : 0);
+    return (typeof aux !== 'undefined' ? +Math.trunc(+aux.vendidos) : 0);
   };
 
 /**
@@ -324,7 +324,7 @@ const configDevolutions = async function(product){
   //pedimos las devoluciones
   let devolutions = this.apiConceptReturns.data.data.find(i => i.id === product.id)
   //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
-  product.returned = typeof devolutions !== undefined ? !isNaN(+devolutions.devueltos) ? Math.trunc(+devolutions.devueltos * 100) / 100 : 0 : 0;
+  product.returned = typeof devolutions !== 'undefined' ? !isNaN(+devolutions.devueltos) ? Math.trunc(+devolutions.devueltos * 100) / 100 : 0 : 0;
   
   product.stock_devolution = reports.chart__donut([product.returned, product.sold], "Devoluciones del", ["Devoluciones", "Compras"], ["#f73859", "#3F51B5", ]);
   return product;
@@ -360,7 +360,7 @@ const getExistencias = async function (concept) {
  */
 //OBTIENE EL ID DE UN GRUPO
 const getGrupoId = async function (concept){
-    return (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== undefined) ?
+    return (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined') ?
         this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).id: 0;
 }
 
@@ -370,7 +370,7 @@ const getGrupoId = async function (concept){
  */
 //OBTIENE EL NOMBRE DE UN GRUPO
 const getGrupoName = async function (concept){
-    return (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== undefined) ?
+    return (typeof this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id) !== 'undefined') ?
         this.apiGroups.find(group => group.id === concept.grupos_id || group.id === concept.adm_grupos_id).nombre : '-';
 }
 
@@ -380,8 +380,8 @@ const getGrupoName = async function (concept){
  */
 //OBTIENE EL ID DE UN SUBGRUPO
 const getSubGrupoId = async function (concept){
-    return (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== undefined) ?
-        typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== undefined ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].id : 0 : 0;
+    return (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined') ?
+        typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].id : 0 : 0;
 }
 
 /**
@@ -390,8 +390,8 @@ const getSubGrupoId = async function (concept){
  */
 //OBTIENE EL NOMBRE DE UN SUBGRUPO
 const getSubGrupoName = async function (concept){
-    return (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== undefined) ?
-        typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== undefined ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' : '-';
+    return (typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id) !== 'undefined') ?
+        typeof this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0] !== 'undefined' ? this.apiSubGroups.filter(s => s.id === concept.subgrupos_id || s.id === concept.adm_subgrupos_id)[0].nombre : '-' : '-';
 }
 
 const filterSubGrupos = async function(){
@@ -409,7 +409,7 @@ const filterSubGrupos = async function(){
     //al seleccionar un grupo es necesario filtrar los subgrupos pertenecientes a el
     let aux = this.apiSubGroups.filter(e => e.grupos_id === this.grupo.id || e.adm_grupos_id === this.grupo.id);
     //se puede dar el caso de que el grupo no tenga subgrupos, por eso es necesario hacer la verificación
-    if (typeof aux !== undefined) aux.forEach(i => subgrupos.push({
+    if (typeof aux !== 'undefined') aux.forEach(i => subgrupos.push({
         text: i.nombre,
         value: {
             id: i.id,

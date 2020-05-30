@@ -26,16 +26,16 @@
                 <v-img :src="require('@/assets/storage.svg')" aspect-ratio="1.3" contain></v-img>
             </v-col>
             <v-col cols="3" sm="2">
-                <p class="subtitle-2">{{typeof object.id !== undefined ? object.id : ''}}</p>
+                <p class="subtitle-2">{{typeof object.id !== 'undefined' ? object.id : ''}}</p>
             </v-col>
             <v-col cols="3" sm="2">
-                <p class="subtitle-2">{{typeof object.count !== undefined ? object.count : ''}}</p>
+                <p class="subtitle-2">{{typeof object.count !== 'undefined' ? object.count : ''}}</p>
             </v-col>
             <v-col cols="3">
-                <p class="subtitle-2">{{typeof object.Bs !== undefined ? object.Bs : ''}}</p>
+                <p class="subtitle-2">{{typeof object.Bs !== 'undefined' ? object.Bs : ''}}</p>
             </v-col>
             <v-col cols="3">
-                <p class="subtitle-2">{{typeof object.$ !== undefined ? object.$ : ''}}</p>
+                <p class="subtitle-2">{{typeof object.$ !== 'undefined' ? object.$ : ''}}</p>
             </v-col>
         </v-row>
     </v-card>

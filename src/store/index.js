@@ -83,7 +83,7 @@ export default new Vuex.Store({
                     data: []
                 }
             };
-            return typeof response.data.data !== undefined ?
+            return typeof response.data.data !== 'undefined' ?
                 response :
                 Object.assign({}, emptyResArr)
 
@@ -96,10 +96,10 @@ export default new Vuex.Store({
                     data: {}
                 }
             };
-
-            return typeof response.data.data !== undefined ?
+            
+            return typeof response.data.data !== 'undefined' ?
                 response :
-                Object.assign({}, emptyRes)
+                Object.assign({}, state.emptyRes)
 
         }
     },
@@ -377,7 +377,7 @@ export default new Vuex.Store({
                 if (!state.restoredFromCache) {
                     state.vuexSellers = state.valueFixArr(response)
 
-                    typeof response.data.totalCount !== undefined ?
+                    typeof response.data.totalCount !== 'undefined' ?
                         state.totalVendedores = state.vuexSellers.data.totalCount :
                         state.totalVendedores = 0;
 
@@ -393,7 +393,7 @@ export default new Vuex.Store({
                 if (!state.restoredFromCache) {
                     state.vuexBuyers = state.valueFixArr(response)
                     
-                    typeof response.data.totalCount !== undefined ?
+                    typeof response.data.totalCount !== 'undefined' ?
                         state.totalClientes = state.vuexBuyers.data.totalCount :
                         state.totalClientes = 0;
 
@@ -421,7 +421,7 @@ export default new Vuex.Store({
                 if (!state.restoredFromCache) {
                     state.vuexGoals = state.valueFixArr(response)
 
-                    typeof response.data.totalCount !== undefined ?
+                    typeof response.data.totalCount !== 'undefined' ?
                         state.totalObjetivos = response.data.totalCount :
                         state.totalObjetivos = 0;
 
@@ -437,7 +437,7 @@ export default new Vuex.Store({
                 if (!state.restoredFromCache) {
                     state.vuexRoutes = state.valueFixArr(response)
 
-                    typeof response.data.totalCount !== undefined ?
+                    typeof response.data.totalCount !== 'undefined' ?
                         state.totalRutas = response.data.totalCount :
                         state.totalRutas = 0;
 
@@ -452,7 +452,7 @@ export default new Vuex.Store({
             compras().get('?limit=1').then(response => {
                 if(!state.restoredFromCache) {
 
-                   typeof response.data.totalCount !== undefined ?
+                   typeof response.data.totalCount !== 'undefined' ?
                        state.totalCompras = response.data.totalCount :
                        state.totalCompras = 0;
 
@@ -555,7 +555,7 @@ export default new Vuex.Store({
                 state.vuexGoals = state.valueFixArr(response)
 
                 window.localStorage.setItem('Goals', JSON.stringify(response));
-                window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof response.data.totalCount !== undefined ? response.data.totalCount : 0));
+                window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
                 state.goalsUpdated = true;
             });
 
@@ -564,7 +564,7 @@ export default new Vuex.Store({
                 state.vuexRoutes = state.valueFixArr(response)
 
                 window.localStorage.setItem('Routes', JSON.stringify(response));
-                window.localStorage.setItem('totalRutas', JSON.stringify(typeof response.data.totalCount !== undefined ? response.data.totalCount : 0));
+                window.localStorage.setItem('totalRutas', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
                 state.routesUpdated = true;
             });
 
@@ -586,8 +586,8 @@ export default new Vuex.Store({
             invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+pastMonth+'-01').then(Response =>{
                 
                 let data = {
-                    bolivares: typeof Response.data.data.subtotal !== undefined ? Response.data.data.subtotal : 0,
-                    dolares: typeof Response.data.data.subtotal_dolar !== undefined ? Response.data.data.subtotal_dolar : 0,
+                    bolivares: typeof Response.data.data.subtotal !== 'undefined' ? Response.data.data.subtotal : 0,
+                    dolares: typeof Response.data.data.subtotal_dolar !== 'undefined' ? Response.data.data.subtotal_dolar : 0,
                     mesActual: 0,
                 };
 
@@ -602,8 +602,8 @@ export default new Vuex.Store({
 
             invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+thisMonth+'-01').then(Response =>{
                 let data = {
-                    bolivares: typeof Response.data.data.subtotal !== undefined ? Response.data.data.subtotal : 0,
-                    dolares: typeof Response.data.data.subtotal_dolar !== undefined ? Response.data.data.subtotal_dolar : 0,
+                    bolivares: typeof Response.data.data.subtotal !== 'undefined' ? Response.data.data.subtotal : 0,
+                    dolares: typeof Response.data.data.subtotal_dolar !== 'undefined' ? Response.data.data.subtotal_dolar : 0,
                     mesActual: 1,
                 };
 
@@ -618,7 +618,7 @@ export default new Vuex.Store({
 
             invoices().get('/cantidad?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at=' + pastMonth + '-01').then(Response => {
                 let data = {
-                    cantidad: typeof Response.data.count !== undefined ? Response.data.count : 0,
+                    cantidad: typeof Response.data.count !== 'undefined' ? Response.data.count : 0,
                     mesActual: 0,
                 };
 
@@ -633,7 +633,7 @@ export default new Vuex.Store({
 
             invoices().get('/cantidad?limit=' + state.vuexInvoices.data.totalCount + '&after-fecha_at=' + thisMonth + '-01').then(Response => {
                 let data = {
-                    cantidad: typeof Response.data.count !== undefined ? Response.data.count : 0,
+                    cantidad: typeof Response.data.count !== 'undefined' ? Response.data.count : 0,
                     mesActual: 1,
                 };
 
