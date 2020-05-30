@@ -91,96 +91,126 @@ export default new Vuex.Store({
             state.user.data = val.data;
             window.localStorage.setItem('token', val.token);
         },
+
         LOGOUT(state) { //cierra la sesion
             state.user.token = null;
             state.user.data = {};
             state.user.loggedIn = false;
             window.localStorage.removeItem('token');
         },
+
         SET_FOTO(state, val) {
             state.foto = val;
         },
+
         SET_FOTOFILE(state, val) {
             state.fotoFile = val;
         },
+
         SET_CHANGEFOTO(state, val) {
             state.fotoChanged = val;
         },
+
         SET_CHOSENRANKED(state, val) {
             state.chosenRanked = val;
         },
+
         SET_CONCEPTS(state, val) {
             state.vuexConcepts = val;
         },
+
         SET_INVOICES(state, val) {
             state.vuexInvoices = val;
         },
+
         SET_CONCEPT_SALES(state, val) {
             state.vuexConceptSales = val;
         },
+
         SET_TODAY_INVOICES(state, val) {
             state.vuexTodayInvoices = val;
         },
+
         SET_GROUPS(state, val) {
             state.vuexGroups = val;
         },
+
         SET_SUBGROUPS(state, val) {
             state.vuexSubGroups = val;
         },
+
         SET_GROUP_SALES(state, val) {
             state.vuexGroupSales = val;
         },
+
         SET_SUBGROUP_SALES(state, val) {
             state.vuexSubGroupSales = val;
         },
+
         SET_WEEKLY_SALES(state, val) {
             state.vuexWeeklySales = val;
         },
+
         SET_STORAGES(state, val) {
             state.vuexStorages = val;
         },
+
         SET_BUYERS(state, val) {
             state.vuexBuyers = val;
         },
+
         SET_SELLERS(state, val) {
             state.vuexSellers = val;
         },
+
         SET_ROUTES(state, val) {
             state.vuexRoutes = val;
         },
+
         SET_COMPRAS(state, val) {
             state.vuexComprasVsVentas = val;
         },
+
         SET_FACTURAS_VS(state, val) {
             state.vuexFacturasVs = val;
         },
+
         SET_INGRESOS_VS(state, val) {
             state.vuexIngresosVs = val;
         },
+
         SET_TOTAL_RUTAS(state, val) {
             state.totalRutas = val;
         },
+
         SET_TOTAL_VENDEDORES(state, val) {
             state.totalVendedores = val;
         },
+
         SET_TOTAL_CLIENTES(state, val) {
             state.totalClientes = val;
         },
+
         SET_NEW_GOAL(state,val){
             state.objetivo = val;
         },
+
         SET_CONCEPT_RETURNS(state,val){
             state.vuexConceptReturns = val;
         },
+
         SET_GOALS(state, val) {
             state.vuexGoals = val;
         },
+
         SET_TOTAL_GOALS(state, val) {
             state.totalObjetivos = val;
         },
+
         SET_TOTAL_COMPRAS(state, val) {
             state.totalCompras = val;
         },
+        
         RESET_NEW_GOAL(state){
             state.objetivo = Object.assign({}, {
                 tipo: null,
@@ -193,6 +223,7 @@ export default new Vuex.Store({
 
         //HACE UPDATE DE LA DATA DEL INVENTARIO
         async SET_UPDATE_INVENTARIO(state) {
+
             concept().get('?limit=' + state.vuexConcepts.data.totalCount + '&fields=existencias&orderField=id&order=DESC').then(response => {
                 state.vuexConcepts = response;
                 window.localStorage.setItem('Concepts', JSON.stringify(response));
@@ -200,6 +231,7 @@ export default new Vuex.Store({
                 state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
                 state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
             });
+
             concept().get('/mostSold/?limit=' + state.vuexConcepts.data.totalCount).then(response => {
                 state.vuexConceptSales = response;
                 window.localStorage.setItem('ConceptSales', JSON.stringify(response));
@@ -207,6 +239,7 @@ export default new Vuex.Store({
                 state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
                 state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
             });
+
             groups().get('?limit=' + state.vuexGroups.data.totalCount).then(response => {
                 state.vuexGroups = response;
                 window.localStorage.setItem('Groups', JSON.stringify(response));
@@ -214,6 +247,7 @@ export default new Vuex.Store({
                 state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
                 state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
             });
+
             subGroups().get('?limit=' + state.vuexSubGroups.data.totalCount).then(response => {
                 state.vuexSubGroups = response;
                 window.localStorage.setItem('SubGroups', JSON.stringify(response));
@@ -221,6 +255,7 @@ export default new Vuex.Store({
                 state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
                 state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
             });
+
             concept().get('/mostreturned/?fields=devueltos,id&limit=' + state.vuexConcepts.data.totalCount).then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexConceptReturns = response;
@@ -231,10 +266,13 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+
             let weeklySales = [];
+
             for (let i = 6; i > -1; i--)
                 weeklySales.push(await invoices().get('?limit=' + state.vuexInvoices.data.totalCount + '&fields=id&fecha_at=' + moment(w.test).locale('es').subtract(i, 'days').format('YYYY-MM-DD')));
-            state.vuexWeeklySales = weeklySales;
+            
+                state.vuexWeeklySales = weeklySales;
             state.inventoryUpdatedAux[5] = true;
             state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
             window.localStorage.setItem('WeeklySales', JSON.stringify(weeklySales));
@@ -242,6 +280,7 @@ export default new Vuex.Store({
 
         //INICIALIZA TODA LA DATA DEL PROYECTO SI NO SE USÓ CACHE
         async SET_INIT_APLICACION(state) {
+
             concept().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexConcepts = response;
@@ -251,6 +290,7 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+
             concept().get('/mostSold/?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexConceptSales = response;
@@ -260,6 +300,7 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+
             invoices().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexInvoices = response;
@@ -270,6 +311,7 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+
             groups().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexGroups = response;
@@ -277,6 +319,7 @@ export default new Vuex.Store({
                     state.init = state.initAux.every(i => i)
                 }
             });
+
             subGroups().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexSubGroups = response;
@@ -286,6 +329,7 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+
             sellers().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexSellers = response;
@@ -297,6 +341,7 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+
             buyers().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexBuyers = response;
@@ -308,6 +353,7 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+
             concept().get('/mostreturned/?fields=id&limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexConceptReturns = response;
@@ -317,6 +363,7 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+
             goals().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexGoals = response;
@@ -330,6 +377,7 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+
             routes().get('?limit=1').then(response => {
                 if (!state.restoredFromCache) {
                     state.vuexRoutes = response;
@@ -343,6 +391,7 @@ export default new Vuex.Store({
                     state.init = true;
                 }
             });
+
             compras().get('?limit=1').then(response => {
                 if(!state.restoredFromCache) {
                    typeof response.data.totalCount !== 'undefined' ?
@@ -354,30 +403,34 @@ export default new Vuex.Store({
                 } else {
                     state.init = true;
                 }
-                
             });
+
         },
         
         /// HACE UPDATE AL DASHBOARD
         async SET_UPDATE_DASHBOARD(state) {
+            
             storages().get().then(response => {
                 state.vuexStorages = response;
                 window.localStorage.setItem('Storages', JSON.stringify(response));
                 state.dashboardUpdatedAux[0] = true;
                 state.dashboardUpdated = state.dashboardUpdatedAux.every(i => i)
             });
+
             groups().get('/mostSold/?limit=' + state.vuexGroups.data.totalCount + '&fecha_at=' + moment(w.test).format('YYYY-MM-DD')).then(response => {
                 state.vuexGroupSales = response;
                 window.localStorage.setItem('GroupSales', JSON.stringify(response));
                 state.dashboardUpdatedAux[1] = true;
                 state.dashboardUpdated = state.dashboardUpdatedAux.every(i => i)
             });
+
             subGroups().get('/mostsold/?limit=' + state.vuexSubGroups.data.totalCount + '&fecha_at=' + moment(w.test).format('YYYY-MM-DD')).then(response => {
                 state.vuexSubGroupSales = response;
                 window.localStorage.setItem('SubGroupSales', JSON.stringify(response));
                 state.dashboardUpdatedAux[2] = true;
                 state.dashboardUpdated = state.dashboardUpdatedAux.every(i => i)
             });
+
             invoices().get('?limit=' + state.vuexInvoices.data.totalCount + '&fecha_at=' + moment(w.test).format('YYYY-MM-DD')).then(response => {
                 state.vuexTodayInvoices = response;
                 window.localStorage.setItem('TodayInvoices', JSON.stringify(response));
@@ -388,6 +441,7 @@ export default new Vuex.Store({
 
         /// HACE UPDATE AL MODULO DE VENTAS
         async SET_UPDATE_VENTAS(state) {
+
             sellers().get('/mostSellers/?limit=' + state.totalVendedores).then(response => {
                 state.vuexSellers = response;
                 window.localStorage.setItem('Sellers', JSON.stringify(response));
@@ -399,33 +453,41 @@ export default new Vuex.Store({
                     dolares: Math.round(response.data.data.map(i => +i.venta_total_dolar).reduce((a, b) => a + b) * 100) / 100,
                     compras: 0,
                 };
+
                 state.vuexComprasVsVentas.push(data);
                 state.vuexComprasVsVentasComp[1] = true;
                 
-                if (state.vuexComprasVsVentasComp.slice(1,2).every(i => i)) window.localStorage.setItem('ComprasVsVentas', JSON.stringify(state.vuexComprasVsVentas));
-                state.comprasVsVentasUpdated = state.comprasVsVentasComp.slice(1, 2).every(i => i);
+                if (state.vuexComprasVsVentasComp.slice(1,2).every(i => i)) 
+                    window.localStorage.setItem('ComprasVsVentas', JSON.stringify(state.vuexComprasVsVentas));
+                
+                    state.comprasVsVentasUpdated = state.comprasVsVentasComp.slice(1, 2).every(i => i);
             });
+
             buyers().get('/mostBuyers/?limit=' + state.totalClientes).then(response => {
                 state.vuexBuyers = response;
                 window.localStorage.setItem('Buyers', JSON.stringify(response));
                 state.buyersUpdated = true;
             });
+
             goals().get('?orderField=fecha_at&order=ASC&limit=' + state.totalObjetivos).then(response => {
                 state.vuexBuyers = response;
                 window.localStorage.setItem('Goals', JSON.stringify(response));
                 window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
                 state.goalsUpdated = true;
             });
+
             routes().get('?limit='+state.totalRutas).then(response => {
                 state.vuexRoutes = response;
                 window.localStorage.setItem('Routes', JSON.stringify(response));
                 window.localStorage.setItem('totalRutas', JSON.stringify(typeof response.data.totalCount !== 'undefined' ? response.data.totalCount : 0));
                 state.routesUpdated = true;
             });
+
         },
 
         //HACE UPDATE AL MODULO RENTABILIDAD
         async SET_UPDATE_RENTABILIDAD(state){
+
             state.vuexIngresosVs = [];
             state.vuexFacturasVs = [];
             state.vuexComprasVsVentas = [];
@@ -445,10 +507,12 @@ export default new Vuex.Store({
                 state.vuexIngresosVs.push(data);
                 state.vuexIngresosComp[0] = true;
 
-                if (state.vuexIngresosComp.slice(1, 2).every(i => i)) window.localStorage.setItem('IngresosVs', JSON.stringify(state.vuexIngresosVs));
+                if (state.vuexIngresosComp.slice(1, 2).every(i => i)) 
+                    window.localStorage.setItem('IngresosVs', JSON.stringify(state.vuexIngresosVs));
                 
                 state.ingresosVsUpdated = state.vuexIngresosComp.slice(1, 2).every(i => i);
             });
+
             invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+thisMonth+'-01').then(Response =>{
                 let data = {
                     bolivares: Response.data.data.subtotal,
@@ -458,7 +522,8 @@ export default new Vuex.Store({
                 state.vuexIngresosVs.push(data);
                 state.vuexIngresosComp[1] = true;
 
-                if (state.vuexIngresosComp.slice(1, 2).every(i => i)) window.localStorage.setItem('IngresosVs', JSON.stringify(state.vuexIngresosVs));
+                if (state.vuexIngresosComp.slice(1, 2).every(i => i)) 
+                    window.localStorage.setItem('IngresosVs', JSON.stringify(state.vuexIngresosVs));
                 
                 state.ingresosVsUpdated = state.vuexIngresosComp.slice(1, 2).every(i => i);
             });
@@ -471,10 +536,12 @@ export default new Vuex.Store({
                 state.vuexFacturasVs.push(data);
                 state.vuexFacturasComp[0] = true;
 
-                if (state.vuexFacturasComp.slice(1, 2).every(i => i)) window.localStorage.setItem('FacturasVs', JSON.stringify(state.vuexFacturasVs));
+                if (state.vuexFacturasComp.slice(1, 2).every(i => i)) 
+                    window.localStorage.setItem('FacturasVs', JSON.stringify(state.vuexFacturasVs));
                 
                 state.facturasVsUpdated = state.vuexFacturasComp.slice(1, 2).every(i => i);
             });
+
             invoices().get('/cantidad?limit=' + state.vuexInvoices.data.totalCount + '&after-fecha_at=' + thisMonth + '-01').then(Response => {
                 let data = {
                     cantidad: Response.data.count,
@@ -483,7 +550,8 @@ export default new Vuex.Store({
                 state.vuexFacturasVs.push(data);
                 state.vuexFacturasComp[1] = true;
 
-                if (state.vuexFacturasComp.slice(1, 2).every(i => i)) window.localStorage.setItem('FacturasVs', JSON.stringify(state.vuexFacturasVs));
+                if (state.vuexFacturasComp.slice(1, 2).every(i => i)) 
+                    window.localStorage.setItem('FacturasVs', JSON.stringify(state.vuexFacturasVs));
             
                 state.facturasVsUpdated = state.vuexFacturasComp.slice(1, 2).every(i => i);
             });
@@ -497,7 +565,8 @@ export default new Vuex.Store({
                 state.vuexComprasVsVentas.push(data);
                 state.vuexComprasVsVentasComp[0] = true;
                 
-                if (state.vuexComprasVsVentasComp.slice(1, 2).every(i => i)) window.localStorage.setItem('ComprasVsVentas', JSON.stringify(state.vuexComprasVsVentas));
+                if (state.vuexComprasVsVentasComp.slice(1, 2).every(i => i)) 
+                    window.localStorage.setItem('ComprasVsVentas', JSON.stringify(state.vuexComprasVsVentas));
             
                 state.comprasVsVentasUpdated = state.comprasVsVentasComp.slice(1, 2).every(i => i);
             });
@@ -506,139 +575,179 @@ export default new Vuex.Store({
 
         // ACTIVA TODAS LAS BANDERAS LUEGO DE CARGAR LA DATA DEL CACHE
         RESTORE_FROM_CACHE(state) {
-            state.restoredFromCache = true;
-            state.dashboardUpdated = true;
-            state.inventoryUpdated = true;
-            state.rankingUpdated = true;
-            state.buyersUpdated = true;
-            state.sellersUpdated = true;
-            state.goalsUpdated = true;
-            state.routesUpdated = true;
-            state.facturasVsUpdated = true;
-            state.ingresosVsUpdated = true;
-            state.comprasVsVentasUpdated = true;
-            state.vuexIngresosComp = [true, true, false];
-            state.vuexFacturasComp = [true, true, false];
-            state.vuexComprasVsVentasComp = [true, true, false];
+            state.restoredFromCache         = true;
+            state.dashboardUpdated          = true;
+            state.inventoryUpdated          = true;
+            state.rankingUpdated            = true;
+            state.buyersUpdated             = true;
+            state.sellersUpdated            = true;
+            state.goalsUpdated              = true;
+            state.routesUpdated             = true;
+            state.facturasVsUpdated         = true;
+            state.ingresosVsUpdated         = true;
+            state.comprasVsVentasUpdated    = true;
+            state.vuexIngresosComp          = [true, true, false];
+            state.vuexFacturasComp          = [true, true, false];
+            state.vuexComprasVsVentasComp   = [true, true, false];
         }
     },
     actions: {
+
         setDrawer({ commit }, val) {
             commit('SET_DRAWER', val);
         },
+
         setModalSesion({ commit }, val) {
             commit('SET_MODAL_SESION', val);
         },
+
         logged({ commit }, val) {
             commit('SET_LOGGED', val);
         },
+
         logout({ commit }) {
             commit('LOGOUT');
         },
+
         setFoto({ commit }, val) {
             commit('SET_FOTO', val);
         },
+
         setFotoChanged({ commit }, val) {
             commit('SET_CHANGEFOTO', val);
         },
+
         setFotoFile({ commit }, val) {
             commit('SET_FOTOFILE', val);
         },
+
         setUpdateInventario({ commit }, val) {
             commit('SET_UPDATE_INVENTARIO', val);
         },
+
         setInitAplicacion({ commit }, val) {
             commit('SET_INIT_APLICACION', val);
         },
+
         setUpdateDashboard({ commit }, val) {
             commit('SET_UPDATE_DASHBOARD', val);
         },
+
         setChosenRanked({ commit }, val) {
             commit('SET_CHOSENRANKED', val);
         },
+
         setUpdateVentas({ commit }, val) {
             commit('SET_UPDATE_VENTAS', val);
         },
+
         setConcepts({ commit }, val) {
             commit('SET_CONCEPTS', val);
         },
+
         setConceptSales({ commit }, val) {
             commit('SET_CONCEPT_SALES', val);
         },
+
         setGroups({ commit }, val) {
             commit('SET_GROUPS', val);
         },
+
         setInvoices({ commit }, val) {
             commit('SET_INVOICES', val);
         },
+
         setTodayInvoices({ commit }, val) {
             commit('SET_TODAY_INVOICES', val);
         },
+
         setSubgroups({ commit }, val) {
             commit('SET_SUBGROUPS', val);
         },
+
         setGroupSales({ commit }, val) {
             commit('SET_GROUP_SALES', val);
         },
+
         setSubgroupSales({ commit }, val) {
             commit('SET_SUBGROUP_SALES', val);
         },
+
         setWeeklySales({ commit }, val) {
             commit('SET_WEEKLY_SALES', val);
         },
+
         setStorages({ commit }, val) {
             commit('SET_STORAGES', val);
         },
+
         setSellers({ commit }, val) {
             commit('SET_SELLERS', val);
         },
+
         setBuyers({ commit }, val) {
             commit('SET_BUYERS', val);
         },
+
         setTotalClientes({ commit }, val) {
             commit('SET_TOTAL_CLIENTES', val);
         },
+
         setTotalVendedores({ commit }, val) {
             commit('SET_TOTAL_VENDEDORES', val);
         },
+
         restoreFromCache({ commit }) {
             commit('RESTORE_FROM_CACHE');
         },
+
         setNewGoal({ commit }, val){
             commit('SET_NEW_GOAL',val);
         },
+
         resetNewGoal({ commit }){
             commit('RESET_NEW_GOAL');
         },
+
         setConceptReturns({ commit },val ) {
             commit('SET_CONCEPT_RETURNS',val);
         },
+
         setGoals({ commit },val ) {
             commit('SET_GOALS',val);
         },
+
         setTotalObjetivos({ commit },val ) {
             commit('SET_TOTAL_GOALS',val);
         },
+
         setRoutes({ commit },val ) {
             commit('SET_ROUTES',val);
         },
+
         setTotalRutas({ commit },val ) {
             commit('SET_TOTAL_RUTAS',val);
         },
+
         setTotalCompras({ commit },val ) {
             commit('SET_TOTAL_COMPRAS',val);
         },
+
         setComprasVsVentas({ commit },val ) {
             commit('SET_COMPRAS',val);
         },
+
         setUpdateRentabilidad({ commit },val ) {
             commit('SET_UPDATE_RENTABILIDAD',val);
         },
+
         setFacturasVs({ commit },val ) {
             commit('SET_FACTURAS_VS',val);
         },
+
         setIngresosVs({ commit },val ) {
             commit('SET_INGRESOS_VS',val);
         },
+
     }
 });
