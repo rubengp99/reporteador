@@ -7,7 +7,7 @@
                         <v-list-item two-line @click.self.stop.prevent="expand()">
                             
                             <v-list-item-avatar size="115" v-if="!$route.name === 'Perfil'">
-                                <v-img :src="user.data.fotografia === 'default.png' && !fotoChanged? fotoChanged ? foto  : require('@/assets/user.jpg') :  fotoChanged ? foto : image+user.data.fotografia"></v-img>
+                                <v-img :src="user.data.imagen === 'default.png' && !fotoChanged? fotoChanged ? foto  : require('@/assets/user.jpg') :  fotoChanged ? foto : image+user.data.imagen"></v-img>
                             </v-list-item-avatar>
                             <v-list-item-avatar class="border" size="115" v-else>
                                 <croppa 
@@ -23,7 +23,7 @@
                                     v-model="fotoAux" 
                                     canvas-color="transparent"
                                     @new-image-drawn="onNewImage()" 
-                                    :style="(user.data.fotografia === 'default.png' && !fotoChanged? fotoChanged ? 'background:url('+foto+');'  : 'background:url('+require('@/assets/user.jpg')+');' :  fotoChanged ? 'background:url('+foto+');' : 'background:url('+image+user.data.fotografia+');')"
+                                    :style="(user.data.imagen === 'default.png' && !fotoChanged? fotoChanged ? 'background:url('+foto+');'  : 'background:url('+require('@/assets/user.jpg')+');' :  fotoChanged ? 'background:url('+foto+');' : 'background:url('+image+user.data.imagen+');')"
                                 >
                                 </croppa>
                             </v-list-item-avatar>
@@ -96,7 +96,7 @@ import transitions from '@/plugins/transitions'
             restoreFoto(){
                 this.fotoAux.remove();
                 this.setFotoChanged(false);
-                this.setFoto(this.user.data.fotografia);
+                this.setFoto(this.user.data.imagen);
                 this.setFotoFile(null);
             },
             uploadFoto(){
@@ -130,7 +130,7 @@ import transitions from '@/plugins/transitions'
         },
         created() {
             this.animate(this.transitionName);
-            this.setFoto(this.user.data.fotografia);
+            this.setFoto(this.user.data.imagen);
             this.setFotoChanged(false);
             window.addEventListener('resize', this.onResize);
             this.onResize();

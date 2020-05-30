@@ -4,7 +4,7 @@
       <template v-slot:activator="{ on }">
         <v-avatar v-on="on" color="#f5f5f5" size="55" class="mx-3 elevation-3 border">
           <v-img
-            :src="user.data.fotografia === 'default.png' && !fotoChanged? fotoChanged ? foto  : require('@/assets/user.jpg') :  fotoChanged ? foto : image+user.data.fotografia"
+            :src="user.data.imagen === 'default.png' && !fotoChanged? fotoChanged ? foto  : require('@/assets/user.jpg') :  fotoChanged ? foto : image+user.data.imagen"
           ></v-img>
         </v-avatar>
       </template>
@@ -13,7 +13,7 @@
         <v-list width="250" elevation="0">
           <v-list-item>
             <v-list-item-avatar size="80" class="border">
-              <v-img class="" :src="user.data.fotografia === 'default.png' && !fotoChanged? fotoChanged ? foto  : require('@/assets/user.jpg') :  fotoChanged ? foto : image+user.data.fotografia"></v-img>
+              <v-img class="" :src="user.data.imagen === 'default.png' && !fotoChanged? fotoChanged ? foto  : require('@/assets/user.jpg') :  fotoChanged ? foto : image+user.data.imagen"></v-img>
             </v-list-item-avatar>
             <v-list-item-content>
               <v-list-item-title class="color" v-text="user.data.nombre+' '+user.data.apellido"></v-list-item-title>
