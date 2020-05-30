@@ -300,7 +300,7 @@ const configSales = async function(product){
     try{
         var aux = this.apiConceptSales.data.data.find(c => c.id === product.id);
     }catch(e){
-        null
+        console.log("Error configurando ventas del concepto. "+e)
     }
     return (typeof aux !== 'undefined' ? +Math.trunc(+aux.vendidos) : 0);
   };
@@ -329,7 +329,7 @@ const configDevolutions = async function(product){
         //pedimos las devoluciones
         var devolutions = this.apiConceptReturns.data.data.find(i => i.id === product.id)
     } catch (e) {
-        
+        console.log('Error configurando devoluciones del concepto. '+e)
     }
     //es el mismo caso de las ventas, a veces retorna "empty entity" y eso puede incongruencia en los datos
     product.returned = typeof devolutions !== 'undefined' ? !isNaN(+devolutions.devueltos) ? Math.trunc(+devolutions.devueltos * 100) / 100 : 0 : 0;
