@@ -302,11 +302,12 @@ export default new Vuex.Store({
             });
 
             let weeklySales = [];
-
+            let aux = [];
             for (let i = 6; i > -1; i--)
                 weeklySales.push(await invoices().get('?limit=' + state.vuexInvoices.data.totalCount + '&fields=id&fecha_at=' + moment(w.test).locale('es').subtract(i, 'days').format('YYYY-MM-DD')));
             
-            weeklySales.forEach(week => state.vuexWeeklySales.push(state.valueFixArr(week)))
+            weeklySales.forEach(week => aux.push(state.valueFixArr(week)))
+            state.vuexWeeklySales = aux;
             state.inventoryUpdatedAux[5] = true;
             state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
             window.localStorage.setItem('WeeklySales', JSON.stringify(weeklySales));
@@ -540,7 +541,7 @@ export default new Vuex.Store({
                 if (state.vuexComprasVsVentasComp.slice(1,2).every(i => i)) 
                     window.localStorage.setItem('ComprasVsVentas', JSON.stringify(state.vuexComprasVsVentas));
                 
-                    state.comprasVsVentasUpdated = state.comprasVsVentasComp.slice(1, 2).every(i => i);
+                    state.comprasVsVentasUpdated = state.vuexComprasVsVentasComp.slice(1, 2).every(i => i);
             });
 
             buyers().get('/mostBuyers/?limit=' + state.totalClientes).then(response => {
@@ -587,8 +588,8 @@ export default new Vuex.Store({
             invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+pastMonth+'-01').then(response =>{
                 
                 let data = {
-                    bolivares: typeof response.data.data.subtotal !== 'undefined' ? response.data.data.subtotal : 0,
-                    dolares: typeof response.data.data.subtotal_dolar !== 'undefined' ? response.data.data.subtotal_dolar : 0,
+                    bolivares: typeof response.data.data !== 'undefined' ? response.data.data.subtotal : 0,
+                    dolares: typeof response.data.data !== 'undefined' ? response.data.data.subtotal_dolar : 0,
                     mesActual: 0,
                 };
 
@@ -603,8 +604,8 @@ export default new Vuex.Store({
 
             invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+thisMonth+'-01').then(response =>{
                 let data = {
-                    bolivares: typeof response.data.data.subtotal !== 'undefined' ? response.data.data.subtotal : 0,
-                    dolares: typeof response.data.data.subtotal_dolar !== 'undefined' ? response.data.data.subtotal_dolar : 0,
+                    bolivares: typeof response.data.data !== 'undefined' ? response.data.data.subtotal : 0,
+                    dolares: typeof response.data.data !== 'undefined' ? response.data.data.subtotal_dolar : 0,
                     mesActual: 1,
                 };
 
@@ -672,7 +673,7 @@ export default new Vuex.Store({
                 if (state.vuexComprasVsVentasComp.slice(1, 2).every(i => i)) 
                     window.localStorage.setItem('ComprasVsVentas', JSON.stringify(state.vuexComprasVsVentas));
             
-                state.comprasVsVentasUpdated = state.comprasVsVentasComp.slice(1, 2).every(i => i);
+                state.comprasVsVentasUpdated = state.vuexComprasVsVentasComp.slice(1, 2).every(i => i);
             });
 
         },
