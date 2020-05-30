@@ -99,7 +99,7 @@ export default new Vuex.Store({
             
             return typeof response.data.data !== 'undefined' ?
                 response :
-                Object.assign({}, state.emptyRes)
+                Object.assign({}, emptyRes)
 
         }
     },
