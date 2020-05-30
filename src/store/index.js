@@ -17,20 +17,6 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        emptyResArr:{
-            data:{
-                totalCount: 0,
-                count: 0,
-                data: []
-            }
-        },
-        emptyRes:{
-            data: {
-                totalCount: 0,
-                count: 0,
-                data: {}
-            }
-        },
         user: { //variabla de sesion
             token: null,
             data: {},
@@ -90,12 +76,27 @@ export default new Vuex.Store({
         totalCompras: 0,
         restoredFromCache: false,
         valueFixArr: function(response){
+            let emptyResArr = {
+                data:{
+                    totalCount: 0,
+                    count: 0,
+                    data: []
+                }
+            };
             return typeof response.data.data !== 'undefined' ?
                 response :
-                Object.assign({}, state.emptyResArr)
+                Object.assign({}, emptyResArr)
 
         },
         valueFix: function (response) {
+            let emptyRes = {
+                data: {
+                    totalCount: 0,
+                    count: 0,
+                    data: {}
+                }
+            };
+            
             return typeof response.data.data !== 'undefined' ?
                 response :
                 Object.assign({}, state.emptyRes)
