@@ -54,7 +54,7 @@
             </v-card-actions>
             <v-card-actions v-else>
                 <span>
-                    Parece que usted no tiene facturas con montos en <span style="color:#0D47A1"> dólares</span>, por lo tanto, este reporte no tiene nada que mostrar.
+                    Parece que usted no tiene facturas con montos en <span style="color:#0D47A1"> {{moneda === 'Bs' ? 'bolívares' : 'dólares'}}</span>, por lo tanto, este reporte no tiene nada que mostrar.
                 </span>
             </v-card-actions>
         </div>
