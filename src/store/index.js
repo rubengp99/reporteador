@@ -86,7 +86,7 @@ export default new Vuex.Store({
 
             return typeof response.data.data !== 'undefined' ?
                 response :
-                Object.assign({}, emptyResArr);
+                emptyResArr;
 
         },
         valueFix: function (response) {
@@ -100,7 +100,7 @@ export default new Vuex.Store({
             
             return typeof response.data.data !== 'undefined' ?
                 response :
-                Object.assign({}, emptyRes);
+                emptyRes
 
         }
     },
