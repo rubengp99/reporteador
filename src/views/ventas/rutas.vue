@@ -74,15 +74,19 @@ export default {
             this.page_old = page;
         },
         async createRoutes(){
-            this.$data.loading = true;
-            this.apiRoutes = this.vuexRoutes;
-            this.apiRoutes.data.data.forEach(route => {
-                this.rutas.push({
-                    id: route.id,
-                    name: route.descripcion,
-                    value: accounting.formatMoney(route.tarifa, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
+            try {
+                this.$data.loading = true;
+                this.apiRoutes = this.vuexRoutes;
+                this.apiRoutes.data.data.forEach(route => {
+                    this.rutas.push({
+                        id: route.id,
+                        name: route.descripcion,
+                        value: accounting.formatMoney(route.tarifa, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
+                    });
                 });
-            });
+            } catch (e) {
+                console.log('Error al crear rutas de ventas. '+ e)
+            }
             
             this.$data.loading = false;
         },

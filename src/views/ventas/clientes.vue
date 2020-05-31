@@ -78,20 +78,24 @@ export default {
             this.page_old = page;
         },
         async createBuyers(){
-            this.$data.loading = true;
-            this.apiBuyers = this.vuexBuyers;
-            let totalBuys = this.apiBuyers.data.response.data.map(a => a.compras).reduce((a,b) => a+b);
-            this.apiBuyers.data.response.data.forEach(buyer => {
-                this.compradores.push({
-                    id: buyer.id,
-                    name: buyer.nombre,
-                    sales: accounting.formatMoney(+Math.trunc(buyer.compras), { symbol   : "", thousand : ".", decimal  : ",", }),
-                    buysBs: accounting.formatMoney(+buyer.total, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
-                    buys$: accounting.formatMoney(+buyer.totalDolar, { symbol   : "$", thousand : ".", decimal  : ",", }),
-                    percentBuys: reports.chart__donut([buyer.compras, totalBuys],"Volumen del",["Mis compras","Total de Compras"],["#FFC107", "#3F51B5"],'volumen'),
-                    expand: false,
+            try {
+                this.$data.loading = true;
+                this.apiBuyers = this.vuexBuyers;
+                let totalBuys = this.apiBuyers.data.response.data.map(a => a.compras).reduce((a,b) => a+b);
+                this.apiBuyers.data.response.data.forEach(buyer => {
+                    this.compradores.push({
+                        id: buyer.id,
+                        name: buyer.nombre,
+                        sales: accounting.formatMoney(+Math.trunc(buyer.compras), { symbol   : "", thousand : ".", decimal  : ",", }),
+                        buysBs: accounting.formatMoney(+buyer.total, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
+                        buys$: accounting.formatMoney(+buyer.totalDolar, { symbol   : "$", thousand : ".", decimal  : ",", }),
+                        percentBuys: reports.chart__donut([buyer.compras, totalBuys],"Volumen del",["Mis compras","Total de Compras"],["#FFC107", "#3F51B5"],'volumen'),
+                        expand: false,
+                    });
                 });
-            });
+            } catch (e) {
+                console.log('Error al crear clientes. '+e)
+            }
             this.$data.loading = false;
         },
         onResize() {

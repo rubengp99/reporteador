@@ -249,13 +249,13 @@ export default {
             this.loading = false;
         },
         async updateRecords(){
-            let aux;
-            aux = await Objetivo().get('?limit=1');
-            window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof aux.data.totalCount !== 'undefined' ? aux.data.totalCount : 0));
-            aux = await Objetivo().get('?limit='+JSON.parse(window.localStorage.getItem('totalObjetivos')));
-            this.setGoals(aux);
-            window.localStorage.setItem('Goals', JSON.stringify(aux));
             try {
+                let aux;
+                aux = await Objetivo().get('?limit=1');
+                window.localStorage.setItem('totalObjetivos', JSON.stringify(typeof aux.data.totalCount !== 'undefined' ? aux.data.totalCount : 0));
+                aux = await Objetivo().get('?limit='+JSON.parse(window.localStorage.getItem('totalObjetivos')));
+                this.setGoals(aux);
+                window.localStorage.setItem('Goals', JSON.stringify(aux));
                 this.objetivos = this.vuexGoals.data.data;
             } catch (e) {
                 this.objetivos = [];

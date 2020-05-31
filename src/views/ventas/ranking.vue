@@ -107,17 +107,21 @@ export default {
             this.page_old = page;
         },
         createRanking(){
-            this.apiConcepts = this.vuexConcepts.data.data;
-            this.apiConcepts.forEach(concept =>{
-                Array.isArray(concept.existencias) ? concept.existencias.length > 0 ? concept.existencias = concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : concept.existencias = 0 : NaN ;
-                this.apiStockAux.push(concept);
-            });
-            this.ranking = this.vuexConceptSales.data.data;
-            this.ranking.forEach(concept => {
-                this.apiConceptSalesAux.push(accounting.formatMoney(+Math.trunc(concept.vendidos), { symbol   : "", thousand : ".", decimal  : ",", }).split(",")[0]);
-            });
-            this.apiGroups = this.vuexGroups;
-            this.apiSubGroups = this.vuexSubGroups.data.data;
+            try {
+                this.apiConcepts = this.vuexConcepts.data.data;
+                this.apiConcepts.forEach(concept =>{
+                    Array.isArray(concept.existencias) ? concept.existencias.length > 0 ? concept.existencias = concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : concept.existencias = 0 : NaN ;
+                    this.apiStockAux.push(concept);
+                });
+                this.ranking = this.vuexConceptSales.data.data;
+                this.ranking.forEach(concept => {
+                    this.apiConceptSalesAux.push(accounting.formatMoney(+Math.trunc(concept.vendidos), { symbol   : "", thousand : ".", decimal  : ",", }).split(",")[0]);
+                });
+                this.apiGroups = this.vuexGroups;
+                this.apiSubGroups = this.vuexSubGroups.data.data;
+            } catch (e) {
+                console.log('Error al crear ranking de productos. '+e)
+            }
             this.loading = false;
         }
     },

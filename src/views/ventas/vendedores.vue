@@ -78,19 +78,23 @@ export default {
             this.page_old = page;
         },
         async createSellers(){
-            this.apiSellers = this.vuexSellers;
-            let totalSales = this.apiSellers.data.data.map(a => a.ventas).reduce((a,b) => a+b);
-            this.apiSellers.data.data.forEach(seller => {
-                this.vendedores.push({
-                    id: seller.id,
-                    name: seller.nombre,
-                    sales: accounting.formatMoney(+Math.trunc(seller.ventas), { symbol   : "", thousand : ".", decimal  : ",", }),
-                    gainsBs: accounting.formatMoney(+seller.venta_total, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
-                    gains$: accounting.formatMoney(+seller.venta_total_dolar, { symbol   : "$", thousand : ".", decimal  : ",", }),
-                    percentSales: reports.chart__donut([seller.ventas, totalSales],"Volumen del",["Mis ventas","Total de Ventas"],["#FFC107", "#3F51B5"],'volumen'),
-                    expand: false,
+            try{
+                this.apiSellers = this.vuexSellers;
+                let totalSales = this.apiSellers.data.data.map(a => a.ventas).reduce((a,b) => a+b);
+                this.apiSellers.data.data.forEach(seller => {
+                    this.vendedores.push({
+                        id: seller.id,
+                        name: seller.nombre,
+                        sales: accounting.formatMoney(+Math.trunc(seller.ventas), { symbol   : "", thousand : ".", decimal  : ",", }),
+                        gainsBs: accounting.formatMoney(+seller.venta_total, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
+                        gains$: accounting.formatMoney(+seller.venta_total_dolar, { symbol   : "$", thousand : ".", decimal  : ",", }),
+                        percentSales: reports.chart__donut([seller.ventas, totalSales],"Volumen del",["Mis ventas","Total de Ventas"],["#FFC107", "#3F51B5"],'volumen'),
+                        expand: false,
+                    });
                 });
-            });
+            }catch(e){
+                console.log('Error al crear vendedores. '+e)
+            }
             
             this.$data.loading = false;
         },
