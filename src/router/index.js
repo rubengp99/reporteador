@@ -27,7 +27,7 @@ const routes = [
         name: 'rentabilidad',
         component: () => import('../views/rentabilidad/rentabilidad.vue'),
         meta:{
-            auth:false,
+            auth:true,
             transitionName: 'slide'
         },
         children:[
