@@ -5,6 +5,7 @@ export default () => {
     return axios.create({
         baseURL:`${variables.upload}/gallery`,
         withCredentials:false,
+        timeout: 30000,
         headers:{
             Accept:'application/json',
             'Content-Type':'application/json',

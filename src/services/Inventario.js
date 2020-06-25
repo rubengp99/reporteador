@@ -5,6 +5,7 @@ export default () => {
     return axios.create({
         baseURL:`${variables.http}://${variables.data}/api/movimiento_inventario`,
         withCredentials:false,
+        timeout: 30000,
         headers:{
             Accept:'application/json',
             'Content-Type':'application/json',
