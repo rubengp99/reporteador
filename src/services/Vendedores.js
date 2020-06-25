@@ -5,7 +5,6 @@ export default () => {
     return axios.create({
         baseURL:`${variables.http}://${variables.data}/api/vendedor`,
         withCredentials:false,
-        timeout: 30000,
         headers:{
             Accept:'application/json',
             'Content-Type':'application/json',
