@@ -14,6 +14,7 @@ import w from '@/services/variables'
 import moment from "moment";
 
 Vue.use(Vuex);
+const conceptsFields = "&fields=id,referencia,codigo,nombre,existencia_minima,existencia_maxima,descripcion,imagen,existencias,precio_dolar,costo_dolar,precio_a,ultimo_costo,adm_grupos_id,adm_subgrupos_id";
 
 export default new Vuex.Store({
     state: {
@@ -253,19 +254,25 @@ export default new Vuex.Store({
         async SET_UPDATE_INVENTARIO(state) {
 
             //Usamos depositos() porque es mucho más eficiente que conceptos()
-            let storages = await storages().get("?limit=1");
-            let count =  await storages(storage.id+"/conceptos?limit=1");
-            storages = await storages().get("?limit="+storages.data.totalCount)
+            let deposits = await storages().get("?limit=1");
+            
+            //el storage 1 siempre tiene TODOS los conceptos registrados.
+            let count =  await storages().get("1/conceptos?limit=1"+conceptsFields);
+            deposits = await storages().get("?limit="+deposits.data.totalCount)
             let concepts = [];
-            for (const storage of storages.data.data) {
-                let result = state.valueFixArr(await storages(storage.id+"/conceptos?limit"+count.data.totalCount+"&fields=*"));
+            for (const storage of deposits.data.data) {
+                let result = state.valueFixArr(await storages().get(storage.id+"/conceptos?limit="+count.data.totalCount+conceptsFields));
 
                 result.data.data.forEach(r => {
                     if (!r.existencias)
                         r.existencias = [];
-
-                    r.existencias.push(Object.assign({ existencia: r.existencia }))
-                    concepts.push(r);
+                    if (typeof concepts.find(i => i.id === r.id) !== 'undefined'){
+                        concepts.find(i => i.id === r.id).existencias.push(Object.assign({ existencia: r.existencia }));
+                    }else { 
+                        r.existencias.push(Object.assign({ existencia: r.existencia }));
+                        concepts.push(r);
+                    }
+                    
                     
                 })
             }
@@ -283,7 +290,7 @@ export default new Vuex.Store({
             state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i);
             state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i);
 
-            concept().get('/mostSold/?limit=' + state.vuexConcepts.data.totalCount).then(response => {
+            concept().get('/mostSold/?limit=' + state.vuexConcepts.data.totalCount+conceptsFields).then(response => {
                 
                 state.vuexConceptSales = state.valueFixArr(response);
 
