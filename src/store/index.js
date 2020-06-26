@@ -12,6 +12,8 @@ import compras from "@/services/Compras";
 import routes from "@/services/Rutas";
 import w from '@/services/variables'
 import moment from "moment";
+import h from "./helpers"
+import { result } from "lodash";
 
 Vue.use(Vuex);
 
@@ -251,55 +253,122 @@ export default new Vuex.Store({
 
         //HACE UPDATE DE LA DATA DEL INVENTARIO
         async SET_UPDATE_INVENTARIO(state) {
+            if (state.vuexConcepts == null)
+                state.vuexConcepts = state.valueFixArr();
 
-            concept().get('?limit=' + state.vuexConcepts.data.totalCount + '&fields=existencias&orderField=id&order=DESC').then(response => {
+            //OBTENER TODOS LOS CONCEPTOS POR PASOS
+            let conceptosLimit = state.vuexConcepts.data.totalCount;
+            let offset = 0;
+
+            while ( conceptosLimit > 0) {
+                conceptosLimit -= 70;
+                offset = conceptosLimit;
+
+                h.getNormalConcepts(offset).then(response => {
+                    result = state.valueFixArr(response);
+                    result.data.count = response.data.totalCount;
+                    state.vuexConcepts = result;
+                })
+
+                window.localStorage.setItem('Concepts', JSON.stringify(state.vuexConcepts));
+
+                if (state.vuexConcepts.data.data.length === state.vuexConcepts.data.totalCount) {
+                    state.inventoryUpdatedAux[0] = true;
+                    state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
+                    state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
+                }
+            }
+             
+            //OBTENER TODAS LAS VENTAS DE LOS CONCEPTOS POR PASO
+            conceptosLimit = state.vuexConcepts.data.totalCount;
+            offset = 0;
+
+            while ( conceptosLimit > 0) {
+                conceptosLimit -= 70;
+                offset += 70;
+
+                h.getMostSoldConcepts(offset).then(response => {
+                    result = state.valueFixArr(response);
+                    result.data.count = response.data.totalCount;
+                    state.vuexConceptSales = result;
+                })
+
+                window.localStorage.setItem('ConceptSales', JSON.stringify(state.vuexConceptSales));
+
+                if (state.vuexConceptSales.data.data.length === state.vuexConcepts.data.totalCount) {
+                    state.inventoryUpdatedAux[1] = true;
+                    state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
+                    state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
+                }
+            }    
                 
-                state.vuexConcepts = state.valueFixArr(response);
-                
-                window.localStorage.setItem('Concepts', JSON.stringify(response));
-                state.inventoryUpdatedAux[0] = true;
-                state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
-                state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
-            });
+            //OBTENER TODOS LOS GRUPOS POR PASO
+            let groupLimit = state.vuexGroups.data.totalCount
+            offset = 0;
 
-            concept().get('/mostSold/?limit=' + state.vuexConcepts.data.totalCount).then(response => {
-                
-                state.vuexConceptSales = state.valueFixArr(response);
+            while ( groupLimit > 0) {
+                groupLimit -= 70;
+                offset += 70;
 
-                window.localStorage.setItem('ConceptSales', JSON.stringify(response));
-                state.inventoryUpdatedAux[1] = true;
-                state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
-                state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
-            });
+                h.getGroups(offset).then(response => {
+                    result = state.valueFixArr(response);
+                    result.data.count = response.data.totalCount;
+                    state.vuexGroups = result;
+                })
 
-            groups().get('?limit=' + state.vuexGroups.data.totalCount).then(response => {
+                window.localStorage.setItem('Groups', JSON.stringify(state.vuexGroups));
 
-                state.vuexGroups = state.valueFixArr(response);
+                if (state.vuexGroups.data.data.length === state.vuexGroups.data.totalCount) {
+                    state.inventoryUpdatedAux[2] = true;
+                    state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
+                    state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
+                }
+            }    
 
-                window.localStorage.setItem('Groups', JSON.stringify(response));
-                state.inventoryUpdatedAux[2] = true;
-                state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
-                state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
-            });
+            //OBTENER TODOS LOS SUBGRUPOS POR PASO
+            let subGroupLimit = state.vuexSubGroups.data.totalCount
+            offset = 0;
 
-            subGroups().get('?limit=' + state.vuexSubGroups.data.totalCount).then(response => {
+            while ( subGroupLimit > 0) {
+                subGroupLimit -= 70;
+                offset += 70;
 
-                state.vuexSubGroups = state.valueFixArr(response);
+                h.getSubGroups(offset).then(response => {
+                    result = state.valueFixArr(response);
+                    result.data.count = response.data.totalCount;
+                    state.vuexSubGroups = result;
+                })
 
-                window.localStorage.setItem('SubGroups', JSON.stringify(response));
-                state.inventoryUpdatedAux[3] = true;
-                state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
-                state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
-            });
+                window.localStorage.setItem('SubGroups', JSON.stringify(state.vuexSubGroups));
 
-            concept().get('/mostreturned/?fields=devueltos,id&limit=' + state.vuexConcepts.data.totalCount).then(response => {
-                
-                state.vuexConceptReturns = state.valueFixArr(response);
+                if (state.vuexSubGroups.data.data.length === state.vuexSubGroups.data.totalCount) {
+                    state.inventoryUpdatedAux[3] = true;
+                    state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
+                    state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
+                }
+            }
 
-                window.localStorage.setItem('ConceptReturns', JSON.stringify(response));
-                state.inventoryUpdatedAux[4] = true;
-                state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
-            });
+            //OBTENER TODAS LAS VENTAS DE LOS CONCEPTOS POR PASO
+            conceptosLimit = state.vuexConcepts.data.totalCount;
+            offset = 0;
+
+            while ( conceptosLimit > 0) {
+                conceptosLimit -= 70;
+                offset += 70;
+
+                h.getMostSoldConcepts(offset).then(response => {
+                    result = state.valueFixArr(response);
+                    result.data.count = response.data.totalCount;
+                    state.vuexConceptReturns = result;
+                })
+
+                window.localStorage.setItem('ConceptReturns', JSON.stringify(state.vuexConceptReturns));
+
+                if (state.vuexConceptReturns.data.data.length === state.vuexConceptReturns.data.totalCount) {
+                    state.inventoryUpdatedAux[4] = true;
+                    state.inventoryUpdated = state.inventoryUpdatedAux.every(i => i)
+                }
+            }
 
             let weeklySales = [];
             let aux = [];
