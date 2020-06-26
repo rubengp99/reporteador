@@ -343,6 +343,7 @@ const configDevolutions = async function(product){
  * @param {String} input // DATA PROVENIENTE DE TEXT-FIELD - NOMBRE DEL CONCEPTO
  */
 const filterConcepts = async function(input){
+    if (input == null) input = "";
     return ((this.grupo !== "" || this.subgrupo !== "") ? this.filteredConcepts : this.apiConcepts.data.data)
         .filter(concept => concept.nombre.toLowerCase().includes(input.toLowerCase()));
 }
