@@ -39,7 +39,7 @@ if (token) {
     Auth().post("/sesion", {
         token: token
     }).then((response) => {
-        store.state.user.data = response.data.data;
+        store.state.user.data = response.data.response.data;
         store.state.user.loggedIn = true;
         store.state.user.token = token;
 
