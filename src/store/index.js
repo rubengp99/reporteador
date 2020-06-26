@@ -253,21 +253,25 @@ export default new Vuex.Store({
 
         //HACE UPDATE DE LA DATA DEL INVENTARIO
         async SET_UPDATE_INVENTARIO(state) {
-            if (state.vuexConcepts == null)
-                state.vuexConcepts = state.valueFixArr();
 
             //OBTENER TODOS LOS CONCEPTOS POR PASOS
             let conceptosLimit = state.vuexConcepts.data.totalCount;
             let offset = 0;
 
-            while ( conceptosLimit > 0) {
+            for (let i = conceptosLimit; i > 0; i-70 ) {
                 conceptosLimit -= 70;
                 offset = conceptosLimit;
 
                 h.getNormalConcepts(offset).then(response => {
                     result = state.valueFixArr(response);
                     result.data.count = response.data.totalCount;
-                    state.vuexConcepts = result;
+                    state.vuexConcepts.data.data = state.vuexConcepts.data.data.concat(result.data.data);
+                    //ELIMINAMOS LOS DUPLICADOS
+                    state.vuesConcepts.data.data = state.vuesConcepts.data.data.filter((item, index, self) =>
+                        index === self.findIndex((t) => (
+                            t.id === item.id
+                        ))
+                    );
                 })
 
                 window.localStorage.setItem('Concepts', JSON.stringify(state.vuexConcepts));
@@ -278,19 +282,25 @@ export default new Vuex.Store({
                     state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
                 }
             }
-             
+            
             //OBTENER TODAS LAS VENTAS DE LOS CONCEPTOS POR PASO
             conceptosLimit = state.vuexConcepts.data.totalCount;
             offset = 0;
 
-            while ( conceptosLimit > 0) {
+            for (let i = conceptosLimit; i > 0; i-70 ) {
                 conceptosLimit -= 70;
                 offset += 70;
 
                 h.getMostSoldConcepts(offset).then(response => {
                     result = state.valueFixArr(response);
                     result.data.count = response.data.totalCount;
-                    state.vuexConceptSales = result;
+                    state.vuexConceptSales.data.data = state.vuexConceptSales.data.data.concat(result.data.data);
+                    //ELIMINAMOS LOS DUPLICADOS
+                    state.vuexConceptSales.data.data = state.vuexConceptSales.data.data.filter((item, index, self) =>
+                        index === self.findIndex((t) => (
+                            t.id === item.id
+                        ))
+                    );
                 })
 
                 window.localStorage.setItem('ConceptSales', JSON.stringify(state.vuexConceptSales));
@@ -301,19 +311,25 @@ export default new Vuex.Store({
                     state.rankingUpdated = state.inventoryUpdatedAux.slice(0,3).every(i => i)
                 }
             }    
-                
+            
             //OBTENER TODOS LOS GRUPOS POR PASO
             let groupLimit = state.vuexGroups.data.totalCount
             offset = 0;
 
-            while ( groupLimit > 0) {
+            for (let i = groupLimit; i > 0; i-70 ) {
                 groupLimit -= 70;
                 offset += 70;
 
                 h.getGroups(offset).then(response => {
                     result = state.valueFixArr(response);
                     result.data.count = response.data.totalCount;
-                    state.vuexGroups = result;
+                    state.vuexGroups.data.data = state.vuexGroups.data.data.concat(result.data.data);
+                    //ELIMINAMOS LOS DUPLICADOS
+                    state.vuexGroups.data.data = state.vuexGroups.data.data.filter((item, index, self) =>
+                        index === self.findIndex((t) => (
+                            t.id === item.id
+                        ))
+                    );
                 })
 
                 window.localStorage.setItem('Groups', JSON.stringify(state.vuexGroups));
@@ -329,14 +345,20 @@ export default new Vuex.Store({
             let subGroupLimit = state.vuexSubGroups.data.totalCount
             offset = 0;
 
-            while ( subGroupLimit > 0) {
+            for (let i = subGroupLimit; i > 0; i-70 ) {
                 subGroupLimit -= 70;
                 offset += 70;
 
                 h.getSubGroups(offset).then(response => {
                     result = state.valueFixArr(response);
                     result.data.count = response.data.totalCount;
-                    state.vuexSubGroups = result;
+                    state.vuexSubGroups.data.data = state.vuexSubGroups.data.data.concat(result.data.data);
+                    //ELIMINAMOS LOS DUPLICADOS
+                    state.vuexSubGroups.data.data = state.vuexSubGroups.data.data.filter((item, index, self) =>
+                        index === self.findIndex((t) => (
+                            t.id === item.id
+                        ))
+                    );
                 })
 
                 window.localStorage.setItem('SubGroups', JSON.stringify(state.vuexSubGroups));
@@ -348,18 +370,24 @@ export default new Vuex.Store({
                 }
             }
 
-            //OBTENER TODAS LAS VENTAS DE LOS CONCEPTOS POR PASO
+            //OBTENER TODAS LAS DEVOLUCIONES DE LOS CONCEPTOS POR PASO
             conceptosLimit = state.vuexConcepts.data.totalCount;
             offset = 0;
 
-            while ( conceptosLimit > 0) {
+            for (let i = conceptosLimit; i > 0; i-70 ) {
                 conceptosLimit -= 70;
                 offset += 70;
 
-                h.getMostSoldConcepts(offset).then(response => {
+                h.getMostReturnedConcepts(offset).then(response => {
                     result = state.valueFixArr(response);
                     result.data.count = response.data.totalCount;
-                    state.vuexConceptReturns = result;
+                    state.vuexConceptReturns.data.data = state.vuexConceptReturns.data.data.concat(result.data.data);
+                    //ELIMINAMOS LOS DUPLICADOS
+                    state.vuexConceptReturns.data.data = state.vuexConceptReturns.data.data.filter((item, index, self) =>
+                        index === self.findIndex((t) => (
+                            t.id === item.id
+                        ))
+                    );
                 })
 
                 window.localStorage.setItem('ConceptReturns', JSON.stringify(state.vuexConceptReturns));
