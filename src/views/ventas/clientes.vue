@@ -7,26 +7,25 @@
                 <v-spacer></v-spacer>
             </v-card-title>
             <v-col cols="12" sm="4">
-                    <v-autocomplete
-                        :items="compradores"
-                        :search-input.sync="search"
-                        hide-no-data
-                        hide-selected
-                        item-text="name"
-                        item-value="name"
-                        return-object
-                        :append-icon="search === '' ? 'search' : 'close'"
-                        label="Nombre"
-                        outlined
-                        hide-details
-                        dense
-                        :disabled="loading"
-                        style="height:39px;"
-                        @keypress.enter="goSearch = !goSearch"
-                        @click:append="search = ''"
-                        @change="goSearch = !goSearch"
-                    ></v-autocomplete>
-                   
+                <v-autocomplete
+                    :items="compradores"
+                    :search-input.sync="search"
+                    hide-no-data
+                    hide-selected
+                    item-text="name"
+                    item-value="name"
+                    return-object
+                    :append-icon="search === '' ? 'search' : 'close'"
+                    label="Nombre"
+                    outlined
+                    hide-details
+                    dense
+                    :disabled="loading"
+                    style="height:39px;"
+                    @keypress.enter="goSearch = !goSearch"
+                    @click:append="search = ''"
+                    @change="goSearch = !goSearch"
+                ></v-autocomplete>               
             </v-col>
             <v-row v-if="!loading">
                 <masonry :cols="cols" style="width:100%;">

@@ -6,13 +6,34 @@
             Vendedores de tu Empresa
             <v-spacer></v-spacer>
         </v-card-title>
+        <v-col cols="12" sm="4">
+            <v-autocomplete
+                :items="vendedores"
+                :search-input.sync="search"
+                hide-no-data
+                hide-selected
+                item-text="name"
+                item-value="name"
+                return-object
+                :append-icon="search === '' ? 'search' : 'close'"
+                label="Nombre"
+                outlined
+                hide-details
+                dense
+                :disabled="loading"
+                style="height:39px;"
+                @keypress.enter="goSearch = !goSearch"
+                @click:append="search = ''"
+                @change="goSearch = !goSearch"
+            ></v-autocomplete>               
+        </v-col>
         <v-row v-if="!loading">
             <masonry :cols="cols" style="width:100%;">
-                <seller v-for="(seller, i) in vendedores.slice(offset, offset + itemsPerPage)" :key="seller.id" :style="'margin: 15px '+gutter/2+'px'" :i="i" :seller="seller"  @click.native="open(seller)"></seller>
+                <seller v-for="(seller, i) in vendedoresFilt.slice(offset, offset + itemsPerPage)" :key="seller.id" :style="'margin: 15px '+gutter/2+'px'" :i="i" :seller="seller"  @click.native="open(seller)"></seller>
             </masonry>
             <v-pagination
                 v-model="page"
-                :length="Math.ceil(vendedores.length / itemsPerPage)"
+                :length="Math.ceil(vendedoresFilt.length / itemsPerPage)"
                 v-on:click.native="paginate(page)"
             ></v-pagination>
         </v-row>
@@ -32,6 +53,7 @@ import reports from "@/plugins/reports"
 import accounting from "accounting";
 import seller from "@/components/ventas/seller"
 import { mapState } from 'vuex';
+import _ from "lodash";
 
 export default {
     name: "vendedores",
@@ -43,6 +65,7 @@ export default {
             ...variables,
             apiSellers: null,
             vendedores: [],
+            vendedoresFilt: [],
             loading: true,
             promedioVentas: null,
             cols: 0,
@@ -51,6 +74,8 @@ export default {
             page_old: 1,
             offset: 0,
             itemsPerPage: 12,
+            search: "",
+            goSearch: false,
         };
     },
     computed:{
@@ -92,6 +117,8 @@ export default {
                         expand: false,
                     });
                 });
+
+                this.vendedoresFilt = this.vendedores
             }catch(e){
                 console.log('Error al crear vendedores. '+e)
             }
@@ -117,7 +144,16 @@ export default {
         },
         sellersUpdated(){
             this.createSellers();
-        }
+        },
+        search:  _.debounce(async function () {
+            if (this.search == "" || this.search == null) {
+                this.vendedoresFilt = this.vendedores;
+                return;
+            } 
+            //watch se activa cuando presionas enter en el text input de busqueda
+            this.vendedoresFilt = this.vendedores.filter(i => i.name.includes(this.search))
+            
+        }, 555),
     },
     created(){
         window.addEventListener('resize', this.onResize);
