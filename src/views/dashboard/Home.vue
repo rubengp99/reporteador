@@ -229,15 +229,19 @@ export default {
             try{
                 for (const storage of this.$data.apiStorages.data.data) {
                     let aux = await storages().get(storage.id+'/conceptos/?limit='+this.apiConcepts.data.totalCount+'&fields=id,nombre,precio_dolar,precio_a,existencias')
-                    let count = aux.data.data.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b);
-                    this.storages.push({
-                        id: storage.id,
-                        count: count + ' unidades.',
-                        $: accounting.formatMoney(+aux.data.data.map(a => Math.trunc(+a.existencia) * +a.precio_dolar).reduce((a,b) => a+b), 
-                                                { symbol   : "$", thousand : ".", decimal  : ",", }),
-                        Bs: accounting.formatMoney(+aux.data.data.map(a => Math.trunc(+a.existencia) * +a.precio_a).reduce((a,b) => a+b), 
-                                                { symbol   : "Bs", thousand : ".", decimal  : ",", }),
-                    });
+                    
+                    if (typeof aux.data.data !== 'undefined') {
+                        let count = aux.data.data.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b);
+                        this.storages.push({
+                            id: storage.id,
+                            count: count + ' unidades.',
+                            $: accounting.formatMoney(+aux.data.data.map(a => Math.trunc(+a.existencia) * +a.precio_dolar).reduce((a,b) => a+b), 
+                                                    { symbol   : "$", thousand : ".", decimal  : ",", }),
+                            Bs: accounting.formatMoney(+aux.data.data.map(a => Math.trunc(+a.existencia) * +a.precio_a).reduce((a,b) => a+b), 
+                                                    { symbol   : "Bs", thousand : ".", decimal  : ",", }),
+                        });
+                    }
+                
                 }
                 this.loading[5] = false;
             }catch(error){
@@ -261,24 +265,30 @@ export default {
         vuexGroups(){
             this.apiGroups = this.vuexGroups;
             this.apiGroups =  this.apiGroups.data.data;
+            this.$forceUpdate();
         },
         vuexSubGroups(){
             this.apiSubGroups = this.vuexSubGroups;
             this.apiSubGroups = this.apiSubGroups.data.data;
+            this.$forceUpdate();
         },
         vuexSubGroupSales(){
             this.sVentas = this.vuexSubGroupSales;
             this.sVentas = this.$data.sVentas.data.data;
+            this.$forceUpdate();
         },
         vuexGroupSales(){
             this.groupSales = this.vuexGroupSales;
+            this.$forceUpdate();
         },
         vuexStorages(){
             this.apiStorages = this.vuexStorages;
             this.createStorageValue();
+            this.$forceUpdate();
         },
         vuexTodayInvoices(){
             this.apiInvoices = this.vuexTodayInvoices;
+            this.$forceUpdate();
         },
         dashboardUpdated(){
             this.createGains();
