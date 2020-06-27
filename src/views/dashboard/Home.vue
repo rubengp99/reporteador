@@ -9,12 +9,25 @@
                         </v-row>
                     </v-card>
                 </v-col>
+                <v-col cols="12" md="5">
+                    <v-card width="100%" outlined style="height:90px;">
+                        <v-row justify="center">
+                            <v-col style="position:relative;height:70px;">
+                                <v-btn class="absolute-center" style="height:39px;" outlined dense color="error" @click="clearCache()">
+                                    <p style="margin:0">Limpiar Cache </p>
+                                    <v-icon>mdi-autorenew</v-icon>
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-card>
+                </v-col>
+                
             </v-row>
             <v-row>
                 <dCard col="3" icon img="savings" text="Ingresos." :title="moneda === '$' ? gains$ : gainsBs" :loading="loading[0]"/>
                 <dCard col="3" icon img="factura" text="Facturas." :title="invoices" :loading="loading[1]"/>
-                <dCard col="3" icon img="boxOF" text="Conceptos bajo el mínimo." :title="stockMin" :loading="loading[2]" hoverable @click.native.stop="stockMinDialog = !stockMinDialog"/>
-                <dCard col="3" icon img="boxO" text="Conceptos sobre el máximo." :title="stockMax" :loading="loading[3]" hoverable @click.native.stop="stockMaxDialog = !stockMaxDialog"/>
+                <dCard col="3" icon img="boxOF" text="Artículos bajo el mínimo." :title="stockMin" :loading="loading[2]" hoverable @click.native.stop="stockMinDialog = !stockMinDialog"/>
+                <dCard col="3" icon img="boxO" text="Artículos sobre el máximo." :title="stockMax" :loading="loading[3]" hoverable @click.native.stop="stockMaxDialog = !stockMaxDialog"/>
             </v-row>
             <v-row>
                 <dCard col="4" icon img="box"  title="Inventario" hoverable path="/Inventario"/>
@@ -257,6 +270,10 @@ export default {
         },
         getExistencias(concept){
             return (Array.isArray(concept.existencias) ? concept.existencias.length > 0 ? concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : 0 : concept.existencias);
+        },
+        clearCache(){
+            window.localStorage.clear();
+            window.location.reload();
         }
     },
     watch:{
