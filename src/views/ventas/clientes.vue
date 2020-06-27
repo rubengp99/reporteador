@@ -226,9 +226,10 @@ export default {
                 buyers().get(`/mostBuyers?limit=${limit}&after-fecha_at=${after}&before-fecha_at=${before}`).then(response => {
                     if (typeof response.data.response.data !== 'undefined') {
                         let aux = [];
-                        let totalBuys = this.response.data.response.data.map(a => a.compras).reduce((a,b) => a+b);
-                        this.response.data.response.data.forEach(buyer => {
-                            this.aux.push({
+                        let totalBuys = response.data.response.data.map(a => a.compras).reduce((a,b) => a+b);
+                        
+                        response.data.response.data.forEach(buyer => {
+                            aux.push({
                                 id: buyer.id,
                                 name: buyer.nombre,
                                 sales: accounting.formatMoney(+Math.trunc(buyer.compras), { symbol   : "", thousand : ".", decimal  : ",", }),
