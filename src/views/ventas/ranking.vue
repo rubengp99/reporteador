@@ -6,8 +6,29 @@
                 Ranking de Ventas
                 <v-spacer></v-spacer>
             </v-card-title>
+            <v-col cols="12" sm="4">
+                <v-autocomplete
+                    :items="ranking"
+                    :search-input.sync="search"
+                    hide-no-data
+                    hide-selected
+                    item-text="nombre"
+                    item-value="nombre"
+                    return-object
+                    :append-icon="search === '' ? 'search' : 'close'"
+                    label="Nombre"
+                    outlined
+                    hide-details
+                    dense
+                    :disabled="loading"
+                    style="height:39px;"
+                    @keypress.enter="goSearch = !goSearch"
+                    @click:append="search = ''"
+                    @change="goSearch = !goSearch"
+                ></v-autocomplete>               
+            </v-col>
             <v-row v-if="!loading">
-                <v-col cols="12" sm="4" v-for="(concept,i) in ranking.slice(offset, offset + itemsPerPage)" :key="concept.id">
+                <v-col cols="12" sm="4" v-for="(concept,i) in rankingFilt.slice(offset, offset + itemsPerPage)" :key="concept.id">
                     <v-card style="background:#FAFAFA;" class="mx-auto hoverable" max-width="100%" height="100%" elevation="4" :to="{ name: 'concepto', params: {nombre: concept.nombre, id: concept.id, grupo:concept.adm_grupos_id, subgrupo: concept.adm_subgrupos_id}}">
                         <v-list-item three-line>
                             <v-list-item-content>
@@ -50,7 +71,7 @@
                 </v-col>
                 <v-pagination
                 v-model="page"
-                :length="Math.ceil(ranking.length / itemsPerPage)"
+                :length="Math.ceil(rankingFilt.length / itemsPerPage)"
                 v-on:click.native="paginate(page)"
                 ></v-pagination>
             </v-row>
@@ -68,6 +89,7 @@
 import variables from "@/services/variables";
 import accounting from "accounting";
 import { mapState } from 'vuex';
+import _ from "lodash";
 
 export default {
     name: "ranking",
@@ -75,6 +97,7 @@ export default {
         return {
             ...variables,
             ranking: [],
+            rankingFilt: [],
             loading: true,
             apiGroups: null,
             apiSubGroups: null,
@@ -86,6 +109,8 @@ export default {
             page_old: 1,
             offset: 0,
             itemsPerPage: 12,
+            search: "",
+            goSearch: false,
         };
     },
     head: {
@@ -122,8 +147,11 @@ export default {
             } catch (e) {
                 console.log('Error al crear ranking de productos. '+e)
             }
+
+            this.rankingFilt = this.ranking;
             this.loading = false;
-        }
+        },
+        
     },
     computed:{
         ...mapState(['vuexConcepts','vuexConceptSales','vuexGroups','vuexSubGroups','rankingUpdated']),
@@ -143,7 +171,16 @@ export default {
         },
         rankingUpdated(){
             this.createRanking();
-        }
+        },
+        search:  _.debounce(async function () {
+            if (this.search == "" || this.search == null) {
+                this.rankingFilt = this.ranking;
+                return;
+            } 
+            //watch se activa cuando presionas enter en el text input de busqueda
+            this.rankingFilt = this.ranking.filter(i => i.nombre.toLowerCase().includes(this.search.toLowerCase()))
+            
+        }, 555),
     },
     async beforeMount(){
         try {

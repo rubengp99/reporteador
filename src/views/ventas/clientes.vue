@@ -154,7 +154,7 @@ export default {
                 return;
             } 
             //watch se activa cuando presionas enter en el text input de busqueda
-            this.compradoresFilt = this.compradores.filter(i => i.name.includes(this.search))
+            this.compradoresFilt = this.compradores.filter(i => i.name.toLowerCase().includes(this.search.toLowerCase()))
             
         }, 555),
     },
