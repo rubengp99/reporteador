@@ -236,7 +236,7 @@ import _ from 'lodash';
         },
          mounted() {
             this.data = Object.assign({},this.user.data);
-            this.date = this.data.fecha_nac;            
+            this.date = this.data.fecha_nac.substr(0,10);            
         },
     }
 </script>

@@ -14,7 +14,7 @@ import w from '@/services/variables'
 import moment from "moment";
 
 Vue.use(Vuex);
-const conceptsFields = "&fields=id,referencia,codigo,nombre,existencia_minima,existencia_maxima,descripcion,imagen,existencias,precio_dolar,costo_dolar,precio_a,ultimo_costo,adm_grupos_id,adm_subgrupos_id";
+export const conceptsFields = "&fields=id,referencia,codigo,nombre,existencia_minima,existencia_maxima,descripcion,imagen,existencias,precio_dolar,costo_dolar,precio_a,ultimo_costo,adm_grupos_id,adm_subgrupos_id";
 
 export default new Vuex.Store({
     state: {
