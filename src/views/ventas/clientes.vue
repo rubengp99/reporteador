@@ -6,27 +6,74 @@
                 Clientes de tu Empresa
                 <v-spacer></v-spacer>
             </v-card-title>
-            <v-col cols="12" sm="4">
-                <v-autocomplete
-                    :items="compradores"
-                    :search-input.sync="search"
-                    hide-no-data
-                    hide-selected
-                    item-text="name"
-                    item-value="name"
-                    return-object
-                    :append-icon="search === '' ? 'search' : 'close'"
-                    label="Nombre"
-                    outlined
-                    hide-details
-                    dense
-                    :disabled="loading"
-                    style="height:39px;"
-                    @keypress.enter="goSearch = !goSearch"
-                    @click:append="search = ''"
-                    @change="goSearch = !goSearch"
-                ></v-autocomplete>               
-            </v-col>
+            <v-row>
+                <v-col cols="12" sm="4">
+                    <v-autocomplete
+                        :items="compradores"
+                        :search-input.sync="search"
+                        hide-no-data
+                        hide-selected
+                        item-text="name"
+                        item-value="name"
+                        return-object
+                        :append-icon="search === '' ? 'search' : 'close'"
+                        label="Nombre"
+                        outlined
+                        hide-details
+                        dense
+                        :disabled="loading"
+                        style="height:39px;"
+                        @keypress.enter="goSearch = !goSearch"
+                        @click:append="search = ''"
+                        @change="goSearch = !goSearch"
+                    ></v-autocomplete>               
+                </v-col>
+                <v-col cols="12" sm="3">
+                    <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
+                        <template v-slot:activator="{ on }">
+                            <v-text-field
+                                dense
+                                v-model="dates.from"
+                                label="Desde"
+                                placeholder="Formato YYYY/MM/DD."
+                                prepend-icon="event"
+                                outlined
+                                v-on="on"
+                            ></v-text-field>
+                        </template>
+
+                        <v-date-picker v-model="dates.from" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
+                    </v-menu>
+                </v-col>
+                <v-col cols="12" sm="3">
+                    <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
+                        <template v-slot:activator="{ on }">
+                            <v-text-field
+                                dense
+                                v-model="dates.to"
+                                label="Hasta"
+                                placeholder="Formato YYYY/MM/DD."
+                                prepend-icon="event"
+                                outlined
+                                v-on="on"
+                            ></v-text-field>
+                        </template>
+
+                        <v-date-picker v-model="dates.to" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
+                    </v-menu>
+                </v-col>
+                <v-col cols="12" sm="2">
+                    <v-btn small outlined color="indigo" style="width:100%; height: 39px;" @click="goSearch = !goSearch"><v-icon>check</v-icon></v-btn>
+                </v-col>
+            </v-row>
+
+            <v-alert dark elevation="2" v-show="results" color="#2A3B4D" style="margin: 20px 0;">
+                Este fue tu ranking de ventas desde el día 
+                <strong> {{ moment(dates.from).locale('es').format('MMMM Do [de] YYYY') }} </strong> 
+                hasta el día
+                <strong> {{ moment(dates.to).locale('es').format('MMMM Do [de] YYYY') }} </strong>. 
+            </v-alert>
+
             <v-row v-if="!loading">
                 <masonry :cols="cols" style="width:100%;">
                     <buyer v-for="(buyer, i) in compradoresFilt.slice(offset, offset + itemsPerPage)" :key="buyer.id" :style="'margin: 15px '+gutter/2+'px'" :buyer="buyer" :i="i" :offset="offset" @click.native="open(buyer)"></buyer>
@@ -49,11 +96,13 @@
 
 <script>
 import variables from "@/services/variables";
-import reports from "@/plugins/reports"
-import buyer from '@/components/ventas/buyer'
+import buyers from "@/services/Clientes";
+import reports from "@/plugins/reports";
+import buyer from '@/components/ventas/buyer';
 import accounting from "accounting";
 import { mapState } from 'vuex';
 import _ from "lodash";
+import moment from "moment";
 
 export default {
     name: "compradores",
@@ -76,6 +125,11 @@ export default {
             itemsPerPage: 12,
             search: "",
             goSearch: false,
+            dates: {
+                from:  new Date().toISOString().substr(0, 10),
+                to:  new Date().toISOString().substr(0, 10),
+            },
+            results: false,
         };
     },
     computed:{
@@ -137,6 +191,7 @@ export default {
                 this.gutter = 2;
             }
         },
+        moment
     },
     watch:{
         vuexBuyers(){
@@ -147,7 +202,66 @@ export default {
         buyersUpdated(){
             this.createBuyers();
         },
+        goSearch(){
+            if (this.dates.to < this.dates.from){
+                this.$toasted.error('El campo "Hasta" no puede ser menor al campo "Desde".', { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'error_outline'
+                });
+            }else {
+                this.results = false;
+                this.$toasted.info("Obteniendo registros...", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'timer'
+                });
 
+                let limit = this.vuexBuyers.data.response.count;
+                let after = moment(this.dates.from).format("YYYY-MM-DD");
+                let before = moment(this.dates.to).format("YYYY-MM-DD");
+
+                buyers().get(`/mostBuyers?limit=${limit}&after-fecha_at=${after}&before-fecha_at=${before}`).then(response => {
+                    if (typeof response.data.response.data !== 'undefined') {
+                        let aux = [];
+                        let totalBuys = this.response.data.response.data.map(a => a.compras).reduce((a,b) => a+b);
+                        this.response.data.response.data.forEach(buyer => {
+                            this.aux.push({
+                                id: buyer.id,
+                                name: buyer.nombre,
+                                sales: accounting.formatMoney(+Math.trunc(buyer.compras), { symbol   : "", thousand : ".", decimal  : ",", }),
+                                buysBs: accounting.formatMoney(+buyer.total, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
+                                buys$: accounting.formatMoney(+buyer.totalDolar, { symbol   : "$", thousand : ".", decimal  : ",", }),
+                                percentBuys: reports.chart__donut([buyer.compras, totalBuys],"Volumen del",["Mis compras","Total de Compras"],["#FFC107", "#3F51B5"],'volumen'),
+                                expand: false,
+                            });
+                        });
+
+                        this.compradoresFilt = aux;
+
+                        this.$toasted.success("¡Ranking actualizado!", { 
+                            theme: "bubble", 
+                            position: "bottom-right", 
+                            duration : 2000,
+                            icon : 'done_all'
+                        });
+
+                        this.results = true;
+                    }else {
+                        this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
+                            theme: "bubble", 
+                            position: "bottom-right", 
+                            duration : 2000,
+                            icon : 'error_outline'
+                        });
+                    }
+                    
+                    this.$forceUpdate();
+                });
+            }
+        },
         search:  _.debounce(async function () {
             if (this.search == "" || this.search == null) {
                 this.compradoresFilt = this.compradores;

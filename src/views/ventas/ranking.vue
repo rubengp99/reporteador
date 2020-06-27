@@ -263,6 +263,7 @@ export default {
                             duration : 2000,
                             icon : 'done_all'
                         });
+                        this.results = true;
                     }else {
                         this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
                             theme: "bubble", 
@@ -271,7 +272,6 @@ export default {
                             icon : 'error_outline'
                         });
                     }
-                    this.results = true;
                     this.$forceUpdate();
                 });
             }
