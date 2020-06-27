@@ -6,13 +6,34 @@
             Rutas de Servicio
             <v-spacer></v-spacer>
         </v-card-title>
+        <v-col cols="12" sm="4">
+            <v-autocomplete
+                :items="rutas"
+                :search-input.sync="search"
+                hide-no-data
+                hide-selected
+                item-text="name"
+                item-value="name"
+                return-object
+                :append-icon="search === '' ? 'search' : 'close'"
+                label="Nombre"
+                outlined
+                hide-details
+                dense
+                :disabled="loading"
+                style="height:39px;"
+                @keypress.enter="goSearch = !goSearch"
+                @click:append="search = ''"
+                @change="goSearch = !goSearch"
+            ></v-autocomplete>               
+        </v-col>
         <v-row v-if="!loading">
             <masonry :cols="cols" style="width:100%;">
-                <route v-for="(route) in rutas.slice(offset, offset + itemsPerPage)" :key="route.id" :style="'margin: 15px '+gutter/2+'px'" :route="route"></route>
+                <route v-for="(route) in rutasFilt.slice(offset, offset + itemsPerPage)" :key="route.id" :style="'margin: 15px '+gutter/2+'px'" :route="route"></route>
             </masonry>
             <v-pagination
                 v-model="page"
-                :length="Math.ceil(rutas.length / itemsPerPage)"
+                :length="Math.ceil(rutasFilt.length / itemsPerPage)"
                 v-on:click.native="paginate(page)"
             ></v-pagination>
         </v-row>
@@ -31,6 +52,7 @@ import variables from "@/services/variables";
 import accounting from "accounting";
 import route from "@/components/ventas/route"
 import { mapState } from 'vuex';
+import _ from "lodash";
 
 export default {
     name: "rutas",
@@ -42,6 +64,7 @@ export default {
             ...variables,
             apiRoutes: null,
             rutas: [],
+            rutasFilt: [],
             loading: true,
             promedioVentas: null,
             cols: 0,
@@ -50,6 +73,8 @@ export default {
             page_old: 1,
             offset: 0,
             itemsPerPage: 12,
+            search: "",
+            goSearch: false,
         };
     },
     computed:{
@@ -84,6 +109,8 @@ export default {
                         value: accounting.formatMoney(route.tarifa, { symbol   : "Bs", thousand : ".", decimal  : ",", }),
                     });
                 });
+
+                this.rutasFilt = this.rutas;
             } catch (e) {
                 console.log('Error al crear rutas de ventas. '+ e)
             }
@@ -111,7 +138,16 @@ export default {
         },
         routesUpdated(){
             this.createRoutes();
-        }
+        },
+        search:  _.debounce(async function () {
+            if (this.search == "" || this.search == null) {
+                this.rutasFilt = this.rutas;
+                return;
+            } 
+            //watch se activa cuando presionas enter en el text input de busqueda
+            this.rutasFilt = this.rutas.filter(i => i.name.toLowerCase().includes(this.search.toLowerCase()))
+            
+        }, 555),
     },
     created(){
         window.addEventListener('resize', this.onResize);
