@@ -10,7 +10,9 @@
                         <v-list-item-title class="caption"> PUESTO {{offset + i + 1}}</v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-avatar tile size="100" >
-                    <v-img :src="require('@/assets/sellers.svg')"></v-img>
+                    <v-avatar size="100">
+                        <v-img :src="getImagen(seller)"></v-img>
+                    </v-avatar>
                 </v-list-item-avatar>
             </v-list-item>
             <v-divider></v-divider>
@@ -71,6 +73,8 @@
 </template>
 
 <script>
+import w from "@/services/variables";
+
 export default {
     props:{
         seller:{
@@ -84,6 +88,20 @@ export default {
         i:{
             type:Number,
             default:0,
+        }
+    },
+    data() {
+        return {
+            ...w
+        }
+    },
+    methods: {
+        getImagen(buyer) {
+           
+            if (typeof buyer.imagen === 'undefined') 
+                return require("@/assets/person.jpg")
+            else 
+                return  buyer.imagen === 'person.jpg' ? require("@/assets/person.jpg") : this.imagen + buyer.imagen
         }
     }
 }
