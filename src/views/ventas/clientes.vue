@@ -6,13 +6,35 @@
                 Clientes de tu Empresa
                 <v-spacer></v-spacer>
             </v-card-title>
+            <v-col cols="12" sm="4">
+                    <v-autocomplete
+                        :items="compradores"
+                        :search-input.sync="search"
+                        hide-no-data
+                        hide-selected
+                        item-text="name"
+                        item-value="name"
+                        return-object
+                        :append-icon="search === '' ? 'search' : 'close'"
+                        label="Nombre"
+                        outlined
+                        hide-details
+                        dense
+                        :disabled="loading"
+                        style="height:39px;"
+                        @keypress.enter="goSearch = !goSearch"
+                        @click:append="search = ''"
+                        @change="goSearch = !goSearch"
+                    ></v-autocomplete>
+                   
+            </v-col>
             <v-row v-if="!loading">
                 <masonry :cols="cols" style="width:100%;">
-                    <buyer v-for="(buyer, i) in compradores.slice(offset, offset + itemsPerPage)" :key="buyer.id" :style="'margin: 15px '+gutter/2+'px'" :buyer="buyer" :i="i" :offset="offset" @click.native="open(buyer)"></buyer>
+                    <buyer v-for="(buyer, i) in compradoresFilt.slice(offset, offset + itemsPerPage)" :key="buyer.id" :style="'margin: 15px '+gutter/2+'px'" :buyer="buyer" :i="i" :offset="offset" @click.native="open(buyer)"></buyer>
                 </masonry>
                 <v-pagination
                 v-model="page"
-                :length="Math.ceil(compradores.length / itemsPerPage)"
+                :length="Math.ceil(compradoresFilt.length / itemsPerPage)"
                 v-on:click.native="paginate(page)"
                 ></v-pagination>
             </v-row>
@@ -32,6 +54,7 @@ import reports from "@/plugins/reports"
 import buyer from '@/components/ventas/buyer'
 import accounting from "accounting";
 import { mapState } from 'vuex';
+import _ from "lodash";
 
 export default {
     name: "compradores",
@@ -43,6 +66,7 @@ export default {
             ...variables,
             apiBuyers: null,
             compradores: [],
+            compradoresFilt: [],
             loading: true,
             promedioVentas: null,
             cols: 0,
@@ -50,7 +74,9 @@ export default {
             page:1,
             page_old: 1,
             offset: 0,
-            itemsPerPage: 12,  
+            itemsPerPage: 12,
+            search: "",
+            goSearch: false,
         };
     },
     computed:{
@@ -93,6 +119,8 @@ export default {
                         expand: false,
                     });
                 });
+
+                this.compradoresFilt = this.compradores;
             } catch (e) {
                 console.log('Error al crear clientes. '+e)
             }
@@ -119,7 +147,17 @@ export default {
         },
         buyersUpdated(){
             this.createBuyers();
-        }
+        },
+
+        search:  _.debounce(async function () {
+            if (this.search == "" || this.search == null) {
+                this.compradoresFilt = this.compradores;
+                return;
+            } 
+            //watch se activa cuando presionas enter en el text input de busqueda
+            this.compradoresFilt = this.compradores.filter(i => i.name.includes(this.search))
+            
+        }, 555),
     },
     created(){
         window.addEventListener('resize', this.onResize);
