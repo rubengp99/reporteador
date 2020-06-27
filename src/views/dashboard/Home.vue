@@ -226,15 +226,18 @@ export default {
         */
         async createStorageValue(){
             this.apiStorages = this.vuexStorages;
+            let lStorages = [];
             try{
                 for (const storage of this.$data.apiStorages.data.data) {
                     let aux = await storages().get(storage.id+'/conceptos/?limit='+this.apiConcepts.data.totalCount+'&fields=id,nombre,precio_dolar,precio_a,existencias')
                     
                     if (typeof aux.data.data !== 'undefined') {
                         let count = aux.data.data.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b);
-                        this.storages.push({
+                        
+                        
+                        lStorages.push({
                             id: storage.id,
-                            count: count + ' unidades.',
+                            count: count,
                             $: accounting.formatMoney(+aux.data.data.map(a => Math.trunc(+a.existencia) * +a.precio_dolar).reduce((a,b) => a+b), 
                                                     { symbol   : "$", thousand : ".", decimal  : ",", }),
                             Bs: accounting.formatMoney(+aux.data.data.map(a => Math.trunc(+a.existencia) * +a.precio_a).reduce((a,b) => a+b), 
@@ -243,6 +246,9 @@ export default {
                     }
                 
                 }
+
+                this.storages = lStorages;
+                window.localStorage.setItem("StorageValue", JSON.stringify(this.storages))
                 this.loading[5] = false;
             }catch(error){
                 this.loading[5] = false;
@@ -298,6 +304,9 @@ export default {
         }
     },
     beforeMount(){
+        let aux = JSON.parse(window.localStorage.getItem('StorageValue'));
+        this.storages = aux == null ? [] : aux;
+
         if(this.dashboardUpdated){
             this.createGains();
             this.createStocks();
