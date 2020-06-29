@@ -13,7 +13,7 @@
                     <v-card width="100%" outlined style="height:90px;">
                         <v-row justify="center">
                             <v-col style="position:relative;height:70px;">
-                                <v-btn class="absolute-center" style="height:39px;" outlined dense color="error" @click="clearCache()">
+                                <v-btn class="absolute-center" style="height:39px;display:block;" outlined dense color="error" @click="clearCache()">
                                     <p style="margin:0">Limpiar Cache </p>
                                     <v-icon>mdi-autorenew</v-icon>
                                 </v-btn>
