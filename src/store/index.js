@@ -118,14 +118,14 @@ export default new Vuex.Store({
             state.user.loggedIn = true;
             state.user.token = val.token;
             state.user.data = val.data;
-            window.localStorage.setItem('token', val.token);
+            window.sessionStorage.setItem('token', val.token);
         },
 
         LOGOUT(state) { //cierra la sesion
             state.user.token = null;
             state.user.data = {};
             state.user.loggedIn = false;
-            window.localStorage.removeItem('token');
+            window.sessionStorage.removeItem('token');
         },
 
         SET_FOTO(state, val) {

@@ -33,7 +33,7 @@ Vue.use(options);
 
 Vue.config.productionTip = true;
 let token = null;
-token = window.localStorage.getItem('token');
+token = window.sessionStorage.getItem('token');
 
 if (token) {
     Auth().post("/sesion", {

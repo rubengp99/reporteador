@@ -156,6 +156,8 @@ export default {
         async createStocks(){
             this.stockMinConcepts = [];
             this.stockMaxConcepts = [];
+            this.stockMin = 0;
+            this.stockMax = 0;
             this.apiConcepts = this.vuexConcepts;
             try{
                 //productos con existencia mínima y máxima
