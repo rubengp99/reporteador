@@ -202,7 +202,6 @@ export default {
             this.reload();
             this.createRentabilidad();
             this.reload();
-            console.log(this.$data);
         }
     },
     created(){

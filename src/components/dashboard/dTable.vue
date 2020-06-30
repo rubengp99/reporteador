@@ -13,6 +13,7 @@
                     <thead>
                         <tr>
                         <th class="text-center">Depósito</th>
+                        <th class="text-center">Nº</th>
                         <th class="text-center">Unidades</th>
                         <th class="text-center">Bolívares</th>
                         <th class="text-center">Dólares</th>
@@ -27,11 +28,12 @@
                                     <v-col>
                                         <v-img :src="require('@/assets/storage.svg')" style="width:50px;height:50x;"></v-img>  
                                     </v-col>
-                                    <v-divider vertical></v-divider>
-                                    <v-col style="height:70px%;position:relative;">
-                                        <p class="absC"> {{ typeof object.id !== 'undefined' ? object.id : '' }} </p>
-                                    </v-col>
                                 </v-row>
+                            </p>
+                        </td>
+                        <td>
+                            <p class="subtitle-2">
+                                {{ typeof object.id !== 'undefined' ? object.id : '' }}
                             </p>
                         </td>
                         <td><p class="subtitle-2"> {{ typeof object.count !== 'undefined' ? object.count : '' }} </p></td>

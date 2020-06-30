@@ -78,6 +78,7 @@ import loader from '@/components/aplicacion/loading'
 import coinType from '@/components/aplicacion/coinSelector'
 import w from '@/services/variables';
 import { mapState } from 'vuex';
+import _ from "lodash";
 
 export default {
     name: "Home",
@@ -135,24 +136,32 @@ export default {
             --?
             --?
         */
-        async createGains(){
+        createGains: _.debounce(async function(){
             this.apiInvoices = this.vuexTodayInvoices;
+            
             //sumamos las ganancias producidas por esa cantidad de facturas
             try {
-                //cantidad de facturas hoy
-                this.invoices =  this.apiInvoices.data.count;
-                this.loading[1] = false;
-                this.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.$data.gains$ += +d.precio_dolar * +Math.trunc(+d.cantidad)));
-                this.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.$data.gainsBs += +d.precio * +Math.trunc(+d.cantidad)));
-            } catch (e) {
-                this.$data.gains$ = 0;
-                this.$data.invoices = 0;
+                if (this.vuexTodayInvoices != null) {
+                    this.loading[0] = true;
+                    this.loading[1] = true;
+                    this.gainsBs = 0;
+                    this.gains$ = 0;
+                    //cantidad de facturas hoy
+                    this.invoices =  this.vuexTodayInvoices.data.count;
+                    this.loading[1] = false;
+                    this.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.gains$ += +d.precio_dolar * +Math.trunc(+d.cantidad)));
+                    this.apiInvoices.data.data.filter(i => i.detalles.filter(d => this.gainsBs += +d.precio * +Math.trunc(+d.cantidad)));
+                    this.loading[0] = false;
+                    //le damos un formato contable
+        this.gains$ = accounting.formatMoney(+this.gains$, { symbol: "$", thousand : ".", decimal  : ",", });
+            this.gainsBs = accounting.formatMoney(+this.gainsBs, { symbol: "Bs", thousand : ".", decimal  : ",", });
+                }
             }
-            this.loading[0] = false;
-            //le damos un formato contable
-            this.$data.gains$ = accounting.formatMoney(+this.$data.gains$, { symbol: "$", thousand : ".", decimal  : ",", });
-            this.$data.gainsBs = accounting.formatMoney(+this.$data.gainsBs, { symbol: "Bs", thousand : ".", decimal  : ",", });
-        },
+             catch (e) {
+                console.log(e);
+                this.createGains();
+            }
+        }, 555),
         async createStocks(){
             this.stockMinConcepts = [];
             this.stockMaxConcepts = [];
@@ -167,11 +176,12 @@ export default {
                     this.stockMax += typeof concept.existencia_maxima === 'undefined' ? 0 : +this.getExistencias(concept) > +concept.existencia_maxima ? 1 : 0;
                     if (typeof concept.existencia_maxima === 'undefined' ? false : (+this.getExistencias(concept) > +concept.existencia_maxima)) this.stockMaxConcepts.push(concept);
                 }
+
+                this.loading[2] = (this.stockMin === 0);
+                this.loading[3] = (this.stockMax === 0);
             }catch(e){
                 null
             }
-            this.loading[2] = false;
-            this.loading[3] = false;
 
         },
         /*
@@ -229,11 +239,11 @@ export default {
                     [gVentas[0].nombre,gVentas[1].nombre,gVentas[2].nombre,gVentas[3].nombre,gVentas[4].nombre],
                     moment(w.test).locale('es').format('MMM Do YYYY').charAt(0).toUpperCase() + moment(w.test).locale('es').format('MMM Do YYYY').slice(1,14),
                 );
+                this.loading[4] = false;
             } catch (e) {
-                null
+                console(e);
             }
-
-            this.loading[4] = false;
+            this.$forceUpdate();
         },
         /*
         Diseñado para crear la segunda fila de datos (50%-100%):
@@ -290,20 +300,24 @@ export default {
         vuexGroups(){
             this.apiGroups = this.vuexGroups;
             this.apiGroups =  this.apiGroups.data.data;
+            this.createGroupsRank();
             this.$forceUpdate();
         },
         vuexSubGroups(){
             this.apiSubGroups = this.vuexSubGroups;
             this.apiSubGroups = this.apiSubGroups.data.data;
+            this.createGroupsRank();
             this.$forceUpdate();
         },
         vuexSubGroupSales(){
             this.sVentas = this.vuexSubGroupSales;
             this.sVentas = this.$data.sVentas.data.data;
+            this.createGroupsRank()
             this.$forceUpdate();
         },
         vuexGroupSales(){
             this.groupSales = this.vuexGroupSales;
+            this.createGroupsRank()
             this.$forceUpdate();
         },
         vuexStorages(){
@@ -313,6 +327,7 @@ export default {
         },
         vuexTodayInvoices(){
             this.apiInvoices = this.vuexTodayInvoices;
+            this.createGains();
             this.$forceUpdate();
         },
         dashboardUpdated(){
@@ -326,6 +341,7 @@ export default {
         let aux = JSON.parse(window.localStorage.getItem('StorageValue'));
         this.storages = aux == null ? [] : aux;
 
+        this.loading[5] =  this.storages === null;
         if(this.dashboardUpdated){
             this.createGains();
             this.createStocks();
