@@ -1,95 +1,101 @@
 <template>
     <v-col cols="12">
-        <v-card class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
-        <v-card-title class="title" style="padding:5px;">
+        <v-card v-if="loading" class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
             <v-spacer></v-spacer>
-            Vendedores de tu Empresa
-            <v-spacer></v-spacer>
-        </v-card-title>
-        <v-row>
-            <v-col cols="12" sm="4">
-                <v-autocomplete
-                    :items="vendedores"
-                    :search-input.sync="search"
-                    hide-no-data
-                    hide-selected
-                    item-text="name"
-                    item-value="name"
-                    return-object
-                    :append-icon="search === '' ? 'search' : 'close'"
-                    label="Nombre"
-                    outlined
-                    hide-details
-                    dense
-                    :disabled="loading"
-                    style="height:39px;"
-                    @keypress.enter="goSearch = !goSearch"
-                    @click:append="search = ''"
-                    @change="goSearch = !goSearch"
-                ></v-autocomplete>               
-            </v-col>
-            <v-col cols="12" sm="3">
-                <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
-                    <template v-slot:activator="{ on }">
-                        <v-text-field
-                            dense
-                            v-model="dates.from"
-                            label="Desde"
-                            placeholder="Formato YYYY/MM/DD."
-                            prepend-icon="event"
-                            outlined
-                            v-on="on"
-                        ></v-text-field>
-                    </template>
-
-                    <v-date-picker v-model="dates.from" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
-                </v-menu>
-            </v-col>
-            <v-col cols="12" sm="3">
-                <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
-                    <template v-slot:activator="{ on }">
-                        <v-text-field
-                            dense
-                            v-model="dates.to"
-                            label="Hasta"
-                            placeholder="Formato YYYY/MM/DD."
-                            prepend-icon="event"
-                            outlined
-                            v-on="on"
-                        ></v-text-field>
-                    </template>
-
-                    <v-date-picker v-model="dates.to" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
-                </v-menu>
-            </v-col>
-            <v-col cols="12" sm="2">
-                <v-btn small outlined color="indigo" style="width:100%; height: 39px;" @click="goSearch = !goSearch"><v-icon>check</v-icon></v-btn>
-            </v-col>
-        </v-row>
-
-        <v-alert dark elevation="2" v-show="results" color="#2A3B4D" style="margin: 20px 0;">
-            Este fue tu ranking de ventas desde el día 
-            <strong> {{ moment(dates.from).locale('es').format('MMMM Do [de] YYYY') }} </strong> 
-            hasta el día
-            <strong> {{ moment(dates.to).locale('es').format('MMMM Do [de] YYYY') }} </strong>. 
-        </v-alert>
-
-        <v-row v-if="!loading">
-            <masonry :cols="cols" style="width:100%;">
-                <seller v-for="(seller, i) in vendedoresFilt.slice(offset, offset + itemsPerPage)" :key="seller.id" :style="'margin: 15px '+gutter/2+'px'" :i="i" :seller="seller"  @click.native="open(seller)"></seller>
-            </masonry>
-            <v-pagination
-                v-model="page"
-                :length="Math.ceil(vendedoresFilt.length / itemsPerPage)"
-                v-on:click.native="paginate(page)"
-            ></v-pagination>
-        </v-row>
-        <div v-else class="mx-auto" width="100%" outlined>
-            <br />
             <loader />
-            <br />
-            <div class="snake"></div>
-        </div>
+            <v-spacer></v-spacer>
+        </v-card>
+
+        <v-card v-else class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
+            <v-card-title class="title" style="padding:5px;">
+                <v-spacer></v-spacer>
+                Vendedores de tu Empresa
+                <v-spacer></v-spacer>
+            </v-card-title>
+            <v-row>
+                <v-col cols="12" sm="4">
+                    <v-autocomplete
+                        :items="vendedores"
+                        :search-input.sync="search"
+                        hide-no-data
+                        hide-selected
+                        item-text="name"
+                        item-value="name"
+                        return-object
+                        :append-icon="search === '' ? 'search' : 'close'"
+                        label="Nombre"
+                        outlined
+                        hide-details
+                        dense
+                        :disabled="loading"
+                        style="height:39px;"
+                        @keypress.enter="goSearch = !goSearch"
+                        @click:append="search = ''"
+                        @change="goSearch = !goSearch"
+                    ></v-autocomplete>               
+                </v-col>
+                <v-col cols="12" sm="3">
+                    <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
+                        <template v-slot:activator="{ on }">
+                            <v-text-field
+                                dense
+                                v-model="dates.from"
+                                label="Desde"
+                                placeholder="Formato YYYY/MM/DD."
+                                prepend-icon="event"
+                                outlined
+                                v-on="on"
+                            ></v-text-field>
+                        </template>
+
+                        <v-date-picker v-model="dates.from" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
+                    </v-menu>
+                </v-col>
+                <v-col cols="12" sm="3">
+                    <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
+                        <template v-slot:activator="{ on }">
+                            <v-text-field
+                                dense
+                                v-model="dates.to"
+                                label="Hasta"
+                                placeholder="Formato YYYY/MM/DD."
+                                prepend-icon="event"
+                                outlined
+                                v-on="on"
+                            ></v-text-field>
+                        </template>
+
+                        <v-date-picker v-model="dates.to" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
+                    </v-menu>
+                </v-col>
+                <v-col cols="12" sm="2">
+                    <v-btn small outlined color="indigo" style="width:100%; height: 39px;" @click="goSearch = !goSearch"><v-icon>check</v-icon></v-btn>
+                </v-col>
+            </v-row>
+
+            <v-alert dark elevation="2" v-show="results" color="#2A3B4D" style="margin: 20px 0;">
+                Este fue tu ranking de ventas desde el día 
+                <strong> {{ moment(dates.from).locale('es').format('MMMM Do [de] YYYY') }} </strong> 
+                hasta el día
+                <strong> {{ moment(dates.to).locale('es').format('MMMM Do [de] YYYY') }} </strong>. 
+            </v-alert>
+
+            <v-row v-if="!loading">
+                <masonry :cols="cols" style="width:100%;">
+                    <seller v-for="(seller, i) in vendedoresFilt.slice(offset, offset + itemsPerPage)" :key="seller.id" :style="'margin: 15px '+gutter/2+'px'" :i="i" :seller="seller"  @click.native="open(seller)"></seller>
+                </masonry>
+                <v-pagination
+                    v-model="page"
+                    :length="Math.ceil(vendedoresFilt.length / itemsPerPage)"
+                    v-on:click.native="paginate(page)"
+                ></v-pagination>
+            </v-row>
+            <div v-else class="mx-auto" width="100%" outlined>
+                <br />
+                <loader />
+                <br />
+                <div class="snake"></div>
+            </div>
         </v-card>
     </v-col>
 </template>
@@ -173,11 +179,18 @@ export default {
                 });
 
                 this.vendedoresFilt = this.vendedores
+
+                this.loading = (this.vendedores.length === 0);
             }catch(e){
-                console.log('Error al crear vendedores. '+e)
+                this.$toasted.error('Error al crear vendedores. '+e,{ 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 5000,
+                    icon : 'error_outline'
+                })
             }
             
-            this.$data.loading = false;
+            
         },
         onResize() {
             if (window.innerWidth > 957){
@@ -201,6 +214,7 @@ export default {
             this.createSellers();
         },
         goSearch(){
+            this.loading = true;
             if (this.dates.to < this.dates.from){
                 this.$toasted.error('El campo "Hasta" no puede ser menor al campo "Desde".', { 
                     theme: "bubble", 
@@ -246,7 +260,9 @@ export default {
                             icon : 'done_all'
                         });
 
-                        this.results = true;
+                        this.results = (aux.length > 0);
+
+                         this.loading = false;
                     }else {
                         this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
                             theme: "bubble", 

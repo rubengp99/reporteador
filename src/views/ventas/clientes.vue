@@ -1,6 +1,12 @@
 <template>
      <v-col cols="12">
-        <v-card class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
+        <v-card v-if="loading" class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
+            <v-spacer></v-spacer>
+            <loader />
+            <v-spacer></v-spacer>
+        </v-card>
+
+        <v-card v-else class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
             <v-card-title class="title" style="padding:5px;">
                 <v-spacer></v-spacer>
                 Clientes de tu Empresa
@@ -156,12 +162,15 @@ export default {
                 this.offset -= Math.abs(page - this.page_old) === 0 ? this.itemsPerPage : Math.abs(page - this.page_old) * this.itemsPerPage;
             this.page_old = page;
         },
-        async createBuyers(){
+        createBuyers: _.debounce(async function(){
             try {
+                this.compradores = [];
+
                 this.$data.loading = true;
                 this.apiBuyers = this.vuexBuyers;
-                let totalBuys = this.apiBuyers.data.response.data.map(a => a.compras).reduce((a,b) => a+b);
-                this.apiBuyers.data.response.data.forEach(buyer => {
+
+                let totalBuys = this.apiBuyers.data.data.map(a => a.compras).reduce((a,b) => a+b);
+                this.apiBuyers.data.data.forEach(buyer => {
                     this.compradores.push({
                         id: buyer.id,
                         name: buyer.nombre,
@@ -174,11 +183,17 @@ export default {
                 });
 
                 this.compradoresFilt = this.compradores;
+                this.loading = (this.compradores.length === 0);
             } catch (e) {
-                console.log('Error al crear clientes. '+e)
+                this.$toasted.error('Error al crear clientes. '+e,{ 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 5000,
+                    icon : 'error_outline'
+                })
             }
-            this.$data.loading = false;
-        },
+           
+        }, 555),
         onResize() {
             if (window.innerWidth > 957){
                 this.cols = 3;
@@ -198,11 +213,14 @@ export default {
             this.apiBuyers = this.vuexBuyers;
             this.compradores = [];
             this.createBuyers();
+            this.$forceUpdate();
         },
         buyersUpdated(){
             this.createBuyers();
+            this.$forceUpdate();
         },
         goSearch(){
+            this.loading = true;
             if (this.dates.to < this.dates.from){
                 this.$toasted.error('El campo "Hasta" no puede ser menor al campo "Desde".', { 
                     theme: "bubble", 
@@ -219,16 +237,17 @@ export default {
                     icon : 'timer'
                 });
 
-                let limit = this.vuexBuyers.data.response.count;
+                let limit = this.vuexBuyers.data.count;
                 let after = moment(this.dates.from).format("YYYY-MM-DD");
                 let before = moment(this.dates.to).format("YYYY-MM-DD");
 
                 buyers().get(`/mostBuyers?limit=${limit}&after-fecha_at=${after}&before-fecha_at=${before}`).then(response => {
-                    if (typeof response.data.response.data !== 'undefined') {
+                    if (typeof response.data.data !== 'undefined') {
+                        this.loading = true
                         let aux = [];
-                        let totalBuys = response.data.response.data.map(a => a.compras).reduce((a,b) => a+b);
+                        let totalBuys = response.data.data.map(a => a.compras).reduce((a,b) => a+b);
                         
-                        response.data.response.data.forEach(buyer => {
+                        response.data.data.forEach(buyer => {
                             aux.push({
                                 id: buyer.id,
                                 name: buyer.nombre,
@@ -249,7 +268,8 @@ export default {
                             icon : 'done_all'
                         });
 
-                        this.results = true;
+                        this.results = (aux.length === 0);
+                        this.loading = false;
                     }else {
                         this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
                             theme: "bubble", 

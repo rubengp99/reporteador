@@ -1,6 +1,12 @@
 <template>
     <v-col cols="12">
-        <v-card class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
+        <v-card v-if="loading" class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
+            <v-spacer></v-spacer>
+            <loader />
+            <v-spacer></v-spacer>
+        </v-card>
+
+        <v-card v-else class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
             <v-card-title class="title" style="padding:5px;">
                 <v-spacer></v-spacer>
                 Ranking de Ventas
@@ -186,6 +192,8 @@ export default {
         },
         createRanking(){
             try {
+                this.ranking = [];
+
                 this.apiConcepts = this.vuexConcepts.data.data;
                 this.apiConcepts.forEach(concept =>{
                     Array.isArray(concept.existencias) ? concept.existencias.length > 0 ? concept.existencias = concept.existencias.map(a => Math.trunc(+a.existencia)).reduce((a,b) => a+b) : concept.existencias = 0 : NaN ;
@@ -197,12 +205,17 @@ export default {
                 });
                 this.apiGroups = this.vuexGroups;
                 this.apiSubGroups = this.vuexSubGroups.data.data;
-            } catch (e) {
-                console.log('Error al crear ranking de productos. '+e)
-            }
 
-            this.rankingFilt = this.ranking;
-            this.loading = false;
+                this.rankingFilt = this.ranking;
+                this.loading = this.ranking.length === 0;
+            } catch (e) {
+                this.$toasted.error('Error al crear ranking de productos. '+e,{ 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 5000,
+                    icon : 'error_outline'
+                })
+            }
         },
         moment
     },
@@ -226,6 +239,8 @@ export default {
             this.createRanking();
         },
         goSearch(){
+            this.loading = true;
+
             if (this.dates.to < this.dates.from){
                 this.$toasted.error('El campo "Hasta" no puede ser menor al campo "Desde".', { 
                     theme: "bubble", 
@@ -263,7 +278,10 @@ export default {
                             duration : 2000,
                             icon : 'done_all'
                         });
-                        this.results = true;
+
+                        this.results = (response.data.data.length > 0);
+
+                        this.loading = false;
                     }else {
                         this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
                             theme: "bubble", 
