@@ -101,9 +101,9 @@ export default {
         return{
             w,
             router,
-            ingresos: {},
+            ingresos: { series: [], chartOptions: {}},
             apiIngresos:[],
-            facturas: {},
+            facturas: { series: [], chartOptions: {} },
             apiFacturas:[],
             comprasVsVentas: {},
             apiComprasVsVentas:[],
@@ -125,52 +125,85 @@ export default {
         ]),
     },
     methods:{
-        createFacturasComp(){
-            this.apiFacturas = this.vuexFacturasVs;
-            this.facturasComp = this.vuexFacturasComp;
-            let data = this.apiFacturas.sort((a,b) => a.mesActual-b.mesActual);
-            this.facturas = reports.chart__donut(
-                data.map(i=> +i.cantidad),
-                data[0]/data[1] <= 1 ? 'Aumentó un' : 'Disminuyó un',             
-                data[0]/data[1] <= 1 ? [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] : [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] ,
-                data[0]/data[1] <= 1 ? ["#3F51B5","#009688"] : ["#009688", "#3F51B5"], 
-                'cantidad'
-            );
-            this.$forceUpdate();
+        async createFacturasComp(){
+            try {
+                if (this.vuexFacturasVs === null) return;
+
+                this.apiFacturas = this.vuexFacturasVs;
+                this.facturasComp = this.vuexFacturasComp;
+                let data = this.apiFacturas.sort((a,b) => a.mesActual-b.mesActual);
+                this.facturas = reports.chart__donut(
+                    data.map(i=> +i.cantidad),
+                    data[0]/data[1] <= 1 ? 'Aumentó un' : 'Disminuyó un',             
+                    data[0]/data[1] <= 1 ? [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] : [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] ,
+                    data[0]/data[1] <= 1 ? ["#3F51B5","#009688"] : ["#009688", "#3F51B5"], 
+                    'cantidad'
+                );
+                
+            } catch (error) {
+                this.$toasted.error("Ha habido un problema analizando las facturas...", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'error_outline'
+                });
+            }
         },
-        createIngresosComp(){
-            this.apiIngresos = this.vuexIngresosVs;
-            this.ingresosComp = this.vuexIngresosComp;
-            let data = this.apiIngresos.sort((a,b) => a.mesActual-b.mesActual);
-            this.ingresos = reports.chart__donut(
-                data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares),
-                data[0]/data[1] <= 1 ? 'Aumentó un' : 'Disminuyó un',             
-                data[0]/data[1] <= 1 ? [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] : [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] ,
-                data[0]/data[1] <= 1 ? ["#009688","#f73859"] : ["#f73859", "#009688"], 
-                null,
-                this.moneda
-            );
-            this.$forceUpdate();
+        async createIngresosComp(){
+            try {
+                if (this.vuexIngresosVs === null) return;
+
+                this.apiIngresos = this.vuexIngresosVs;
+                this.ingresosComp = this.vuexIngresosComp;
+                let data = this.apiIngresos.sort((a,b) => a.mesActual-b.mesActual);
+                this.ingresos = reports.chart__donut(
+                    data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares),
+                    data[0]/data[1] <= 1 ? 'Aumentó un' : 'Disminuyó un',             
+                    data[0]/data[1] <= 1 ? [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] : [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] ,
+                    data[0]/data[1] <= 1 ? ["#009688","#f73859"] : ["#f73859", "#009688"], 
+                    null,
+                    this.moneda
+                );
+
+            } catch (error) {
+                this.$toasted.error("Ha habido un problema analizando los ingresos...", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'error_outline'
+                });
+            }
+            
         },
-        createComprasVsVentasComp(){
-            this.apiComprasVsVentas = this.vuexComprasVsVentas;
-            this.comprasVsVentasComp = this.vuexComprasVsVentasComp;
-            let data = this.apiComprasVsVentas.sort((a,b) => a.compras-b.compras);
-            this.comprasVsVentas = reports.chart__donut(
-                data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares),
-                'Rentabilidad del',
-                data[0]/data[1] <= 1 ? ["Costos","Ventas"] : ["Ventas", "Costos"] ,
-                data[0]/data[1] <= 1 ? ["#3F51B5","#f73859"] : ["#f73859", "#3F51B5"], 
-                'benefits',
-                this.moneda
-            );
-            this.$forceUpdate();
+        async createComprasVsVentasComp(){
+            try {
+                if (this.vuexComprasVsVentas === null) return;
+
+                this.apiComprasVsVentas = this.vuexComprasVsVentas;
+                this.comprasVsVentasComp = this.vuexComprasVsVentasComp;
+                let data = this.apiComprasVsVentas.sort((a,b) => a.compras-b.compras);
+                this.comprasVsVentas = reports.chart__donut(
+                    data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares),
+                    'Rentabilidad del',
+                    data[0]/data[1] <= 1 ? ["Costos","Ventas"] : ["Ventas", "Costos"] ,
+                    data[0]/data[1] <= 1 ? ["#3F51B5","#f73859"] : ["#f73859", "#3F51B5"], 
+                    'benefits',
+                    this.moneda
+                );
+
+            } catch (error) {
+                this.$toasted.error("Ha habido un problema analizando la rentabilidad...", { 
+                    theme: "bubble", 
+                    position: "bottom-right", 
+                    duration : 2000,
+                    icon : 'error_outline'
+                });
+            }
         },
-        createRentabilidad(){
-            if(this.facturasVsUpdated) this.createFacturasComp();
-            if(this.ingresosVsUpdated) this.createIngresosComp();
-            if(this.comprasVsVentasUpdated) this.createComprasVsVentasComp();
-            this.$forceUpdate();
+        async createRentabilidad(){
+            this.createFacturasComp();
+            this.createIngresosComp();
+            this.createComprasVsVentasComp();
         },
         onResize(){
             if (window.innerWidth > 599){
@@ -187,16 +220,16 @@ export default {
         }
     },
     watch:{
-        vuexComprasVsVentas(newVal){
-            if(newVal === this.apiComprasVsVentas) return;
+        vuexComprasVsVentasComp(newVal){
+            if(newVal === this.apiComprasVsVentas || !this.vuexComprasVsVentasComp[2]) return;
             this.createComprasVsVentasComp();
         },
-        vuexIngresosVs(newVal){
-            if(newVal === this.apiIngresos) return;
+        vuexIngresosComp(newVal){
+            if(newVal === this.apiIngresos || !this.vuexIngresosComp[2]) return;
             this.createIngresosComp();
         },
-        vuexFacturasVs(newVal){
-            if(newVal === this.apiFacturas) return;
+        vuexFacturasComp(newVal){
+            if(newVal === this.apiFacturas || !this.vuexFacturasComp[2]) return;
             this.createFacturasComp();
         },
         moneda(){
@@ -209,8 +242,12 @@ export default {
         window.addEventListener('resize', this.onResize);
         this.onResize();
     },
-    beforeMount(){
+    async beforeMount(){
+        await this.createRentabilidad();
+    },
+    async beforeUpdate(){
         this.createRentabilidad();
+        console.log("a")
     },
     beforeDestroy() {
         window.removeEventListener('resize', this.onResize)
