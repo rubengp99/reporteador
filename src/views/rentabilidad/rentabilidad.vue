@@ -170,6 +170,7 @@ export default {
             if(this.facturasVsUpdated) this.createFacturasComp();
             if(this.ingresosVsUpdated) this.createIngresosComp();
             if(this.comprasVsVentasUpdated) this.createComprasVsVentasComp();
+            this.$forceUpdate();
         },
         onResize(){
             if (window.innerWidth > 599){
@@ -210,10 +211,6 @@ export default {
     },
     beforeMount(){
         this.createRentabilidad();
-    },
-    beforeUpdate(){
-        this.createRentabilidad();
-
     },
     beforeDestroy() {
         window.removeEventListener('resize', this.onResize)

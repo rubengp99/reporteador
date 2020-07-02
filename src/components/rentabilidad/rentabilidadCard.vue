@@ -110,7 +110,6 @@ export default {
     },
     beforeUpdate(){
         this.data = this.chart.series;
-        console.log(this);
     }
 }
 </script>

@@ -538,6 +538,7 @@ export default new Vuex.Store({
 
         /// HACE UPDATE AL MODULO DE VENTAS
         async SET_UPDATE_VENTAS(state) {
+            state.vuexComprasVsVentas = [];
 
             sellers().get('/mostSellers/?limit=' + state.totalVendedores).then(response => {
                 
@@ -565,11 +566,12 @@ export default new Vuex.Store({
 
                 state.vuexComprasVsVentas.push(data);
                 state.vuexComprasVsVentasComp[1] = true;
-                
-                if (state.vuexComprasVsVentasComp.slice(1,2).every(i => i)) 
+                state.vuexComprasVsVentasComp[2] = state.vuexComprasVsVentasComp.slice(0, 2).every(i => !i);
+               
+                if (!state.vuexComprasVsVentasComp[2]) 
                     window.localStorage.setItem('ComprasVsVentas', JSON.stringify(state.vuexComprasVsVentas));
                 
-                    state.comprasVsVentasUpdated = state.vuexComprasVsVentasComp.slice(1, 2).every(i => i);
+                state.comprasVsVentasUpdated = state.vuexComprasVsVentasComp[2];
             });
 
             buyers().get('/mostBuyers/?limit=' + state.totalClientes).then(response => {
@@ -605,7 +607,6 @@ export default new Vuex.Store({
 
             state.vuexIngresosVs = [];
             state.vuexFacturasVs = [];
-            state.vuexComprasVsVentas = [];
             state.vuexIngresosComp = [false, false, true];
             state.vuexFacturasComp = [false, false, true];
             state.vuexComprasVsVentasComp = [false, false, true]
@@ -623,11 +624,12 @@ export default new Vuex.Store({
 
                 state.vuexIngresosVs.push(data);
                 state.vuexIngresosComp[0] = true;
+                state.vuexIngresosComp[2] = state.vuexIngresosComp.slice(0, 2).every(i => !i);
 
-                if (state.vuexIngresosComp.slice(1, 2).every(i => i)) 
+                if (!state.vuexIngresosComp[2]) 
                     window.localStorage.setItem('IngresosVs', JSON.stringify(state.vuexIngresosVs));
                 
-                state.ingresosVsUpdated = state.vuexIngresosComp.slice(1, 2).every(i => i);
+                state.ingresosVsUpdated = state.vuexIngresosComp[2];
             });
 
             invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+thisMonth+'-01').then(response =>{
@@ -638,12 +640,13 @@ export default new Vuex.Store({
                 };
 
                 state.vuexIngresosVs.push(data);
-                state.vuexIngresosComp[1] = true;
-
-                if (state.vuexIngresosComp.slice(1, 2).every(i => i)) 
+                state.vuexIngresosComp[1] = true;  
+                state.vuexIngresosComp[2] = state.vuexIngresosComp.slice(0, 2).every(i => !i);
+                
+                if (!state.vuexIngresosComp[2]) 
                     window.localStorage.setItem('IngresosVs', JSON.stringify(state.vuexIngresosVs));
                 
-                state.ingresosVsUpdated = state.vuexIngresosComp.slice(1, 2).every(i => i);
+                state.ingresosVsUpdated = state.vuexIngresosComp[2];
             });
 
             invoices().get('/cantidad?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at=' + pastMonth + '-01').then(response => {
@@ -654,11 +657,12 @@ export default new Vuex.Store({
 
                 state.vuexFacturasVs.push(data);
                 state.vuexFacturasComp[0] = true;
+                state.vuexFacturasComp[2] = state.vuexFacturasComp.slice(0, 2).every(i => !i);
 
-                if (state.vuexFacturasComp.slice(1, 2).every(i => i)) 
+                if (!state.vuexFacturasComp[2]) 
                     window.localStorage.setItem('FacturasVs', JSON.stringify(state.vuexFacturasVs));
                 
-                state.facturasVsUpdated = state.vuexFacturasComp.slice(1, 2).every(i => i);
+                state.facturasVsUpdated = state.vuexFacturasComp[2];
             });
 
             invoices().get('/cantidad?limit=' + state.vuexInvoices.data.totalCount + '&after-fecha_at=' + thisMonth + '-01').then(response => {
@@ -669,11 +673,12 @@ export default new Vuex.Store({
 
                 state.vuexFacturasVs.push(data);
                 state.vuexFacturasComp[1] = true;
-
-                if (state.vuexFacturasComp.slice(1, 2).every(i => i)) 
+                state.vuexFacturasComp[2] = state.vuexFacturasComp.slice(0, 2).every(i => !i);
+                
+                if (!state.vuexFacturasComp[2]) 
                     window.localStorage.setItem('FacturasVs', JSON.stringify(state.vuexFacturasVs));
             
-                state.facturasVsUpdated = state.vuexFacturasComp.slice(1, 2).every(i => i);
+                state.facturasVsUpdated = state.vuexFacturasComp[2];
             });
 
             compras().get('?limit=' + state.totalCompras).then(response => {
@@ -697,11 +702,12 @@ export default new Vuex.Store({
 
                 state.vuexComprasVsVentas.push(data);
                 state.vuexComprasVsVentasComp[0] = true;
-                
-                if (state.vuexComprasVsVentasComp.slice(1, 2).every(i => i)) 
+                state.vuexComprasVsVentasComp[2] = state.vuexComprasVsVentasComp.slice(0, 2).every(i => !i);
+
+                if (!state.vuexComprasVsVentasComp[2]) 
                     window.localStorage.setItem('ComprasVsVentas', JSON.stringify(state.vuexComprasVsVentas));
             
-                state.comprasVsVentasUpdated = state.vuexComprasVsVentasComp.slice(1, 2).every(i => i);
+                state.comprasVsVentasUpdated = state.vuexComprasVsVentasComp[2];
             });
 
         },
