@@ -614,7 +614,7 @@ export default new Vuex.Store({
             let pastMonth = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM');
             let thisMonth = moment(w.test).locale('es').format('YYYY-MM');
 
-            invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+pastMonth+'-01').then(response =>{
+            invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+pastMonth+'-01&before-fecha_at='+thisMonth+'-01').then(response =>{
                 
                 let data = {
                     bolivares: typeof response.data.data !== 'undefined' ? response.data.data.subtotal : 0,
@@ -649,7 +649,7 @@ export default new Vuex.Store({
                 state.ingresosVsUpdated = state.vuexIngresosComp[2];
             });
 
-            invoices().get('/cantidad?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at=' + pastMonth + '-01').then(response => {
+            invoices().get('/cantidad?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at=' + pastMonth + '-01&before-fecha_at='+thisMonth+'-01').then(response => {
                 let data = {
                     cantidad: typeof response.data.count !== 'undefined' ? response.data.count : 0,
                     mesActual: 0,

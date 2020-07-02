@@ -131,7 +131,7 @@ export default {
 
                 this.apiFacturas = this.vuexFacturasVs;
                 this.facturasComp = this.vuexFacturasComp;
-                let data = this.apiFacturas.sort((a,b) => a.mesActual-b.mesActual);
+                let data = this.apiFacturas.sort((a,b) => b.mesActual+a.mesActual);
                 this.facturas = reports.chart__donut(
                     data.map(i=> +i.cantidad),
                     data[0]/data[1] <= 1 ? 'Aumentó un' : 'Disminuyó un',             
@@ -155,7 +155,7 @@ export default {
 
                 this.apiIngresos = this.vuexIngresosVs;
                 this.ingresosComp = this.vuexIngresosComp;
-                let data = this.apiIngresos.sort((a,b) => a.mesActual-b.mesActual);
+                let data = this.apiIngresos.sort((a,b) => b.mesActual+a.mesActual);
                 this.ingresos = reports.chart__donut(
                     data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares),
                     data[0]/data[1] <= 1 ? 'Aumentó un' : 'Disminuyó un',             
@@ -181,7 +181,7 @@ export default {
 
                 this.apiComprasVsVentas = this.vuexComprasVsVentas;
                 this.comprasVsVentasComp = this.vuexComprasVsVentasComp;
-                let data = this.apiComprasVsVentas.sort((a,b) => a.compras-b.compras);
+                let data = this.apiComprasVsVentas.sort((a,b) => b.compras+a.compras);
                 this.comprasVsVentas = reports.chart__donut(
                     data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares),
                     'Rentabilidad del',
