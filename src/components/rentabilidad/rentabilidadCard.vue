@@ -93,7 +93,8 @@ export default {
         formula:{
             type:Number,
             default:0,
-        }
+        },
+        
     },
     methods:{
         formatMoney,

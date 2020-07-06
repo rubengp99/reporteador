@@ -131,15 +131,18 @@ export default {
 
                 this.apiFacturas = this.vuexFacturasVs;
                 this.facturasComp = this.vuexFacturasComp;
-                let data = this.apiFacturas.sort((a,b) => b.mesActual+a.mesActual);
+                let data = this.apiFacturas.sort((a,b) => (b.mesActual < a.mesActual) ? 1 : -1);
                 data = data.map(i=> +i.cantidad);
+
+                if (data[1] === 0 && data[0] === 0) return;
 
                 this.facturas = reports.chart__donut(
                     data,
-                    data[0]/data[1] <= 1 ? 'Aumentó un' : 'Disminuyó un',             
-                    data[0]/data[1] <= 1 ? [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] : [`${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`, `${this.rango} Actual`] ,
-                    data[0]/data[1] <= 1 ? ["#3F51B5","#009688"] : ["#009688", "#3F51B5"], 
-                    'cantidad'
+                    data[0] > data[1] ? 'Disminuyó un' : 'Aumentó un',             
+                    [`${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`, `${this.rango} Actual`],
+                    data[0] > data[1] ? ["#009688", "#3F51B5"] : ["#3F51B5","#009688"], 
+                    data[0] > data[1] ? "custom" : "custom -100",
+                    ""
                 );
                 
             } catch (error) {
@@ -157,15 +160,15 @@ export default {
 
                 this.apiIngresos = this.vuexIngresosVs;
                 this.ingresosComp = this.vuexIngresosComp;
-                let data = this.apiIngresos.sort((a,b) => b.mesActual+a.mesActual);
+                let data = this.apiIngresos.sort((a,b) => (b.mesActual < a.mesActual) ? 1 : -1);
                 data = data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares);
 
                 this.ingresos = reports.chart__donut(
                     data,
-                    data[0]/data[1] <= 1 ? 'Aumentó un' : 'Disminuyó un',             
-                    data[0]/data[1] <= 1 ? [`${this.rango} Actual`, `${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`] : [`${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`, `${this.rango} Actual`] ,
-                    data[0]/data[1] <= 1 ? ["#009688","#f73859"] : ["#f73859", "#009688"], 
-                    null,
+                    data[0] > data[1] ? 'Disminuyó un' : 'Aumentó un',             
+                    [`${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`, `${this.rango} Actual`],                    
+                    data[0] > data[1] ? ["#009688","#f73859"] : ["#f73859", "#009688"], 
+                    data[0] > data[1] ? "custom" : "custom -100",
                     this.moneda
                 );
 
@@ -185,14 +188,14 @@ export default {
 
                 this.apiComprasVsVentas = this.vuexComprasVsVentas;
                 this.comprasVsVentasComp = this.vuexComprasVsVentasComp;
-                let data = this.apiComprasVsVentas.sort((a,b) => b.compras+a.compras);
+                let data = this.apiComprasVsVentas.sort((a,b) => (b.compras > a.compras) ? 1 : -1);
                 data = data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares);
 
                 this.comprasVsVentas = reports.chart__donut(
                     data,
                     'Rentabilidad del',
-                    data[0]/data[1] <= 1 ? ["Costos","Ventas"] : ["Ventas", "Costos"] ,
-                    data[0]/data[1] <= 1 ? ["#3F51B5","#f73859"] : ["#f73859", "#3F51B5"], 
+                    ["Costos","Ventas"],
+                    data[1] > data[0] ? ["#3F51B5","#f73859"] : ["#f73859", "#3F51B5"], 
                     'benefits',
                     this.moneda
                 );
@@ -253,7 +256,6 @@ export default {
     },
     async beforeUpdate(){
         this.createRentabilidad();
-        console.log("a")
     },
     beforeDestroy() {
         window.removeEventListener('resize', this.onResize)

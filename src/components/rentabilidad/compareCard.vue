@@ -41,15 +41,16 @@
                      Se estima que {{conectivo}} <span style="color:#0D47A1"> {{title}} </span>
                      <span style="color:#0D47A1">
                         {{
-                            data[1] / data[0] >= 1 ? 'aumentó' : 'disminuyó'                   
+                            data[0] > data[1] ? 'disminuyó' : 'aumentó'                    
                         }}
                      </span>
                      en un 
                      <span style="color:#0D47A1">
                         {{
-                            (Math.round((formula) * 100)) + '%'
-                        }}.
+                            increment
+                        }}
                      </span>
+                     .
                 </p>
             </v-card-actions>
             <v-card-actions v-else>
@@ -111,6 +112,12 @@ export default {
             }else
                 this.isDesktop = false;
             
+        },
+    },
+    computed: {
+        increment() {
+            let result = (this.data[0] > this.data[1] ? this.data[1] / this.data[0] : this.data[0] /this.data[1]);
+            return (Math.round((100 - (result * 100) + Number.EPSILON) * 1000) / 1000) + "%"
         }
     },
     data(){
