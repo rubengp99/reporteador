@@ -2,21 +2,26 @@
     <div style="margin-top:79px;padding: 0 20px;">
         <v-row justify="center">
             <v-col cols="12" md="5">
-                <v-card width="100%" outlined>
+                <v-card width="100%" outlined :style="!isDesktop ? 'padding: 0 10px;' : ''">
                     <v-row justify="center">
-                        <coinType />
+                        <coinType :hideTitle="!isDesktop"/>
                     </v-row>
                 </v-card>
             </v-col>
         </v-row>
         <v-row class="report-container">
             <v-col cols="12" lg="6" class="report">
-                <dCard col="12" icon img="facturacion" :title="`Facturación`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/incremento-facturas-${rango}` : ''" last />
+                <dCard col="12" icon img="facturacion" :title="`Facturación`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/incremento-facturas` : ''" last />
+                <v-card style="width:100%;margin: 10px 0;"
+                    v-if="$route.params.reporte === `incremento-facturas` || isDesktop"
+                >
+                    <timeLapse :rangos="rangosFacturaVs" :rango.sync="rangoFacturaVs" hideTitle />
+                </v-card>
                 <v-card width="100%">
                     <v-expand-transition>
                         <compareCard 
                             style="margin-bottom: 20px;"
-                            v-if="$route.params.reporte === `incremento-facturas-${rango}` || isDesktop"
+                            v-if="$route.params.reporte === `incremento-facturas` || isDesktop"
                             title="N° de Facturas"
                             tipo="total" 
                             moneda='facturas' 
@@ -27,18 +32,24 @@
                                     .map(i=> +i.cantidad)[0] 
                                 / apiFacturas
                                     .map(i=> +i.cantidad)[1]"
-                        
+                            :rango="rangoFacturaVs"
+                            :rangos="fechasFacturaVs"
                         />
                     </v-expand-transition>
                 </v-card>
             </v-col >
             <v-col cols="12" lg="6" class="report">
-                <dCard col="12" icon img="savings" :title="`Ingreso Mensual`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/incremento-ingresos-${rango}` : ''" last/>
+                <dCard col="12" icon img="savings" :title="`Ingreso Mensual`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/incremento-ingresos` : ''" last/>
+                <v-card style="width:100%;margin: 10px 0;"
+                    v-if="$route.params.reporte === `incremento-ingresos` || isDesktop"
+                >
+                    <timeLapse :rangos="rangosIngresosVs" :rango.sync="rangoIngresosVs" hideTitle />
+                </v-card>
                 <v-expand-transition>
                     <compareCard
                         style="margin-bottom: 20px;"
-                        v-if="$route.params.reporte === `incremento-ingresos-${rango}` || isDesktop"
-                        title="Ingreso Mensual"
+                        v-if="$route.params.reporte === `incremento-ingresos` || isDesktop"
+                        title="Ingreso"
                         :moneda="moneda" 
                         tipo="ingreso" 
                         :loading="ingresosComp[2]"
@@ -48,15 +59,22 @@
                                 .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[0] 
                             / apiIngresos
                                 .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[1]"
+                        :rango="rangoIngresosVs"
+                        :rangos="fechasIngresosVs"
                     />
                 </v-expand-transition>
             </v-col >
             <v-col cols="12" lg="6" class="report">
-                <dCard col="12" icon img="benefits" :title="`Rentabilidad de Ventas`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/rentabilidad-ventas-${rango}` : ''" last/>
+                <dCard col="12" icon img="benefits" :title="`Rentabilidad de Ventas`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/rentabilidad-ventas` : ''" last/>
+                <v-card style="width:100%;margin: 10px 0;"
+                    v-if="$route.params.reporte === `rentabilidad-ventas` || isDesktop"
+                >
+                    <timeLapse  hideTitle />
+                </v-card>
                 <v-expand-transition>
                     <rentabilidadCard
                         style="margin-bottom: 20px;"
-                        v-if="$route.params.reporte === `rentabilidad-ventas-${rango}` || isDesktop" 
+                        v-if="$route.params.reporte === `rentabilidad-ventas` || isDesktop" 
                         :moneda="moneda" 
                         entidad="Empresa"
                         variableA="Ventas"
@@ -83,7 +101,10 @@ import monedas from '@/plugins/monedas';
 import compareCard from '@/components/rentabilidad/compareCard';
 import rentabilidadCard from '@/components/rentabilidad/rentabilidadCard';
 import coinType from '@/components/aplicacion/coinSelector'
+import timeLapse from '@/components/rentabilidad/timeLapseSelector'
 import dCard from "@/components/aplicacion/Dashcard";
+import invoices from "@/services/Factura"
+import moment from "moment";
 import router from '@/router';
 import { mapState } from 'vuex';
 
@@ -95,7 +116,8 @@ export default {
         compareCard,
         rentabilidadCard,
         dCard,
-        coinType
+        coinType,
+        timeLapse
     },
     data(){
         return{
@@ -112,16 +134,27 @@ export default {
             ingresosComp: [false, false, true],
             facturasComp: [false, false, true],
             comprasVsVentasComp: [false, false, true],
-            rango: 'Mes',
-            rangos: ['Semana','Mes','Año', 'Todo'],
+            rangoFacturaVs: 'Mes',
+            rangosFacturaVs: ['Semana','Mes','Año'],
+            fechasFacturaVs: [
+                moment(w.test).locale('es').subtract(1,'months').format('MMMM [de] YYYY'),
+                moment(w.test).locale('es').format('MMMM [de] YYYY')
+            ],
+            rangoIngresosVs: 'Mes',
+            rangosIngresosVs: ['Semana','Mes','Año'],
+            fechasIngresosVs: [
+                moment(w.test).locale('es').subtract(1,'months').format('MMMM [de] YYYY'),
+                moment(w.test).locale('es').format('MMMM [de] YYYY')
+            ],
             isDesktop:true,
             ...monedas,
         }
     },
     computed:{
         ...mapState([
-            'vuexComprasVsVentas', 'vuexIngresosVs','vuexFacturasVs', 'vuexComprasVsVentasComp', 
-            'vuexFacturasComp', 'vuexIngresosComp','ingresosVsUpdated','facturasVsUpdated', 'comprasVsVentasUpdated'
+            'vuexComprasVsVentas', 'vuexIngresosVs','vuexFacturasVs', 'vuexComprasVsVentasComp', 'vuexInvoices',
+            'vuexFacturasComp', 'vuexIngresosComp','ingresosVsUpdated','facturasVsUpdated', 'comprasVsVentasUpdated',
+            'valueFixArr'
         ]),
     },
     methods:{
@@ -131,20 +164,8 @@ export default {
 
                 this.apiFacturas = this.vuexFacturasVs;
                 this.facturasComp = this.vuexFacturasComp;
-                let data = this.apiFacturas.sort((a,b) => (b.mesActual < a.mesActual) ? 1 : -1);
-                data = data.map(i=> +i.cantidad);
-
-                if (data[1] === 0 && data[0] === 0) return;
-
-                this.facturas = reports.chart__donut(
-                    data,
-                    data[0] > data[1] ? 'Disminuyó un' : 'Aumentó un',             
-                    [`${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`, `${this.rango} Actual`],
-                    data[0] > data[1] ? ["#009688", "#3F51B5"] : ["#3F51B5","#009688"], 
-                    data[0] > data[1] ? "custom" : "custom -100",
-                    ""
-                );
                 
+                this.createFacturaVsGrafico();
             } catch (error) {
                 this.$toasted.error("Ha habido un problema analizando las facturas...", { 
                     theme: "bubble", 
@@ -154,26 +175,29 @@ export default {
                 });
             }
         },
+        createFacturaVsGrafico(){
+            let data = this.apiFacturas.sort((a,b) => (b.mesActual < a.mesActual) ? 1 : -1);
+            data = data.map(i=> +i.cantidad);
+            
+            if (data[1] === 0 && data[0] === 0) return 500;
+
+            this.facturas = reports.chart__donut(
+                data,
+                data[0] > data[1] ? 'Disminuyó un' : 'Aumentó un',             
+                [`${this.rangoFacturaVs} Pasad${this.rangoFacturaVs === 'Semana' ? 'a' : 'o'}`, `${this.rangoFacturaVs} Actual`],
+                data[0] > data[1] ? ["#009688", "#3F51B5"] : ["#3F51B5","#009688"], 
+                "customfix",
+                ""
+            );
+        },
         async createIngresosComp(){
             try {
                 if (this.vuexIngresosVs === null) return;
 
                 this.apiIngresos = this.vuexIngresosVs;
                 this.ingresosComp = this.vuexIngresosComp;
-                let data = this.apiIngresos.sort((a,b) => (b.mesActual < a.mesActual) ? 1 : -1);
-                data = data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares);
-
-                if (data[1] === 0 && data[0] === 0) return;
-
-                this.ingresos = reports.chart__donut(
-                    data,
-                    data[0] > data[1] ? 'Disminuyó un' : 'Aumentó un',             
-                    [`${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`, `${this.rango} Actual`],                    
-                    data[0] > data[1] ? ["#009688","#f73859"] : ["#f73859", "#009688"], 
-                    data[0] > data[1] ? "benefits" : "custom -100",
-                    this.moneda
-                );
-
+                
+                this.createIngresosVsGrafico();
             } catch (error) {
                 this.$toasted.error("Ha habido un problema analizando los ingresos...", { 
                     theme: "bubble", 
@@ -183,6 +207,21 @@ export default {
                 });
             }
             
+        },
+        createIngresosVsGrafico(){
+            let data = this.apiIngresos.sort((a,b) => (b.mesActual < a.mesActual) ? 1 : -1);
+            data = data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares);
+
+            if (data[1] === 0 && data[0] === 0) return;
+
+            this.ingresos = reports.chart__donut(
+                data,
+                data[0] > data[1] ? 'Disminuyó un' : 'Aumentó un',             
+                [`${this.rangoIngresosVs} Pasad${this.rangoIngresosVs === 'Semana' ? 'a' : 'o'}`, `${this.rangoIngresosVs} Actual`],                    
+                data[0] > data[1] ? ["#009688","#f73859"] : ["#f73859", "#009688"], 
+                "customfix",
+                this.moneda
+            );
         },
         async createComprasVsVentasComp(){
             try {
@@ -228,6 +267,92 @@ export default {
             this.ingresosComp = this.ingresosComp.map(i => !i);
             this.facturasComp = this.facturasComp.map(i => !i);
             this.comprasVsVentasComp = this.comprasVsVentasComp.map(i => !i);
+        },
+        async rangeFacturas(thisRange, pastRange){
+            await invoices().get('/cantidad?limit='+this.vuexInvoices.data.totalCount+'&after-fecha_at=' + pastRange + '&before-fecha_at='+thisRange).then(response => {
+                let data = {
+                    cantidad: typeof response.data.count !== 'undefined' ? response.data.count : 0,
+                    mesActual: 0,
+                };
+
+                this.apiFacturas.push(data);
+                this.facturasComp[0] = true;
+                this.facturasComp[2] = this.facturasComp.slice(0, 2).every(i => !i);
+
+                if(this.facturasComp[2])
+                    if(this.createFacturaVsGrafico() === 500)
+                        this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
+                            theme: "bubble", 
+                            position: "bottom-right", 
+                            duration : 2000,
+                            icon : 'error_outline'
+                        });
+            });
+
+            await invoices().get('/cantidad?limit=' + this.vuexInvoices.data.totalCount + '&after-fecha_at=' + thisRange).then(response => {
+                let data = {
+                    cantidad: typeof response.data.count !== 'undefined' ? response.data.count : 0,
+                    mesActual: 1,
+                };
+
+                this.apiFacturas.push(data);
+                this.facturasComp[1] = true;
+                this.facturasComp[2] = this.facturasComp.slice(0, 2).every(i => !i);
+
+                if(this.facturasComp[2])
+                    if(this.createFacturaVsGrafico() === 500)
+                        this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
+                            theme: "bubble", 
+                            position: "bottom-right", 
+                            duration : 2000,
+                            icon : 'error_outline'
+                        });
+            });
+
+        },
+        async rangeIngresos(thisRange, pastRange){
+            await invoices().get('/total?limit='+this.vuexInvoices.data.totalCount+'&after-fecha_at=' + pastRange + '&before-fecha_at='+thisRange).then(response => {
+                let data = {
+                    bolivares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal : 0,
+                    dolares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal_dolar : 0,
+                    mesActual: 0,
+                };
+
+                this.apiIngresos.push(data);
+                this.ingresosComp[0] = true;
+                this.ingresosComp[2] = this.ingresosComp.slice(0, 2).every(i => !i);
+
+                if(this.ingresosComp[2])
+                    if(this.createIngresosVsGrafico() === 500)
+                        this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
+                            theme: "bubble", 
+                            position: "bottom-right", 
+                            duration : 2000,
+                            icon : 'error_outline'
+                        });
+            });
+
+            await invoices().get('/total?limit=' + this.vuexInvoices.data.totalCount + '&after-fecha_at=' + thisRange).then(response => {
+                let data = {
+                    bolivares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal : 0,
+                    dolares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal_dolar : 0,
+                    mesActual: 1,
+                };
+
+                this.apiIngresos.push(data);
+                this.ingresosComp[0] = true;
+                this.ingresosComp[2] = this.ingresosComp.slice(0, 2).every(i => !i);
+
+                if(this.ingresosComp[2])
+                    if(this.createIngresosVsGrafico() === 500)
+                        this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
+                            theme: "bubble", 
+                            position: "bottom-right", 
+                            duration : 2000,
+                            icon : 'error_outline'
+                        });
+            });
+
         }
     },
     watch:{
@@ -247,6 +372,72 @@ export default {
             this.reload();
             this.createRentabilidad();
             this.reload();
+        },
+        async rangoFacturaVs(newVal, oldVal){
+            if (newVal === oldVal) return;
+            
+            let pastRange, thisRange;
+            this.facturasComp = this.facturasComp.map(i => !i);
+            this.apiFacturas = [];
+
+            if (this.rangoFacturaVs === "Semana" && newVal !== oldVal ) {
+                pastRange = moment(w.test).locale('es').subtract(14, 'days').format('YYYY-MM-DD');
+                thisRange = moment(w.test).locale('es').subtract(7, 'days').format('YYYY-MM-DD');
+
+                this.fechasFacturaVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(7, 'days').format('MMMM Do YYYY');
+
+                await this.rangeFacturas(thisRange, pastRange);
+            }else if (this.rangoFacturaVs === "Mes" && newVal !== oldVal ) {
+                pastRange = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM-DD');
+                thisRange = moment(w.test).locale('es').format('YYYY-MM-DD');
+                
+                this.fechasFacturaVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(1, 'months').format('MMMM Do YYYY');
+
+                await this.rangeFacturas(thisRange, pastRange);
+            }else if (this.rangoFacturaVs === "Año" && newVal !== oldVal ) {
+                pastRange = moment(w.test).locale('es').subtract(1, 'years').format('YYYY-MM-DD');
+                thisRange = moment(w.test).locale('es').format('YYYY-MM-DD');
+                
+                this.fechasFacturaVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(1, 'years').format('MMMM Do YYYY');
+
+                await this.rangeFacturas(thisRange, pastRange);
+            }           
+        },
+        async rangoIngresosVs(newVal, oldVal){
+            if (newVal === oldVal) return;
+            
+            let pastRange, thisRange;
+            this.ingresosComp = this.ingresosComp.map(i => !i);
+            this.apiIngresos = [];
+
+            if (this.rangoIngresosVs === "Semana" && newVal !== oldVal ) {
+                pastRange = moment(w.test).locale('es').subtract(14, 'days').format('YYYY-MM-DD');
+                thisRange = moment(w.test).locale('es').subtract(7, 'days').format('YYYY-MM-DD');
+
+                this.fechasIngresosVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(7, 'days').format('MMMM Do YYYY');
+
+                await this.rangeIngresos(thisRange, pastRange);
+            }else if (this.rangoIngresosVs === "Mes" && newVal !== oldVal ) {
+                pastRange = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM-DD');
+                thisRange = moment(w.test).locale('es').format('YYYY-MM-DD');
+                
+                this.fechasIngresosVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(1, 'months').format('MMMM Do YYYY');
+
+                await this.rangeIngresos(thisRange, pastRange);
+            }else if (this.rangoIngresosVs === "Año" && newVal !== oldVal ) {
+                pastRange = moment(w.test).locale('es').subtract(1, 'years').format('YYYY-MM-DD');
+                thisRange = moment(w.test).locale('es').format('YYYY-MM-DD');
+                
+                this.fechasIngresosVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(1, 'years').format('MMMM Do YYYY');
+
+                await this.rangeIngresos(thisRange, pastRange);
+            }           
         }
     },
     created(){
@@ -257,6 +448,13 @@ export default {
         await this.createRentabilidad();
     },
     async beforeUpdate(){
+        if (this.rangoFacturaVs !== "Mes"){
+            this.createFacturaVsGrafico();
+            return;
+        }else if (this.rangoIngresosVs !== "Mes") {
+            this.createIngresosVsGrafico();
+            return;
+        }
         this.createRentabilidad();
     },
     beforeDestroy() {

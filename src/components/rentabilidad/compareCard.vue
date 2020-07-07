@@ -12,8 +12,8 @@
             <v-divider></v-divider>
             <v-card-actions v-if="!isNaN((Math.round((formula) * 100)))">
                 <p class="caption" style="padding: 5px 20px;width:100%;">
-                    El mes pasado 
-                    <span class="text-capitalize" style="color:#0D47A1">{{ moment(w.test).locale('es').subtract(1,'months').format('MMMM [de] YYYY') }}</span>
+                    Durante el/la {{ rango }} de
+                    <span class="text-capitalize" style="color:#0D47A1">{{ rangos[0] }}</span>
                     se facturó un {{tipo}} con cantidad de 
                     <span style="color:#0D47A1">
                         {{
@@ -25,7 +25,7 @@
                             moneda !== 'Bs' && moneda !== '$' ? moneda : ''
                         }}.
                     </span>
-                     Durante el curso de este mes <span class="text-capitalize" style="color:#0D47A1">{{ moment(w.test).locale('es').format('MMMM [de] YYYY') }}</span>
+                     Durante el actual curso de el/la {{ rango }} de <span class="text-capitalize" style="color:#0D47A1">{{ rangos[1] }}</span>
                      se ha facturado un {{tipo}} de 
                     <span style="color:#0D47A1">
                         {{
@@ -101,6 +101,14 @@ export default {
         formula:{
             type:Number,
             default:0,
+        },
+        rango: {
+            type: String,
+            default: "mes",
+        },
+        rangos: {
+            type: Array,
+            default: () => []
         }
     },
     methods:{
