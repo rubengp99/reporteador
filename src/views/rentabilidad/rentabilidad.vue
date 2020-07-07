@@ -15,7 +15,7 @@
                 <v-card style="width:100%;margin: 10px 0;"
                     v-if="$route.params.reporte === `incremento-facturas` || isDesktop"
                 >
-                    <timeLapse :rangos="rangosFacturaVs" :rango.sync="rangoFacturaVs" hideTitle />
+                    <timeLapse :rangos="rangosFacturaVs" :rango.sync="rangoFacturaVs" hideTitle :loading="facturasComp[2]"/>
                 </v-card>
                 <v-card width="100%">
                     <v-expand-transition>
@@ -43,7 +43,7 @@
                 <v-card style="width:100%;margin: 10px 0;"
                     v-if="$route.params.reporte === `incremento-ingresos` || isDesktop"
                 >
-                    <timeLapse :rangos="rangosIngresosVs" :rango.sync="rangoIngresosVs" hideTitle />
+                    <timeLapse :rangos="rangosIngresosVs" :rango.sync="rangoIngresosVs" hideTitle :loading="ingresosComp[2]"/>
                 </v-card>
                 <v-expand-transition>
                     <compareCard
@@ -147,6 +147,7 @@ export default {
                 moment(w.test).locale('es').format('MMMM [de] YYYY')
             ],
             isDesktop:true,
+            isSearch: false,
             ...monedas,
         }
     },
@@ -222,6 +223,8 @@ export default {
                 "customfix",
                 this.moneda
             );
+
+            this.$forceUpdate();
         },
         async createComprasVsVentasComp(){
             try {
@@ -249,6 +252,8 @@ export default {
                     icon : 'error_outline'
                 });
             }
+
+            this.$forceUpdate();
         },
         async createRentabilidad(){
             this.createFacturasComp();
@@ -376,6 +381,7 @@ export default {
         async rangoFacturaVs(newVal, oldVal){
             if (newVal === oldVal) return;
             
+            this.isSearch = true;
             let pastRange, thisRange;
             this.facturasComp = this.facturasComp.map(i => !i);
             this.apiFacturas = [];
@@ -409,6 +415,7 @@ export default {
         async rangoIngresosVs(newVal, oldVal){
             if (newVal === oldVal) return;
             
+            this.isSearch = true;
             let pastRange, thisRange;
             this.ingresosComp = this.ingresosComp.map(i => !i);
             this.apiIngresos = [];
@@ -448,12 +455,10 @@ export default {
         await this.createRentabilidad();
     },
     async beforeUpdate(){
-        if (this.rangoFacturaVs !== "Mes"){
+        if (this.isSearch) {
             this.createFacturaVsGrafico();
-            return;
-        }else if (this.rangoIngresosVs !== "Mes") {
-            this.createIngresosVsGrafico();
-            return;
+            this.createIngresosVsGrafico();    
+            return
         }
         this.createRentabilidad();
     },

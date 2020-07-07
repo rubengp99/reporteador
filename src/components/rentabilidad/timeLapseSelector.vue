@@ -10,6 +10,8 @@
                 <v-select
                     v-model="localRango"
                     :items="localRangos"
+                    :loading="loading"
+                    :disabled="loading"
                     label="Comparar"
                     outlined
                     dense
@@ -38,6 +40,10 @@ export default {
             default: false
         },
         isDate:{
+            type: Boolean,
+            default: false
+        },
+        loading:{
             type: Boolean,
             default: false
         }
