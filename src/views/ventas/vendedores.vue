@@ -262,7 +262,7 @@ export default {
 
                         this.results = (aux.length > 0);
 
-                         this.loading = false;
+                        this.loading = false;
                     }else {
                         this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
                             theme: "bubble", 

@@ -7,8 +7,8 @@
                 </v-list-item-avatar>
 
                 <v-list-item-content>
-                    <v-list-item-title class="title">Reporteador</v-list-item-title>
-                    <v-list-item-subtitle>Gestión de Negocio</v-list-item-subtitle>
+                    <v-list-item-title class="title">AFTIM</v-list-item-title>
+                    <v-list-item-subtitle>Inteligencia de Negocio</v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
 
@@ -34,9 +34,9 @@
                 <span>
                 <v-btn icon large>
                     <v-avatar size="32px" item>
-                        <v-img src="@/assets/AFTIM.png" alt="Vuetify" />
+                        <v-img src="@/assets/AFTIM.png" alt="AFTIM" />
                     </v-avatar>
-                </v-btn>Reporteador
+                </v-btn>AFTIM
                 </span>
             </v-toolbar-title>
             <v-spacer></v-spacer>

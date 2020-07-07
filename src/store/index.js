@@ -617,8 +617,8 @@ export default new Vuex.Store({
             invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+pastMonth+'-01&before-fecha_at='+thisMonth+'-01').then(response =>{
                 
                 let data = {
-                    bolivares: typeof response.data.data !== 'undefined' ? response.data.data.subtotal : 0,
-                    dolares: typeof response.data.data !== 'undefined' ? response.data.data.subtotal_dolar : 0,
+                    bolivares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal : 0,
+                    dolares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal_dolar : 0,
                     mesActual: 0,
                 };
 
@@ -634,8 +634,8 @@ export default new Vuex.Store({
 
             invoices().get('/total?limit='+state.vuexInvoices.data.totalCount+'&after-fecha_at='+thisMonth+'-01').then(response =>{
                 let data = {
-                    bolivares: typeof response.data.data !== 'undefined' ? response.data.data.subtotal : 0,
-                    dolares: typeof response.data.data !== 'undefined' ? response.data.data.subtotal_dolar : 0,
+                    bolivares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal : 0,
+                    dolares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal_dolar : 0,
                     mesActual: 1,
                 };
 
@@ -681,15 +681,14 @@ export default new Vuex.Store({
                 state.facturasVsUpdated = state.vuexFacturasComp[2];
             });
 
-            compras().get('?limit=' + state.totalCompras).then(response => {
-                
+            compras().post('/costos?limit=' + state.totalCompras).then(response => {
                 response = state.valueFixArr(response);
                 
                 let data;
                 try{
                     data = {
-                        bolivares: Math.round(response.data.data.map(i => +i.subtotal).reduce((a, b) => a + b) * 100) / 100,
-                        dolares: Math.round(response.data.data.map(i => +i.subtotal_dolar).reduce((a, b) => a + b) * 100) / 100,
+                        bolivares: Math.round(response.data.data.map(i => +i.costo_total).reduce((a, b) => a + b) * 100) / 100,
+                        dolares: Math.round(response.data.data.map(i => +i.costo_total_dolar).reduce((a, b) => a + b) * 100) / 100,
                         compras: 1,
                     };
                 }catch(e){

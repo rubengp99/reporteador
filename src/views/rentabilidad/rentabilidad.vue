@@ -163,12 +163,14 @@ export default {
                 let data = this.apiIngresos.sort((a,b) => (b.mesActual < a.mesActual) ? 1 : -1);
                 data = data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares);
 
+                if (data[1] === 0 && data[0] === 0) return;
+
                 this.ingresos = reports.chart__donut(
                     data,
                     data[0] > data[1] ? 'Disminuyó un' : 'Aumentó un',             
                     [`${this.rango} Pasad${this.rango === 'Semana' ? 'a' : 'o'}`, `${this.rango} Actual`],                    
                     data[0] > data[1] ? ["#009688","#f73859"] : ["#f73859", "#009688"], 
-                    data[0] > data[1] ? "custom" : "custom -100",
+                    data[0] > data[1] ? "benefits" : "custom -100",
                     this.moneda
                 );
 
@@ -188,14 +190,14 @@ export default {
 
                 this.apiComprasVsVentas = this.vuexComprasVsVentas;
                 this.comprasVsVentasComp = this.vuexComprasVsVentasComp;
-                let data = this.apiComprasVsVentas.sort((a,b) => (b.compras > a.compras) ? 1 : -1);
+                let data = this.apiComprasVsVentas.sort((a,b) => (b.compras < a.compras) ? 1 : -1);
                 data = data.map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares);
 
                 this.comprasVsVentas = reports.chart__donut(
                     data,
                     'Rentabilidad del',
-                    ["Costos","Ventas"],
-                    data[1] > data[0] ? ["#3F51B5","#f73859"] : ["#f73859", "#3F51B5"], 
+                    ["Ventas", "Costos"],
+                    data[1] > data[0] ? ["#f73859", "#3F51B5"] : ["#3F51B5","#f73859"], 
                     'benefits',
                     this.moneda
                 );

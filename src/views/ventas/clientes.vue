@@ -268,7 +268,7 @@ export default {
                             icon : 'done_all'
                         });
 
-                        this.results = (aux.length === 0);
+                        this.results = (aux.length > 0);
                         this.loading = false;
                     }else {
                         this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
