@@ -1,5 +1,5 @@
 <template>
-    <v-card width="100%" fill-height>
+    <v-card width="100%" fill-height style="min-height:495px">
         <div v-if="!loading">
             <v-card-text>
                 <apexchart

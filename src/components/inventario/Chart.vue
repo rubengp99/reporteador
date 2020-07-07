@@ -46,9 +46,9 @@
                         <!-- TEXTO LARGO DEL FINAL  -->
                         <p  class="caption" style="padding-bottom:15px;padding-top:5px;" >
                             <!--Días de inventario-->
-                            <span  v-if="type === 'Agotamiento' && Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 > 0">Si la demanda de </span>
+                            <span  v-if="type === 'Agotamiento' && Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 1000) / 1000 > 0">Si la demanda de </span>
 
-                            <span  style="color:#0D47A1" v-if="!(type === 'Agotamiento' && Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 === 0)">{{ item.name }}</span>
+                            <span  style="color:#0D47A1" v-if="!(type === 'Agotamiento' && Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 1000) / 1000 === 0)">{{ item.name }}</span>
 
                             <!--Rotacion de stock-->
                             <span  v-if="type === 'Rotación' && options.series[1] > 0 && options.series[0] > 0"> ha rotado un </span>
@@ -68,7 +68,7 @@
                             <!-- Si el gráfico es de area -->
                             <span style="color:#0D47A1" v-if="ctype === 'area' && type === 'Demanda'">
                                 {{
-                                    Math.round((item.stock_daily_sells.reduce((a, b) => a + b) / 7 +Number.EPSILON) *100 ) / 100
+                                    Math.round((item.stock_daily_sells.reduce((a, b) => a + b) / 7 +Number.EPSILON) * 1000 ) / 1000
                                 }}
                             </span>
 
@@ -82,7 +82,7 @@
                                 <span  style="color:#0D47A1">
                                     {{
                                         isNaN(Math.round(((options.series[0] - options.series[1]) / options.series[0] + Number.EPSILON) * 100  ))  ? 0 + "%."
-                                        : Math.round( ((options.series[0] - options.series[1]) / options.series[0] + Number.EPSILON) * 100 ) + "%."
+                                        : (Math.round( ((options.series[0] - options.series[1]) / options.series[0] + Number.EPSILON) * 1000 ) / 1000 ) * 100 + "%."
                                     }}
                                 </span>
                             </span>
@@ -91,7 +91,7 @@
                             >
                                 {{
                                     isNaN(Math.round((options.series[0] / options.series[1] + Number.EPSILON) * 100 )) || !isFinite(Math.round((options.series[0] / options.series[1] + Number.EPSILON) * 100 )) ? 0 +'% '
-                                    : Math.round((options.series[0] / options.series[1] + Number.EPSILON) * 100 ) + "% "
+                                    : (Math.round((options.series[0] / options.series[1] + Number.EPSILON) * 1000 ) / 1000 ) * 100 + "% "
                                 }}
                             </span>
 
@@ -128,16 +128,16 @@
 
                             <!--Días de inventario-->
                             <span  v-if="type === 'Agotamiento'">
-                                <span  v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 > 0"> se mantiene en</span>
-                                <span  style="color:#0D47A1" v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 > 0">
+                                <span  v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 1000) / 1000 > 0"> se mantiene en</span>
+                                <span  style="color:#0D47A1" v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 1000) / 1000 > 0">
                                     {{
-                                        Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 +Number.EPSILON) * 100) / 100
+                                        Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 +Number.EPSILON) * 1000) / 1000
                                     }}
                                 </span>
-                                <span  v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 === 0">
+                                <span  v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 1000) / 1000 === 0">
                                     Actualmente este producto no cuenta con una demanda en el mercado, las <span  style="color:#0D47A1">{{item.stock}} unidades</span> de <span  style="color:#0D47A1">{{item.name}}</span> no se agotarán.
                                 </span>
-                                <span  v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 100) / 100 > 0">
+                                <span  v-if="Math.trunc((item.stock_daily_sells.reduce((a, b) => a + b) / 7 + Number.EPSILON) * 1000) / 1000 > 0">
                                     unidades diarias, se estima que las existencias del producto se
                                     agotaran el día
                                 </span>
