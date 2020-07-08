@@ -12,8 +12,10 @@
             <v-divider></v-divider>
             <v-card-actions v-if="!isNaN((Math.round((formula) * 100)))">
                 <p class="caption" style="padding: 5px 20px;width:100%;">
-                    Durante el/la {{ rango }} de
-                    <span class="text-capitalize" style="color:#0D47A1">{{ rangos[0] }}</span>
+                    Durante el/la <span class="text-lowercase" style="color:#0D47A1"> {{ rango }} </span> de
+                    <span class="text-capitalize" style="color:#0D47A1">{{ rangos[0].split("al")[0] }}</span>
+                    hasta la fecha
+                    <span class="text-capitalize" style="color:#0D47A1">{{ rangos[0].split("al")[1] }}</span>
                     se facturó un {{tipo}} con cantidad de 
                     <span style="color:#0D47A1">
                         {{
@@ -25,7 +27,9 @@
                             moneda !== 'Bs' && moneda !== '$' ? moneda : ''
                         }}.
                     </span>
-                     Durante el actual curso de el/la {{ rango }} de <span class="text-capitalize" style="color:#0D47A1">{{ rangos[1] }}</span>
+                     Durante el actual curso de el/la <span class="text-capitalize" style="color:#0D47A1">{{ rangos[1].split("al")[0] }}</span>
+                    hasta la fecha
+                    <span class="text-capitalize" style="color:#0D47A1">{{ rangos[1].split("al")[1] }}</span>
                      se ha facturado un {{tipo}} de 
                     <span style="color:#0D47A1">
                         {{

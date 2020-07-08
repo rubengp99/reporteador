@@ -32,7 +32,7 @@
                                     .map(i=> +i.cantidad)[0] 
                                 / apiFacturas
                                     .map(i=> +i.cantidad)[1]"
-                            :rango="rangoFacturaVs"
+                            :rango="rangoFacturaVs.split(' ')[1]"
                             :rangos="fechasFacturaVs"
                         />
                     </v-expand-transition>
@@ -59,7 +59,7 @@
                                 .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[0] 
                             / apiIngresos
                                 .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[1]"
-                        :rango="rangoIngresosVs"
+                        :rango="rangoIngresosVs.split(' ')[1]"
                         :rangos="fechasIngresosVs"
                     />
                 </v-expand-transition>
@@ -135,13 +135,13 @@ export default {
             facturasComp: [false, false, true],
             comprasVsVentasComp: [false, false, true],
             rangoFacturaVs: 'Mes',
-            rangosFacturaVs: ['Semana','Mes','Año'],
+            rangosFacturaVs: ['Vs. Semana Pasada','Vs. Mes Pasado','Vs. Año Pasado'],
             fechasFacturaVs: [
                 moment(w.test).locale('es').subtract(1,'months').format('MMMM [de] YYYY'),
                 moment(w.test).locale('es').format('MMMM [de] YYYY')
             ],
             rangoIngresosVs: 'Mes',
-            rangosIngresosVs: ['Semana','Mes','Año'],
+            rangosIngresosVs: ['Vs. Semana Pasada','Vs. Mes Pasado','Vs. Año Pasado'],
             fechasIngresosVs: [
                 moment(w.test).locale('es').subtract(1,'months').format('MMMM [de] YYYY'),
                 moment(w.test).locale('es').format('MMMM [de] YYYY')
@@ -386,28 +386,28 @@ export default {
             this.facturasComp = this.facturasComp.map(i => !i);
             this.apiFacturas = [];
 
-            if (this.rangoFacturaVs === "Semana" && newVal !== oldVal ) {
+            if (this.rangoFacturaVs === "Vs. Semana Pasada" && newVal !== oldVal ) {
                 pastRange = moment(w.test).locale('es').subtract(14, 'days').format('YYYY-MM-DD');
                 thisRange = moment(w.test).locale('es').subtract(7, 'days').format('YYYY-MM-DD');
 
                 this.fechasFacturaVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(7, 'days').format('MMMM Do YYYY');
+                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente" ;
 
                 await this.rangeFacturas(thisRange, pastRange);
-            }else if (this.rangoFacturaVs === "Mes" && newVal !== oldVal ) {
+            }else if (this.rangoFacturaVs === "Vs. Mes Pasado" && newVal !== oldVal ) {
                 pastRange = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM-DD');
                 thisRange = moment(w.test).locale('es').format('YYYY-MM-DD');
                 
                 this.fechasFacturaVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(1, 'months').format('MMMM Do YYYY');
+                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
 
                 await this.rangeFacturas(thisRange, pastRange);
-            }else if (this.rangoFacturaVs === "Año" && newVal !== oldVal ) {
-                pastRange = moment(w.test).locale('es').subtract(1, 'years').format('YYYY-MM-DD');
-                thisRange = moment(w.test).locale('es').format('YYYY-MM-DD');
+            }else if (this.rangoFacturaVs === "Vs. Año Pasado" && newVal !== oldVal ) {
+                pastRange = moment(w.test).locale('es').subtract(2, 'years').format('YYYY-MM-DD');
+                thisRange = moment(w.test).locale('es').subtract(1, 'years').format('YYYY-MM-DD');
                 
                 this.fechasFacturaVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(1, 'years').format('MMMM Do YYYY');
+                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
 
                 await this.rangeFacturas(thisRange, pastRange);
             }           
@@ -420,28 +420,28 @@ export default {
             this.ingresosComp = this.ingresosComp.map(i => !i);
             this.apiIngresos = [];
 
-            if (this.rangoIngresosVs === "Semana" && newVal !== oldVal ) {
+            if (this.rangoIngresosVs === "Vs. Semana Pasada" && newVal !== oldVal ) {
                 pastRange = moment(w.test).locale('es').subtract(14, 'days').format('YYYY-MM-DD');
                 thisRange = moment(w.test).locale('es').subtract(7, 'days').format('YYYY-MM-DD');
 
                 this.fechasIngresosVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(7, 'days').format('MMMM Do YYYY');
+                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
 
                 await this.rangeIngresos(thisRange, pastRange);
-            }else if (this.rangoIngresosVs === "Mes" && newVal !== oldVal ) {
-                pastRange = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM-DD');
-                thisRange = moment(w.test).locale('es').format('YYYY-MM-DD');
+            }else if (this.rangoIngresosVs === "Vs. Mes Pasado" && newVal !== oldVal ) {
+                pastRange = moment(w.test).locale('es').subtract(2, 'months').format('YYYY-MM-DD');
+                thisRange = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM-DD');
                 
                 this.fechasIngresosVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(1, 'months').format('MMMM Do YYYY');
+                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
 
                 await this.rangeIngresos(thisRange, pastRange);
-            }else if (this.rangoIngresosVs === "Año" && newVal !== oldVal ) {
-                pastRange = moment(w.test).locale('es').subtract(1, 'years').format('YYYY-MM-DD');
-                thisRange = moment(w.test).locale('es').format('YYYY-MM-DD');
+            }else if (this.rangoIngresosVs === "Vs. Año Pasado" && newVal !== oldVal ) {
+                pastRange = moment(w.test).locale('es').subtract(2, 'years').format('YYYY-MM-DD');
+                thisRange = moment(w.test).locale('es').subtract(1, 'years').format('YYYY-MM-DD');
                 
                 this.fechasIngresosVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').add(1, 'years').format('MMMM Do YYYY');
+                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
 
                 await this.rangeIngresos(thisRange, pastRange);
             }           
@@ -475,11 +475,11 @@ export default {
     .report{
         padding: 0px 15px!important;
     }
-
+/*
     .report:nth-last-child(1):nth-child(odd){
         flex: 0 0 100%;
         max-width: 100%;
-    }
+    }*/
 }
 
 </style>
