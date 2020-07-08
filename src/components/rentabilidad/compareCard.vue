@@ -13,10 +13,10 @@
             <v-card-actions v-if="!isNaN((Math.round((formula) * 100)))">
                 <p class="caption" style="padding: 5px 20px;width:100%;">
                     Durante el/la <span class="text-lowercase" style="color:#0D47A1"> {{ rango }} </span> de
-                    <span v-if="rango === ' Rango'" class="text-capitalize" style="color:#0D47A1">{{ rangos[0].split("al")[0] }}</span>
+                    <span v-if="rango !== ' Rango'" class="text-capitalize" style="color:#0D47A1">{{ rangos[0].split("al")[0] }}</span>
                     <span v-else class="text-capitalize" style="color:#0D47A1">{{ moment(rangos.lapseA[0]).locale('es').format("MMMM Do [de] YYYY") }}</span>
                     hasta la fecha
-                    <span v-if="rango === ' Rango'" class="text-capitalize" style="color:#0D47A1">{{ rangos[0].split("al")[1] }}</span>
+                    <span v-if="rango !== ' Rango'" class="text-capitalize" style="color:#0D47A1">{{ rangos[0].split("al")[1] }}</span>
                     <span v-else class="text-capitalize" style="color:#0D47A1">{{ moment(rangos.lapseA[1]).locale('es').format("MMMM Do [de] YYYY") }}</span>
                     se facturó un {{tipo}} con cantidad de 
                     <span style="color:#0D47A1">
@@ -30,10 +30,10 @@
                         }}.
                     </span>
                      Durante el actual curso de el/la <span class="text-lowercase" style="color:#0D47A1"> {{ rango }} </span> de
-                     <span v-if="rango === ' Rango'" class="text-capitalize" style="color:#0D47A1">{{ rangos[1].split("al")[0] }}</span>
+                     <span v-if="rango !== ' Rango'" class="text-capitalize" style="color:#0D47A1">{{ rangos[1].split("al")[0] }}</span>
                      <span v-else class="text-capitalize" style="color:#0D47A1">{{ moment(rangos.lapseB[0]).locale('es').format("MMMM Do [de] YYYY") }}</span>
                     hasta la fecha
-                    <span v-if="rango === ' Rango'" class="text-capitalize" style="color:#0D47A1">{{ rangos[1].split("al")[1] }}</span>
+                    <span v-if="rango !== ' Rango'" class="text-capitalize" style="color:#0D47A1">{{ rangos[1].split("al")[1] }}</span>
                     <span v-else class="text-capitalize" style="color:#0D47A1">{{ moment(rangos.lapseB[1]).locale('es').format("MMMM Do [de] YYYY") }}</span>
 
                      se ha facturado un {{tipo}} de 
@@ -117,7 +117,7 @@ export default {
             default: "mes",
         },
         rangos: {
-            type: Array,
+            type: [Array, Object],
             default: () => []
         }
     },
