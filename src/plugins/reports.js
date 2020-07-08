@@ -95,6 +95,11 @@ const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'],
                                             return (
                                                 ((isNaN(result) || !isFinite(result) ? 0+"%" : result).toFixed(2)+'%')
                                             );
+                                        }else if(formatter === 'volumen'){
+                                            let result = (( Math.round(((val.globals.series[0]) / val.globals.series[1] + Number.EPSILON) * 1000) / 1000 ) * 100);
+                                            return (
+                                                ((isNaN(result) || !isFinite(result) ? 0+"%" : result).toFixed(2)+'%')
+                                            );
                                         }else{
                                             let result =  (Math.round((( val.globals.series[0] / val.globals.series[1] + Number.EPSILON ) * 1000) / 1000 )) * 100;
                                             return(

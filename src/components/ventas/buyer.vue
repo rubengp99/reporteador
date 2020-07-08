@@ -63,7 +63,7 @@
                     />
                     <v-divider></v-divider>
                     <p class="caption" style="margin-top:10px;">El comprador <span  style="color:#0D47A1">{{buyer.name}}</span> 
-                        posee el <span style="color:#0D47A1">{{ Math.round((buyer.percentBuys.series[0] / buyer.percentBuys.series[1] + Number.EPSILON) * 100) > 100 ? 100 + '%' : Math.round((buyer.percentBuys.series[0] / buyer.percentBuys.series[1] + Number.EPSILON) * 100) +'%'}}</span>
+                        posee el <span style="color:#0D47A1">{{ ((Math.round((buyer.percentBuys.series[0] / buyer.percentBuys.series[1] + Number.EPSILON) * 100) > 100 ? 100 + '%' : Math.round((buyer.percentBuys.series[0] / buyer.percentBuys.series[1] + Number.EPSILON ) * 1000) / 1000) * 100).toFixed(2) +'%'}}</span>
                         del total de compras en el negocio.
                     </p>
                 </v-col>
