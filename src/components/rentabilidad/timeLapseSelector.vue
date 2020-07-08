@@ -28,7 +28,6 @@
                             dense
                             v-model="localRangos[0]"
                             label="Desde"
-                            placeholder="Formato YYYY/MM/DD."
                             prepend-icon="event"
                             outlined
                             v-on="on"
@@ -46,7 +45,6 @@
                             dense
                             v-model="localRangos[1]"
                             label="Hasta"
-                            placeholder="Formato YYYY/MM/DD."
                             prepend-icon="event"
                             outlined
                             v-on="on"

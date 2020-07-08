@@ -37,6 +37,21 @@
                         />
                     </v-expand-transition>
                 </v-card>
+
+                <lapseDialog v-if="rangoFacturaVs === 'Personalizado'" :dialog="rangoFacturaVs === 'Personalizado'" :disabled="dateFacturaVs.lapseA.some(i => i === '')"> 
+                    <template v-slot:close>
+                        <v-btn color="#d33" @click="rollbackFacturaVs()" style="margin-left: 20px;color:white;"> <v-icon>close</v-icon> <strong>cancelar</strong></v-btn>
+                    </template>
+                    <template v-slot:lapse-a>
+                        <timeLapse :rangos.sync="dateFacturaVs.lapseA" hideTitle :loading="facturasComp[2]" isDate style="pading: 0 24px;"/>
+                    </template>
+                    <template v-slot:lapse-b>
+                        <timeLapse :rangos.sync="dateFacturaVs.lapseB" hideTitle :loading="facturasComp[2]" isDate style="pading: 0 24px;"/>
+                    </template>
+                    <template v-slot:ok>
+                        <v-btn color="indigo" @click="proceedFacturaVs()" style="margin-left: 20px;color:white;" :disabled="dateFacturaVs.lapseB.some(i => i === '')"> <v-icon>check</v-icon> <strong>buscar</strong></v-btn>
+                    </template>
+                </lapseDialog>
             </v-col >
             <v-col cols="12" lg="6" class="report">
                 <dCard col="12" icon img="savings" :title="`Ingreso Mensual`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/incremento-ingresos` : ''" last/>
@@ -102,6 +117,7 @@ import compareCard from '@/components/rentabilidad/compareCard';
 import rentabilidadCard from '@/components/rentabilidad/rentabilidadCard';
 import coinType from '@/components/aplicacion/coinSelector'
 import timeLapse from '@/components/rentabilidad/timeLapseSelector'
+import lapseDialog from '@/components/rentabilidad/timeLapseDialog'
 import dCard from "@/components/aplicacion/Dashcard";
 import invoices from "@/services/Factura";
 import compras from "@/services/Compras";
@@ -119,7 +135,8 @@ export default {
         rentabilidadCard,
         dCard,
         coinType,
-        timeLapse
+        timeLapse,
+        lapseDialog
     },
     data(){
         return{
@@ -137,17 +154,28 @@ export default {
             facturasComp: [false, false, true],
             comprasVsVentasComp: [false, false, true],
             rangoFacturaVs: ' Mes',
-            rangosFacturaVs: ['Vs. Semana Pasada','Vs. Mes Pasado','Vs. Año Pasado'],
+            rangosFacturaVs: ['Vs. Semana Pasada','Vs. Mes Pasado','Vs. Año Pasado', "Personalizado"],
             fechasFacturaVs: [
                 moment(w.test).locale('es').subtract(1,'months').format('MMMM [de] YYYY'),
-                moment(w.test).locale('es').format('MMMM [de] YYYY')
+                moment(w.test).locale('es').format('MMMM [de] YYYY'),
+                "",
+                ""
             ],
+            dateFacturaVs: {
+                lapseA: ["",""],
+                lapseB: ["",""]
+            },
+            goFacturaVs: false,
             rangoIngresosVs: ' Mes',
-            rangosIngresosVs: ['Vs. Semana Pasada','Vs. Mes Pasado','Vs. Año Pasado'],
+            rangosIngresosVs: ['Vs. Semana Pasada','Vs. Mes Pasado','Vs. Año Pasado', "Personalizado"],
             fechasIngresosVs: [
                 moment(w.test).locale('es').subtract(1,'months').format('MMMM [de] YYYY'),
-                moment(w.test).locale('es').format('MMMM [de] YYYY')
+                moment(w.test).locale('es').format('MMMM [de] YYYY'),
             ],
+            dateIngresosVs: {
+                lapseA: ["",""],
+                lapseB: ["",""]
+            },
             fechasComprasVsVentas: ["", ""],
             isDesktop:true,
             isSearch: false,
@@ -284,12 +312,12 @@ export default {
             this.facturasComp = this.facturasComp.map(i => !i);
             this.comprasVsVentasComp = this.comprasVsVentasComp.map(i => !i);
         },
-        async rangeFacturas(thisRange, pastRange, thisRange2, pastRange2){
-            let extraLimit = typeof pastRange2 !== 'undefined' ? '&before-fecha_at='+pastRange2 : '';
+        async rangeFacturas(toRange, fromRange, toRange2, fromRange2){
+            let extraLimit = typeof fromRange2 !== 'undefined' ? '&before-fecha_at='+fromRange2 : '';
 
-            thisRange2 =  typeof thisRange2 !== 'undefined' ? thisRange2 : thisRange;
+            toRange2 =  typeof toRange2 !== 'undefined' ? toRange2 : toRange;
 
-            await invoices().get('/cantidad?limit='+this.vuexInvoices.data.totalCount+'&after-fecha_at=' + pastRange + '&before-fecha_at='+thisRange).then(response => {
+            await invoices().get('/cantidad?limit='+this.vuexInvoices.data.totalCount+'&after-fecha_at=' + fromRange + '&before-fecha_at='+toRange).then(response => {
                 let data = {
                     cantidad: typeof response.data.count !== 'undefined' ? response.data.count : 0,
                     mesActual: 0,
@@ -309,7 +337,7 @@ export default {
                         });
             });
 
-            await invoices().get('/cantidad?limit=' + this.vuexInvoices.data.totalCount + '&after-fecha_at=' + thisRange2 + extraLimit).then(response => {
+            await invoices().get('/cantidad?limit=' + this.vuexInvoices.data.totalCount + '&after-fecha_at=' + toRange2 + extraLimit).then(response => {
                 let data = {
                     cantidad: typeof response.data.count !== 'undefined' ? response.data.count : 0,
                     mesActual: 1,
@@ -330,12 +358,12 @@ export default {
             });
 
         },
-        async rangeIngresos(thisRange, pastRange, thisRange2, pastRange2){
-            let extraLimit = typeof pastRange2 !== 'undefined' ? '&before-fecha_at='+pastRange2 : '';
+        async rangeIngresos(toRange, fromRange, toRange2, fromRange2){
+            let extraLimit = typeof fromRange2 !== 'undefined' ? '&before-fecha_at='+fromRange2 : '';
 
-            thisRange2 =  typeof pastRange2 !== 'undefined' ? thisRange2 : thisRange;
+            toRange2 =  typeof fromRange2 !== 'undefined' ? toRange2 : toRange;
 
-            await invoices().get('/total?limit='+this.vuexInvoices.data.totalCount+'&after-fecha_at=' + pastRange + '&before-fecha_at='+thisRange).then(response => {
+            await invoices().get('/total?limit='+this.vuexInvoices.data.totalCount+'&after-fecha_at=' + fromRange + '&before-fecha_at='+toRange).then(response => {
                 let data = {
                     bolivares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal : 0,
                     dolares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal_dolar : 0,
@@ -356,7 +384,7 @@ export default {
                         });
             });
 
-            await invoices().get('/total?limit=' + this.vuexInvoices.data.totalCount + '&after-fecha_at=' + thisRange2 + extraLimit).then(response => {
+            await invoices().get('/total?limit=' + this.vuexInvoices.data.totalCount + '&after-fecha_at=' + toRange2 + extraLimit).then(response => {
                 let data = {
                     bolivares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal : 0,
                     dolares: typeof response.data.data !== 'undefined' ? response.data.data[0].subtotal_dolar : 0,
@@ -378,9 +406,9 @@ export default {
             });
 
         },
-        async rangeComprasVsVentas(thisRange, pastRange){
+        async rangeComprasVsVentas(toRange, fromRange){
 
-            await compras().post('/costos?limit=' + this.totalCompras+'&after-fecha_at=' + pastRange + '&before-fecha_at='+thisRange).then(response => {                
+            await compras().post('/costos?limit=' + this.totalCompras+'&after-fecha_at=' + fromRange + '&before-fecha_at='+toRange).then(response => {                
                 let data;
                 try{
                     data = {
@@ -411,7 +439,7 @@ export default {
             
             });
 
-            await sellers().get('/mostsellers/?limit=' + this.totalVendedores+'&after-fecha_at=' + pastRange + '&before-fecha_at='+thisRange).then(response => {
+            await sellers().get('/mostsellers/?limit=' + this.totalVendedores+'&after-fecha_at=' + fromRange + '&before-fecha_at='+toRange).then(response => {
                 
                 let data 
                 try {
@@ -442,6 +470,19 @@ export default {
                         });
             });
 
+        },
+        rollbackFacturaVs(){
+            this.rangoFacturaVs = ' Mes';
+            this.dateFacturaVs.lapseA = ["", ""];
+            this.dateFacturaVs.lapseB = ["", ""];
+            this.apiFacturas = this.vuexFacturasVs;
+            this.facturasComp = this.vuexFacturasComp;
+            this.createFacturaVsGrafico();
+            this.$forceUpdate();
+        },
+        proceedFacturaVs(){
+            this.goFacturaVs = !this.goFacturaVs
+            this.rangoFacturaVs = ' Rango';
         }
     },
     watch:{
@@ -463,72 +504,80 @@ export default {
             this.reload();
         },
         async rangoFacturaVs(newVal, oldVal){
-            if (newVal === oldVal) return;
+            if (newVal === oldVal || this.rangoFacturaVs === 'Personalizado' || this.rangoFacturaVs === ' Rango') return;
             
             this.isSearch = true;
-            let pastRange, thisRange;
+            let fromRange, toRange;
             this.facturasComp = this.facturasComp.map(i => !i);
             this.apiFacturas = [];
 
             if (this.rangoFacturaVs === "Vs. Semana Pasada" && newVal !== oldVal ) {
-                pastRange = moment(w.test).locale('es').subtract(14, 'days').format('YYYY-MM-DD');
-                thisRange = moment(w.test).locale('es').subtract(7, 'days').format('YYYY-MM-DD');
+                fromRange = moment(w.test).locale('es').subtract(14, 'days').format('YYYY-MM-DD');
+                toRange = moment(w.test).locale('es').subtract(7, 'days').format('YYYY-MM-DD');
 
-                this.fechasFacturaVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente" ;
+                this.fechasFacturaVs[0] = moment(fromRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(toRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasFacturaVs[1] = moment(toRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente" ;
 
-                await this.rangeFacturas(thisRange, pastRange);
+                await this.rangeFacturas(toRange, fromRange);
             }else if (this.rangoFacturaVs === "Vs. Mes Pasado" && newVal !== oldVal ) {
-                pastRange = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM-DD');
-                thisRange = moment(w.test).locale('es').format('YYYY-MM-DD');
+                fromRange = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM-DD');
+                toRange = moment(w.test).locale('es').format('YYYY-MM-DD');
                 
-                this.fechasFacturaVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
+                this.fechasFacturaVs[0] = moment(fromRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(toRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasFacturaVs[1] = moment(toRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
 
-                await this.rangeFacturas(thisRange, pastRange);
+                await this.rangeFacturas(toRange, fromRange);
             }else if (this.rangoFacturaVs === "Vs. Año Pasado" && newVal !== oldVal ) {
-                pastRange = moment(w.test).locale('es').subtract(2, 'years').format('YYYY-MM-DD');
-                thisRange = moment(w.test).locale('es').subtract(1, 'years').format('YYYY-MM-DD');
+                fromRange = moment(w.test).locale('es').subtract(2, 'years').format('YYYY-MM-DD');
+                toRange = moment(w.test).locale('es').subtract(1, 'years').format('YYYY-MM-DD');
                 
-                this.fechasFacturaVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasFacturaVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
+                this.fechasFacturaVs[0] = moment(fromRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(toRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasFacturaVs[1] = moment(toRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
 
-                await this.rangeFacturas(thisRange, pastRange);
-            }           
+                await this.rangeFacturas(toRange, fromRange);
+            }else{
+                this.apiFacturas = this.vuexFacturasVs;
+                this.facturasComp = this.vuexFacturasComp;
+                this.createFacturaVsGrafico();
+            }    
         },
         async rangoIngresosVs(newVal, oldVal){
-            if (newVal === oldVal) return;
+            if (newVal === oldVal || this.rangoIngresosVs === 'Personalizado' || this.rangoIngresosVs === ' Rango' || this.rangoFacturaVs === ' Mes') return;
             
             this.isSearch = true;
-            let pastRange, thisRange;
+            let fromRange, toRange;
             this.ingresosComp = this.ingresosComp.map(i => !i);
             this.apiIngresos = [];
 
             if (this.rangoIngresosVs === "Vs. Semana Pasada" && newVal !== oldVal ) {
-                pastRange = moment(w.test).locale('es').subtract(14, 'days').format('YYYY-MM-DD');
-                thisRange = moment(w.test).locale('es').subtract(7, 'days').format('YYYY-MM-DD');
+                fromRange = moment(w.test).locale('es').subtract(14, 'days').format('YYYY-MM-DD');
+                toRange = moment(w.test).locale('es').subtract(7, 'days').format('YYYY-MM-DD');
 
-                this.fechasIngresosVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
+                this.fechasIngresosVs[0] = moment(fromRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(toRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasIngresosVs[1] = moment(toRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
 
-                await this.rangeIngresos(thisRange, pastRange);
+                await this.rangeIngresos(toRange, fromRange);
             }else if (this.rangoIngresosVs === "Vs. Mes Pasado" && newVal !== oldVal ) {
-                pastRange = moment(w.test).locale('es').subtract(2, 'months').format('YYYY-MM-DD');
-                thisRange = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM-DD');
+                fromRange = moment(w.test).locale('es').subtract(2, 'months').format('YYYY-MM-DD');
+                toRange = moment(w.test).locale('es').subtract(1, 'months').format('YYYY-MM-DD');
                 
-                this.fechasIngresosVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
+                this.fechasIngresosVs[0] = moment(fromRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(toRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasIngresosVs[1] = moment(toRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
 
-                await this.rangeIngresos(thisRange, pastRange);
+                await this.rangeIngresos(toRange, fromRange);
             }else if (this.rangoIngresosVs === "Vs. Año Pasado" && newVal !== oldVal ) {
-                pastRange = moment(w.test).locale('es').subtract(2, 'years').format('YYYY-MM-DD');
-                thisRange = moment(w.test).locale('es').subtract(1, 'years').format('YYYY-MM-DD');
+                fromRange = moment(w.test).locale('es').subtract(2, 'years').format('YYYY-MM-DD');
+                toRange = moment(w.test).locale('es').subtract(1, 'years').format('YYYY-MM-DD');
                 
-                this.fechasIngresosVs[0] = moment(pastRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(thisRange).locale('es').format("MMMM Do [de] YYYY");
-                this.fechasIngresosVs[1] = moment(thisRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
+                this.fechasIngresosVs[0] = moment(fromRange).locale('es').format("MMMM Do [de] YYYY") + " al " + moment(toRange).locale('es').format("MMMM Do [de] YYYY");
+                this.fechasIngresosVs[1] = moment(toRange).locale('es').format("MMMM Do [de] YYYY") + " al Presente";
 
-                await this.rangeIngresos(thisRange, pastRange);
-            }           
+                await this.rangeIngresos(toRange, fromRange);
+            }else{
+                this.apiIngresos = this.vuexIngresosVs;
+                this.ingresosComp = this.vuexIngresosComp;
+                this.createIngresosVsGrafico();
+            }
         },
         fechasComprasVsVentas: {
             async handler() {
@@ -540,6 +589,23 @@ export default {
                 await this.rangeComprasVsVentas(this.fechasComprasVsVentas[1], this.fechasComprasVsVentas[0])
             }, 
             deep: true,
+        },
+        goFacturaVs: {
+            async handler() {
+                if (this.dateFacturaVs.lapseA.some(i => i === "") || this.dateFacturaVs.lapseB.some(i => i === "")) return;
+                
+                this.isSearch = true;
+                this.facturasComp = this.facturasComp.map(i => !i);
+                this.apiFacturas = [];
+                
+                this.rangeFacturas(
+                    this.dateFacturaVs.lapseA[1],
+                    this.dateFacturaVs.lapseA[0],
+                    this.dateFacturaVs.lapseB[0],
+                    this.dateFacturaVs.lapseB[1],
+                    );
+            },
+            deep: true
         }
     },
     created(){
