@@ -33,7 +33,7 @@
                                 / apiFacturas
                                     .map(i=> +i.cantidad)[1]"
                             :rango="rangoFacturaVs.split(' ')[1]"
-                            :rangos="fechasFacturaVs"
+                            :rangos="rangoFacturaVs !== 'Rango' ? fechasFacturaVs : dateFacturaVs"
                         />
                     </v-expand-transition>
                 </v-card>
@@ -75,7 +75,7 @@
                             / apiIngresos
                                 .map(i=> this.moneda === 'Bs' ? +i.bolivares : +i.dolares)[1]"
                         :rango="rangoIngresosVs.split(' ')[1]"
-                        :rangos="fechasIngresosVs"
+                        :rangos="rangoIngresosVs !== ' Rango' ? fechasIngresosVs :  dateIngresosVs"
                     />
                 </v-expand-transition>
 
