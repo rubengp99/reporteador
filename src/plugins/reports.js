@@ -96,7 +96,7 @@ const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'],
                                     }else{
                                         let result =  (Math.round((( val.globals.series[0] / val.globals.series[1] + Number.EPSILON ) * 1000) / 1000 )) * 100;
                                         return(
-                                            result > 100 ? 100 + '%' : result +'%'
+                                            (result > 100 ? 100 + '%' : result).toFixed(2) +'%'
                                         );
                                     }
                                         

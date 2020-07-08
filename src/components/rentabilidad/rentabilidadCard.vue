@@ -41,7 +41,7 @@
                      ofrece un <span style="color:#0D47A1">Margen de Beneficios</span> del 
                      <span style="color:#0D47A1">
                         {{
-                            Math.round(formula * 100) + '%'
+                            ((Math.round(formula * 1000) / 1000) * 100).toFixed(2) + '%'
                         }}.
                      </span>
                 </p>

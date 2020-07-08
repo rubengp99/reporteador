@@ -74,7 +74,7 @@
             </v-row>
 
             <v-alert dark elevation="2" v-show="results" color="#2A3B4D" style="margin: 20px 0;">
-                Este fue tu ranking de ventas desde el día 
+                Este fue tu ranking de clientes desde el día 
                 <strong> {{ moment(dates.from).locale('es').format('MMMM Do [de] YYYY') }} </strong> 
                 hasta el día
                 <strong> {{ moment(dates.to).locale('es').format('MMMM Do [de] YYYY') }} </strong>. 
