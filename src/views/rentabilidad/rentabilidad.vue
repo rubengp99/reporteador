@@ -78,6 +78,21 @@
                         :rangos="fechasIngresosVs"
                     />
                 </v-expand-transition>
+
+                <lapseDialog v-if="rangoIngresosVs === 'Personalizado'" :dialog="rangoIngresosVs === 'Personalizado'" :disabled="dateIngresosVs.lapseA.some(i => i === '')"> 
+                    <template v-slot:close>
+                        <v-btn color="#d33" @click="rollbackIngresosVs()" style="margin-left: 20px;color:white;"> <v-icon>close</v-icon> <strong>cancelar</strong></v-btn>
+                    </template>
+                    <template v-slot:lapse-a>
+                        <timeLapse :rangos.sync="dateIngresosVs.lapseA" hideTitle :loading="ingresosComp[2]" isDate style="pading: 0 24px;"/>
+                    </template>
+                    <template v-slot:lapse-b>
+                        <timeLapse :rangos.sync="dateIngresosVs.lapseB" hideTitle :loading="ingresosComp[2]" isDate style="pading: 0 24px;"/>
+                    </template>
+                    <template v-slot:ok>
+                        <v-btn color="indigo" @click="proceedIngresosVs()" style="margin-left: 20px;color:white;" :disabled="dateIngresosVs.lapseB.some(i => i === '')"> <v-icon>check</v-icon> <strong>buscar</strong></v-btn>
+                    </template>
+                </lapseDialog>
             </v-col >
             <v-col cols="12" lg="6" class="report">
                 <dCard col="12" icon img="benefits" :title="`Rentabilidad de Ventas`" hoverable rmPadding :path="!isDesktop ? `/rentabilidad/rentabilidad-ventas` : ''" last/>
@@ -176,6 +191,7 @@ export default {
                 lapseA: ["",""],
                 lapseB: ["",""]
             },
+            goIngresosVs: false,
             fechasComprasVsVentas: ["", ""],
             isDesktop:true,
             isSearch: false,
@@ -483,6 +499,19 @@ export default {
         proceedFacturaVs(){
             this.goFacturaVs = !this.goFacturaVs
             this.rangoFacturaVs = ' Rango';
+        },
+        rollbackIngresosVs(){
+            this.rangoIngresosVs = ' Mes';
+            this.dateIngresosVs.lapseA = ["", ""];
+            this.dateIngresosVs.lapseB = ["", ""];
+            this.apiIngresos = this.vuexIngresosVs;
+            this.ingresosComp = this.vuexIngresosComp;
+            this.createIngresosVsGrafico();
+            this.$forceUpdate();
+        },
+        proceedIngresosVs(){
+            this.goIngresosVs = !this.goIngresosVs
+            this.rangoIngresosVs = ' Rango';
         }
     },
     watch:{
@@ -603,6 +632,23 @@ export default {
                     this.dateFacturaVs.lapseA[0],
                     this.dateFacturaVs.lapseB[0],
                     this.dateFacturaVs.lapseB[1],
+                    );
+            },
+            deep: true
+        },
+        goIngresosVs: {
+            async handler() {
+                if (this.dateIngresosVs.lapseA.some(i => i === "") || this.dateIngresosVs.lapseB.some(i => i === "")) return;
+                
+                this.isSearch = true;
+                this.ingresosComp = this.ingresosComp.map(i => !i);
+                this.apiIngresos = [];
+                
+                this.rangeIngresos(
+                    this.dateIngresosVs.lapseA[1],
+                    this.dateIngresosVs.lapseA[0],
+                    this.dateIngresosVs.lapseB[0],
+                    this.dateIngresosVs.lapseB[1],
                     );
             },
             deep: true
