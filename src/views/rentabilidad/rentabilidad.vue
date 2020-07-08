@@ -69,44 +69,7 @@
                 <v-card style="width:100%;margin: 10px 0;"
                     v-if="$route.params.reporte === `rentabilidad-ventas` || isDesktop"
                 >
-                    <v-row style="width: 100%; padding: 0 10px;">
-                        <v-col cols="12" sm="6">
-                            <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
-                                <template v-slot:activator="{ on }">
-                                    <v-text-field
-                                        dense
-                                        v-model="fechasComprasVsVentas[0]"
-                                        label="Desde"
-                                        placeholder="Formato YYYY/MM/DD."
-                                        prepend-icon="event"
-                                        outlined
-                                        v-on="on"
-                                        style="height: 39px;"
-                                    ></v-text-field>
-                                </template>
-
-                                <v-date-picker v-model="fechasComprasVsVentas[0]" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
-                            </v-menu>
-                        </v-col>
-                        <v-col cols="12" sm="6">
-                            <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
-                                <template v-slot:activator="{ on }">
-                                    <v-text-field
-                                        dense
-                                        v-model="fechasComprasVsVentas[1]"
-                                        label="Hasta"
-                                        placeholder="Formato YYYY/MM/DD."
-                                        prepend-icon="event"
-                                        outlined
-                                        v-on="on"
-                                        style="height: 39px;"
-                                    ></v-text-field>
-                                </template>
-
-                                <v-date-picker v-model="fechasComprasVsVentas[1]" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
-                            </v-menu>
-                        </v-col>
-                    </v-row>
+                    <timeLapse :rangos.sync="fechasComprasVsVentas" hideTitle :loading="comprasVsVentasComp[2]" isDate/>
                 </v-card>
                 <v-expand-transition>
                     <rentabilidadCard

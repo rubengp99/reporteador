@@ -65,41 +65,46 @@ const chart__donut = (data, labelTotal, labels, colors = ['#008ffb', '#00e396'],
                                 showAlways: false,
                                 show: true,
                                 formatter: function (val) {
-                                    if(formatter === null || formatter === 'default' || formatter === 'cantidad'){
-                                        let result = (( Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 1000) / 1000 ) * 100)
-                                        return (
-                                            (isNaN(result) || !isFinite(result) ? 0 + "%" : result).toFixed(2)+'%'
-                                        );
-                                    }else if (formatter === "customfix"){
-                                        let result = (val.globals.series[0] > val.globals.series[1] ? val.globals.series[1] / val.globals.series[0] : val.globals.series[0] /val.globals.series[1]);
-                                        return (Math.round((100 - (result * 100) + Number.EPSILON) * 1000) / 1000).toFixed(2) + "%"
-                                    }else if(formatter === "custom"){
-                                        let result = (( Math.round(((val.globals.series[1] - val.globals.series[0]) / val.globals.series[1] + Number.EPSILON) * 1000 ) / 1000) * 100);
-                                        let custom100 = ( isNaN(result) || !isFinite(result) ? 0: result + 100 );
-                                        let custom_100 = 100 + ( isNaN(result) || !isFinite(result) ? 0: result );
-                                        return (
-                                            ((!custom100 <  0) ? custom100 : custom_100).toFixed(2) +"%"
-                                        );
-                                    }else if(formatter === "custom -100"){
-                                        let result = ( Math.round(((val.globals.series[1] - val.globals.series[0]) / val.globals.series[1] + Number.EPSILON) * 1000) / 1000 ) * 100;
-                                        let custom100 = ( (isNaN(result) || !isFinite(result)) ? 0: result -100 );
-                                        let custom_100 = ( 100 - (isNaN(result) || !isFinite(result) * 100) ? 0: result );
+                                    try {
+                                 
+                                        if(formatter === null || formatter === 'default' || formatter === 'cantidad'){
+                                            let result = (( Math.round((val.globals.series[0] / val.globals.series[1] + Number.EPSILON) * 1000) / 1000 ) * 100)
+                                            return (
+                                                (isNaN(result) || !isFinite(result) ? 0 + "%" : result).toFixed(2)+'%'
+                                            );
+                                        }else if (formatter === "customfix"){
+                                            let result = (val.globals.series[0] > val.globals.series[1] ? val.globals.series[1] / val.globals.series[0] : val.globals.series[0] /val.globals.series[1]);
+                                            return (Math.round((100 - (result * 100) + Number.EPSILON) * 1000) / 1000).toFixed(2) + "%"
+                                        }else if(formatter === "custom"){
+                                            let result = (( Math.round(((val.globals.series[1] - val.globals.series[0]) / val.globals.series[1] + Number.EPSILON) * 1000 ) / 1000) * 100);
+                                            let custom100 = ( isNaN(result) || !isFinite(result) ? 0: result + 100 );
+                                            let custom_100 = 100 + ( isNaN(result) || !isFinite(result) ? 0: result );
+                                            return (
+                                                ((!custom100 <  0) ? custom100 : custom_100).toFixed(2) +"%"
+                                            );
+                                        }else if(formatter === "custom -100"){
+                                            let result = ( Math.round(((val.globals.series[1] - val.globals.series[0]) / val.globals.series[1] + Number.EPSILON) * 1000) / 1000 ) * 100;
+                                            let custom100 = ( (isNaN(result) || !isFinite(result)) ? 0: result -100 );
+                                            let custom_100 = ( 100 - (isNaN(result) || !isFinite(result) * 100) ? 0: result );
 
-                                        return (
-                                            ((custom100 <  0 ? custom100 : custom_100) + 100).toFixed(2) +"%"
-                                        );
-                                    }else if(formatter !== 'volumen'){
-                                        let result = (( Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 1000) / 1000 ) * 100);
-                                        return (
-                                            ((isNaN(result) || !isFinite(result) ? 0+"%" : result).toFixed(2)+'%')
-                                        );
-                                    }else{
-                                        let result =  (Math.round((( val.globals.series[0] / val.globals.series[1] + Number.EPSILON ) * 1000) / 1000 )) * 100;
-                                        return(
-                                            (result > 100 ? 100 + '%' : result.toFixed(2)) +'%'
-                                        );
+                                            return (
+                                                ((custom100 <  0 ? custom100 : custom_100) + 100).toFixed(2) +"%"
+                                            );
+                                        }else if(formatter !== 'volumen'){
+                                            let result = (( Math.round(((val.globals.series[0] - val.globals.series[1]) / val.globals.series[0] + Number.EPSILON) * 1000) / 1000 ) * 100);
+                                            return (
+                                                ((isNaN(result) || !isFinite(result) ? 0+"%" : result).toFixed(2)+'%')
+                                            );
+                                        }else{
+                                            let result =  (Math.round((( val.globals.series[0] / val.globals.series[1] + Number.EPSILON ) * 1000) / 1000 )) * 100;
+                                            return(
+                                                (result > 100 ? 100 + '%' : result.toFixed(2)) +'%'
+                                            );
+                                        }
+
+                                    } catch (error) {
+                                        null;
                                     }
-                                        
                                 },
                                 style: {
                                     fontSize: "14px",

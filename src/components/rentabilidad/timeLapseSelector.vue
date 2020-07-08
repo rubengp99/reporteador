@@ -1,6 +1,6 @@
 <template>
     <v-col cols="12" :sm="!hideTitle ? '4' : '12'">
-        <v-row :style="!hideTitle ? 'margin:0;' : 'margin:-12px'" justify="center">
+        <v-row :style="!hideTitle ? 'margin:0;' : 'margin:-12px'" justify="center" v-if="!isDate">
             <!-- Select de Monedas -->
             <v-col v-if="!hideTitle" cols="12" sm="5" style="padding:0">
                 <v-card-title class="title"><span style="margin-left:auto;">Lapso de Tiempo</span></v-card-title>
@@ -19,6 +19,44 @@
                     menu-props="offset-y"
                 ></v-select>
             </v-col>
+        </v-row>
+        <v-row v-else>
+            <v-col cols="12" sm="6">
+                            <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
+                                <template v-slot:activator="{ on }">
+                                    <v-text-field
+                                        dense
+                                        v-model="localRangos[0]"
+                                        label="Desde"
+                                        placeholder="Formato YYYY/MM/DD."
+                                        prepend-icon="event"
+                                        outlined
+                                        v-on="on"
+                                        style="height: 39px;"
+                                    ></v-text-field>
+                                </template>
+
+                                <v-date-picker v-model="localRangos[0]" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
+                            </v-menu>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                            <v-menu :close-on-content-click="false" transition="scale-transition" max-width="100%" offset-overflow>
+                                <template v-slot:activator="{ on }">
+                                    <v-text-field
+                                        dense
+                                        v-model="localRangos[1]"
+                                        label="Hasta"
+                                        placeholder="Formato YYYY/MM/DD."
+                                        prepend-icon="event"
+                                        outlined
+                                        v-on="on"
+                                        style="height: 39px;"
+                                    ></v-text-field>
+                                </template>
+
+                                <v-date-picker v-model="localRangos[1]" landscape show-current  header-color="#005598" color="#005598"  locale="es"/>
+                            </v-menu>
+                        </v-col>
         </v-row>
     </v-col>
 </template>
