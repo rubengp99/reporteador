@@ -277,6 +277,7 @@ export default {
                             duration : 2000,
                             icon : 'error_outline'
                         });
+                        this.createBuyers();
                     }
                     
                     this.$forceUpdate();
