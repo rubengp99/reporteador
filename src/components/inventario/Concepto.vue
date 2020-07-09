@@ -3,7 +3,7 @@
         <v-dialog v-model="dialog" persistent transition="scale-transition" transition-mode="in-out">
             <v-card class="mx-auto" outlined>
                 <slot name="close"></slot>
-                <img v-if="selectedItem.stock === 0" src="@/assets/agotado.png" width="150px" height="75px" style="flex: 0 0 0%;position:absolute;top: 55px;left: 15px;z-index: 1;">
+                <img v-if="selectedItem.stock <= 0" src="@/assets/agotado.png" width="150px" height="75px" style="flex: 0 0 0%;position:absolute;top: 55px;left: 15px;z-index: 1;">
                 <v-list-item three-line>
                     <v-list-item-avatar tile size="150" color="grey lighten-1">
                         <img :src="typeof selectedItem.image === 'undefined'  || selectedItem.image === 'default.png' ? require('@/assets/box.svg') : image + selectedItem.image ">

@@ -83,13 +83,13 @@
                     <v-card style="background:#FAFAFA;" class="mx-auto hoverable" max-width="100%" height="100%" elevation="4" :to="{ name: 'concepto', params: {nombre: concept.nombre, id: concept.id, grupo:concept.adm_grupos_id, subgrupo: concept.adm_subgrupos_id}}">
                         <v-list-item three-line>
                             <v-list-item-content>
-                                <div class="overline mb-2"><span class="bold">{{apiConceptSalesAux[offset + i]}}</span> <br> unidades vendidas.</div>
+                                <div class="overline mb-2"><span class="bold">{{ typeof apiConceptSalesAux.find(i => i.id === concept.id) !== 'undefined' ? apiConceptSalesAux.find(i => i.id === concept.id).sales : 0 }}</span> <br> unidades vendidas.</div>
                                 <v-list-item-title class="subtitle-1 mb-1" style="line-height: 1.25rem;text-overflow:none;white-space:normal;word-wrap:nowrap;">
                                     {{concept.nombre}}
                                 </v-list-item-title>
                                 <v-list-item-title class="caption"> PUESTO {{offset + i + 1}}</v-list-item-title>
                             </v-list-item-content>
-                            <img v-if="apiStockAux.find(a => a.id === concept.id).existencias === 0 " src="@/assets/agotado.png" width="100px" height="50px" style="flex: 0 0 0%;position:absolute;top: 40px;right: 15px;z-index: 1;">
+                            <img v-if="typeof apiStockAux.find(a => a.id === concept.id) !== 'undefined' ? apiStockAux.find(a => a.id === concept.id).existencias <= 0 : 0" src="@/assets/agotado.png" width="100px" height="50px" style="flex: 0 0 0%;position:absolute;top: 40px;right: 15px;z-index: 1;">
                             <v-list-item-avatar tile size="100" color="grey">
                                 <v-img :src="concept.imagen === 'default.png' ? require('@/assets/box.svg') : image+concept.imagen"></v-img>
                             </v-list-item-avatar>
@@ -201,7 +201,10 @@ export default {
                 });
                 this.ranking = this.vuexConceptSales.data.data;
                 this.ranking.forEach(concept => {
-                    this.apiConceptSalesAux.push(accounting.formatMoney(+Math.trunc(concept.vendidos), { symbol   : "", thousand : ".", decimal  : ",", }).split(",")[0]);
+                    this.apiConceptSalesAux.push({
+                        sales: accounting.formatMoney(+Math.trunc(concept.vendidos), { symbol   : "", thousand : ".", decimal  : ",", }).split(",")[0],
+                        id: concept.id
+                    });
                 });
                 this.apiGroups = this.vuexGroups;
                 this.apiSubGroups = this.vuexSubGroups.data.data;
