@@ -1,12 +1,12 @@
 <template>
      <v-col cols="12">
-        <v-card v-show="loading" class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
+        <v-card v-if="loading" class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
             <v-spacer></v-spacer>
             <loader />
             <v-spacer></v-spacer>
         </v-card>
 
-        <v-card v-show="!loading" class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
+        <v-card v-else class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
             <v-card-title class="title" style="padding:5px;">
                 <v-spacer></v-spacer>
                 Clientes de tu Empresa

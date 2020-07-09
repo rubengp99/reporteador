@@ -264,13 +264,14 @@ export default {
 
                         this.loading = false;
                     }else if(this.dates.to !== "" && this.dates.from !== "") {
+                        this.dates.to = "";
+                        this.dates.from = "";
                         this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
                             theme: "bubble", 
                             position: "bottom-right", 
                             duration : 2000,
                             icon : 'error_outline'
                         });
-                        this.createSellers();
                     }
                 });
             }
