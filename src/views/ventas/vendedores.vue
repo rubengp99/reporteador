@@ -178,7 +178,7 @@ export default {
                     });
                 });
 
-                this.vendedoresFilt = this.vendedores
+                this.vendedoresFilt = this.vendedores.filter(i => i.name.contains(this.search));
 
                 this.loading = (this.vendedores.length === 0);
             }catch(e){
@@ -251,7 +251,7 @@ export default {
                             });
                         });
 
-                        this.vendedoresFilt = aux;
+                        this.vendedoresFilt = aux.filter(i => i.name.contains(this.search));;
 
                         this.$toasted.success("¡Ranking actualizado!", { 
                             theme: "bubble", 

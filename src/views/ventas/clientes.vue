@@ -182,7 +182,7 @@ export default {
                     });
                 });
 
-                this.compradoresFilt = this.compradores;
+                this.compradoresFilt = this.compradores.filter(i => i.name.contains(this.search));
                 this.loading = (this.compradores.length === 0);
             } catch (e) {
                 this.$toasted.error('Error al crear clientes. '+e,{ 
@@ -259,7 +259,7 @@ export default {
                             });
                         });
 
-                        this.compradoresFilt = aux;
+                        this.compradoresFilt = aux.filter(i => i.name.contains(this.search));
 
                         this.$toasted.success("¡Ranking actualizado!", { 
                             theme: "bubble", 
