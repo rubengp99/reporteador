@@ -1,12 +1,12 @@
 <template>
      <v-col cols="12">
-        <v-card v-if="loading" class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
+        <v-card v-show="loading" class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
             <v-spacer></v-spacer>
             <loader />
             <v-spacer></v-spacer>
         </v-card>
 
-        <v-card v-else class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
+        <v-card v-show="!loading" class="mx-auto" max-width="100vw" style="padding: 15px 25px;" :outlined="loading">
             <v-card-title class="title" style="padding:5px;">
                 <v-spacer></v-spacer>
                 Clientes de tu Empresa
@@ -182,7 +182,7 @@ export default {
                     });
                 });
 
-                this.compradoresFilt = this.compradores.filter(i => i.name.contains(this.search));
+                this.compradoresFilt = this.compradores.filter(i => i.name.includes(this.search));
                 this.loading = (this.compradores.length === 0);
             } catch (e) {
                 this.$toasted.error('Error al crear clientes. '+e,{ 
@@ -192,7 +192,7 @@ export default {
                     icon : 'error_outline'
                 })
             }
-           
+           this.$forceUpdate();
         }, 555),
         onResize() {
             if (window.innerWidth > 957){
@@ -228,7 +228,7 @@ export default {
                     duration : 2000,
                     icon : 'error_outline'
                 });
-            }else {
+            }else if(this.dates.to !== "" && this.dates.from !== ""){
                 this.results = false;
                 this.$toasted.info("Obteniendo registros...", { 
                     theme: "bubble", 
@@ -259,7 +259,7 @@ export default {
                             });
                         });
 
-                        this.compradoresFilt = aux.filter(i => i.name.contains(this.search));
+                        this.compradoresFilt = aux.filter(i => i.name.includes(this.search));
 
                         this.$toasted.success("¡Ranking actualizado!", { 
                             theme: "bubble", 
@@ -269,20 +269,24 @@ export default {
                         });
 
                         this.results = (aux.length > 0);
-                        this.loading = false;
-                    }else {
+                    }else if(this.dates.to !== "" && this.dates.from !== "") {
+                        this.dates.to = "";
+                        this.dates.from = "";
                         this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
                             theme: "bubble", 
                             position: "bottom-right", 
                             duration : 2000,
                             icon : 'error_outline'
                         });
-                        this.createBuyers();
                     }
-                    
-                    this.$forceUpdate();
                 });
             }
+
+            if(this.dates.to === "" && this.dates.from === "")
+                this.createBuyers();
+
+            this.loading = false;
+            this.$forceUpdate();
         },
         search:  _.debounce(async function () {
             if (this.search == "" || this.search == null) {

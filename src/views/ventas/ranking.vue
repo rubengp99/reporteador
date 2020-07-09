@@ -206,7 +206,7 @@ export default {
                 this.apiGroups = this.vuexGroups;
                 this.apiSubGroups = this.vuexSubGroups.data.data;
 
-                this.rankingFilt = this.ranking.filter(i => i.nombre.contains(this.search));
+                this.rankingFilt = this.ranking.filter(i => i.nombre.includes(this.search));
                 this.loading = this.ranking.length === 0;
             } catch (e) {
                 this.$toasted.error('Error al crear ranking de productos. '+e,{ 
@@ -248,7 +248,7 @@ export default {
                     duration : 2000,
                     icon : 'error_outline'
                 });
-            }else {
+            }else if(this.dates.to !== "" && this.dates.from !== "") {
                 this.results = false;
                 this.$toasted.info("Obteniendo registros...", { 
                     theme: "bubble", 
@@ -267,7 +267,7 @@ export default {
                             this.rankingFilt.forEach( b => b.vendidos = b.id === a.id ? a.vendidos : b.vendidos)
                         });
 
-                        this.rankingFilt = response.data.data.filter(i => i.nombre.contains(this.search));
+                        this.rankingFilt = response.data.data.filter(i => i.nombre.includes(this.search));
                         this.apiConceptSalesAux = [];
                         this.rankingFilt.forEach(concept => {
                             this.apiConceptSalesAux.push(accounting.formatMoney(+Math.trunc(concept.vendidos), { symbol   : "", thousand : ".", decimal  : ",", }).split(",")[0]);
@@ -282,18 +282,23 @@ export default {
                         this.results = (response.data.data.length > 0);
 
                         this.loading = false;
-                    }else {
+                    }else if(this.dates.to !== "" && this.dates.from !== "") {
                         this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
                             theme: "bubble", 
                             position: "bottom-right", 
                             duration : 2000,
                             icon : 'error_outline'
                         });
-                        this.createRanking();
                     }
                     this.$forceUpdate();
                 });
             }
+
+            if(this.dates.to === "" && this.dates.from === "")
+                this.this.createRanking();
+
+            this.loading = false;
+            this.$forceUpdate();
         },
         search:  _.debounce(async function () {
             if (this.search == "" || this.search == null) {

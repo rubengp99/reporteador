@@ -178,7 +178,7 @@ export default {
                     });
                 });
 
-                this.vendedoresFilt = this.vendedores.filter(i => i.name.contains(this.search));
+                this.vendedoresFilt = this.vendedores.filter(i => i.name.includes(this.search));
 
                 this.loading = (this.vendedores.length === 0);
             }catch(e){
@@ -222,7 +222,7 @@ export default {
                     duration : 2000,
                     icon : 'error_outline'
                 });
-            }else {
+            }else if(this.dates.to !== "" && this.dates.from !== "") {
                 this.results = false;
                 this.$toasted.info("Obteniendo registros...", { 
                     theme: "bubble", 
@@ -251,7 +251,7 @@ export default {
                             });
                         });
 
-                        this.vendedoresFilt = aux.filter(i => i.name.contains(this.search));;
+                        this.vendedoresFilt = aux.filter(i => i.name.includes(this.search));
 
                         this.$toasted.success("¡Ranking actualizado!", { 
                             theme: "bubble", 
@@ -263,7 +263,7 @@ export default {
                         this.results = (aux.length > 0);
 
                         this.loading = false;
-                    }else {
+                    }else if(this.dates.to !== "" && this.dates.from !== "") {
                         this.$toasted.error('¡Que pena! No hay información para este rango de fechas.', { 
                             theme: "bubble", 
                             position: "bottom-right", 
@@ -272,10 +272,14 @@ export default {
                         });
                         this.createSellers();
                     }
-                    
-                    this.$forceUpdate();
                 });
             }
+
+            if(this.dates.to === "" && this.dates.from === "")
+                this.createSellers();
+
+            this.loading = false;
+            this.$forceUpdate();
         },
         search:  _.debounce(async function () {
             if (this.search == "" || this.search == null) {
