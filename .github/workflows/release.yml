@@ -20,11 +20,7 @@ jobs:
       - name: Get latest tag
         id: get_latest_tag
         run: |
-          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || echo "")
-          if [ -z "$latest_tag" ]; then
-            echo "No tags found, setting latest_tag to v0.0.0"
-            latest_tag="v0.0.0"
-          fi
+          latest_tag=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo "v0.0.0")
           echo "Latest tag: $latest_tag"
           echo "::set-output name=latest_tag::$latest_tag"
 
@@ -40,27 +36,15 @@ jobs:
           minor="${version_parts[1]}"
           patch="${version_parts[2]}"
 
-          # Determine the next version
-          while true; do
-            if [ "$patch" -eq 9 ]; then
-              new_minor=$((minor + 1))
-              new_patch=0
-            else
-              new_minor=$minor
-              new_patch=$((patch + 1))
-            fi
-            new_version="v${major}.${new_minor}.${new_patch}"
-
-            # Check if the new version tag already exists
-            tag_exists=$(git tag -l "$new_version")
-            if [ -z "$tag_exists" ]; then
-              break
-            fi
-
-            # Update for next iteration
-            minor=$new_minor
-            patch=$new_patch
-          done
+          # Increment patch version
+          if [ "$patch" -eq 9 ]; then
+            new_minor=$((minor + 1))
+            new_patch=0
+            new_version="v${major}.${new_minor}.0"
+          else
+            new_patch=$((patch + 1))
+            new_version="v${major}.${minor}.${new_patch}"
+          fi
 
           echo "New version: $new_version"
           echo "::set-output name=new_version::$new_version"
