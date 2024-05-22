@@ -53,13 +53,28 @@ jobs:
           echo "New version: $new_version"
           echo "::set-output name=new_version::$new_version"
 
+      - name: Check if new tag already exists
+        id: check_tag_exists
+        run: |
+          new_version=${{ steps.calculate_next_version.outputs.new_version }}
+          tag_exists=$(git tag -l "$new_version")
+          if [ -n "$tag_exists" ]; then
+            echo "Tag $new_version already exists."
+            echo "::set-output name=tag_exists::true"
+          else
+            echo "Tag $new_version does not exist."
+            echo "::set-output name=tag_exists::false"
+          fi
+
       - name: Create new tag
+        if: steps.check_tag_exists.outputs.tag_exists == 'false'
         run: |
           new_version=${{ steps.calculate_next_version.outputs.new_version }}
           git tag "$new_version"
           git push origin "$new_version"
 
       - name: Create GitHub Release
+        if: steps.check_tag_exists.outputs.tag_exists == 'false'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
