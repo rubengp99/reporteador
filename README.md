@@ -2,7 +2,7 @@
 
 ## English description.
 
-This is a management system for financial intelligence developed during my internships at Somos Sistemas C.A. It is in charge of managing information related to the company that uses it, generating reports that represent support material for decision-making. This project is still under development..
+This is a management system for financial intelligence developed during my internships at Somos Sistemas C.A. It is in charge of managing information related to the company that uses it, generating reports that represent support material for decision-making. This project is still under development.
 
 ___
 
