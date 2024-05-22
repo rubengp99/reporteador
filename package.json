@@ -31,7 +31,7 @@
     "vue-router": "^3.1.5",
     "vue-toasted": "^1.1.28",
     "vue-toastr-2": "0.0.10",
-    "vuetify": "^2.2.11",
+    "vuetify": "^2.6.10",
     "vuex": "^3.1.2"
   },
   "devDependencies": {
